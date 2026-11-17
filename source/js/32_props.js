@@ -177,7 +177,7 @@ function atlasBuild() {
   g.save();
   g.fillStyle = '#f4f1e6'; g.font = 'bold 48px Arial, sans-serif';
   g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.fillText('Pista de teste Borghi Veículos', 512, 64, 984);
+  g.fillText('PISTA DE TESTE - BORGHI VEÍCULOS', 512, 64, 984);
   g.restore(); reg('name', 0, 0, 1024, 128);
   // setas de curva (chevrons)
   g.fillStyle = '#e9e6dc'; g.fillRect(1024, 0, 512, 128); g.fillStyle = '#b3160f';
