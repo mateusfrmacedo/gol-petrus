@@ -33,18 +33,26 @@ from PIL import Image as _Image
 RC = _json.load(open(os.path.join(W, 'ref360_cams.json')))
 def _proj(k, P):
     c = RC[k]; w, h = c['size']; K = np.array([[c['f'], 0, w / 2], [0, c['f'], h / 2], [0, 0, 1]])
-    uv, _ = _cv2.projectPoints(P.reshape(-1, 1, 3).astype(np.float64), np.array(c['r']), np.array(c['t']), K, None); return uv.reshape(-1, 2)
+    uv, _ = _cv2.projectPoints(P.reshape(-1, 1, 3).astype(np.float64), np.array(c['r']), np.array(c['t']), K, None); uv = uv.reshape(-1, 2)
+    if k in ('03', '09') and 'ctl' in c:   # vistas geradas de perfil: correção suave pelos pontos de controle (thin-plate)
+        from scipy.interpolate import RBFInterpolator
+        C = np.array(c['ctl']); uv = uv + RBFInterpolator(C[:, :2], C[:, 2:] - C[:, :2], kernel='thin_plate_spline', smoothing=2.0)(uv)
+    return uv
 cen = v[f].mean(1); fn = np.cross(v[f[:, 1]] - v[f[:, 0]], v[f[:, 2]] - v[f[:, 0]]); fn /= np.linalg.norm(fn, axis=1)[:, None] + 1e-12
-ATL_W = 1280; TILES = {}; atlas = _Image.new('RGBA', (ATL_W, 1300), (0, 0, 0, 0)); ty = 0
+ATL_W = 1280; TILES = {}; atlas = _Image.new('RGBA', (ATL_W, 2600), (0, 0, 0, 0)); ty = 0
 INS = []
+livre = np.ones(len(f), bool)
+lado = (np.abs(fn[:, 2]) > 0.45) & (cen[:, 1] > 0.2) & (cen[:, 1] < 0.93) & (cen[:, 0] > -1.80) & (cen[:, 0] < 1.72)
 for k, sel in (('00', (cen[:, 0] > 1.30) & (fn[:, 0] > 0.30) & (np.abs(cen[:, 2]) < 0.80) & (cen[:, 1] < 0.86)),
-               ('06', (cen[:, 0] < -1.40) & (fn[:, 0] < -0.25) & (np.abs(cen[:, 2]) < 0.82) & ((cen[:, 1] < 0.93) | (np.abs(cen[:, 2]) < 0.60)))):
+               ('06', (cen[:, 0] < -1.40) & (fn[:, 0] < -0.25) & (np.abs(cen[:, 2]) < 0.82) & ((cen[:, 1] < 0.93) | (np.abs(cen[:, 2]) < 0.60))),
+               ('03', lado & (cen[:, 2] < 0)), ('09', lado & (cen[:, 2] > 0))):
+    sel = sel & livre
     img = _Image.open(f'{W}/insertos/{k}_rgba.png'); A = np.array(img)
     uvp = _proj(k, v)                                                       # pixel na vista para cada vértice
     m = A[..., 3]; H_, W_ = m.shape
     ui = np.clip(np.round(uvp[:, 0]).astype(int), 0, W_ - 1); vi = np.clip(np.round(uvp[:, 1]).astype(int), 0, H_ - 1)
     mv = m[vi, ui]
-    tri = sel & (mv[f].max(1) > 12)
+    tri = sel & (mv[f].max(1) > 12); livre &= ~tri
     # recorte da vista que cobre os triângulos escolhidos, colocado no atlas
     pu = uvp[f[tri].ravel()]; x0, y0 = np.floor(pu.min(0)) - 4; x1, y1 = np.ceil(pu.max(0)) + 4
     x0, y0 = max(0, x0), max(0, y0); x1, y1 = min(W_, x1), min(H_, y1)
@@ -60,7 +68,7 @@ for k, tri, uvp in INS:
     ff = f[tri]; u_ = np.unique(ff); mp = -np.ones(len(v), int); mp[u_] = np.arange(len(u_))
     part('insert_' + k, 0, 12, 2, (0.74, 0.75, 0.75), v[u_] + n[u_] * 0.0005, n[u_], mp[ff], uv=np.stack([U[u_], Vv[u_]], 1))
     cls[tri] &= ~np.uint8(1)                                                # a pintura comum não desenha esses triângulos
-print('insertos: frente', int(INS[0][1].sum()), 'traseira', int(INS[1][1].sum()), 'tri; atlas', atlas.size, os.path.getsize(os.path.join(W, 'gol_atlas.webp')) // 1024, 'KiB')
+print('insertos:', [(k, int(t.sum())) for k, t, _ in INS], 'atlas', atlas.size, os.path.getsize(os.path.join(W, 'gol_atlas.webp')) // 1024, 'KiB')
 part('body', 0, GOL, 0, (1, 1, 1), v, n, f, cls=cls)
 import vidros
 for nome_, Vg, Ng, Fg in vidros.todos(off=-0.003, step=0.022):
@@ -116,7 +124,7 @@ for x in (-0.03, -0.96):
     for s in (1, -1):
         zb = body_z(x, 0.755)
         h = bl_rbox('handle', (0.13, 0.03, 0.03), 0.012, 3, loc=(x, 0.755, s * (zb + 0.004)))
-        P, N, T = blender_obj_to_arrays(h); part('handle', 0, GOL, 1, (1, 1, 1), P, N, T, corner=True)
+        pass   # maçanetas vêm da foto lateral (projetada)
 # ---------------- antena "barbatana" ----------------
 ya = surf_y(-1.28, 0.0)
 bpy.ops.mesh.primitive_uv_sphere_add(segments=24, ring_count=12, radius=1); a = bpy.context.object

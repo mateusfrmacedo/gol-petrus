@@ -12,6 +12,9 @@ VISTAS = {
         'WSt_L': (pt('WSt', -1), (1040.5, 211.6)), 'FOG_R': (pt('FOG', 1), (396.3, 829.5)), 'FOG_L': (pt('FOG', -1), (1127.9, 825.3)), 'HLin_R': (pt('HLin', 1), (545.8, 687.4)), 'HLin_L': (pt('HLin', -1), (966.8, 685.3))}),
  '06': ((1368, 1150), {'a': (PR(-0.2, 0.065), (543.5, 906)), 'b': (PR(0.2, 0.065), (818.5, 906)), 'c': (PR(0.2, -0.065), (818.5, 995)), 'd': (PR(-0.2, -0.065), (543.5, 995)),
         'VWR': (pt('VWR'), (689, 689)), 'BRK': (pt('BRK'), (686, 325)), 'RGb_L': (pt('RGb', -1), (305, 533)), 'RGb_R': (pt('RGb', 1), (1082, 533)), 'ANT': (pt('ANT'), (686, 158))}),
+ '09': ((1774, 887), {'W_FR': ([AX, g['rw'], g['zcf']], (1292, 712)), 'W_RR': ([-AX, g['rw'], g['zcr']], (286, 702)), 'G_FR': ([AX, 0, g['zcf'] - 0.05], (1292, 847)),
+        'G_RR': ([-AX, 0, g['zcr'] - 0.05], (286, 835)), 'DHF': (pt('DHF', 1), (747, 500)), 'DHR': (pt('DHR', 1), (382, 471)), 'FUEL': (pt('FUEL', 1), (226, 439)),
+        'VWF': (pt('VWF'), (1680, 509)), 'FOG': (pt('FOG', 1), (1551, 688)), 'ANT': (pt('ANT'), (447, 141))}),
  '03': ((1774, 887), {'W_FL': ([AX, g['rw'], -g['zcf']], (503.5, 738.8)), 'W_RL': ([-AX, g['rw'], -g['zcr']], (1561, 708)), 'G_FL': ([AX, 0, -(g['zcf'] - 0.05)], (503.5, 876)),
         'G_RL': ([-AX, 0, -(g['zcr'] - 0.05)], (1561, 841)), 'DHF': (pt('DHF', -1), (1065, 508)), 'DHR': (pt('DHR', -1), (1453, 467)), 'VWF': (pt('VWF'), (88, 553)), 'FOG': (pt('FOG', -1), (223.5, 739))}),
 }
@@ -24,6 +27,8 @@ for k, ((w, h), obs) in VISTAS.items():
         r, t = cv2.solvePnPRefineLM(P, uv, K, None, r, t); e = np.linalg.norm(cv2.projectPoints(P, r, t, K, None)[0].reshape(-1, 2) - uv, axis=1)
         if best is None or e.mean() < best[0]: best = (e.mean(), f, e, r.ravel(), t.ravel())
     m, f, e, r, t = best
-    out[k] = dict(r=r.tolist(), t=t.tolist(), f=float(f), size=[w, h], c=[0.0, 0.0], k1=0.0, err={n: float(v) for n, v in zip(nm, e)})
+    K = np.array([[f, 0, w / 2], [0, f, h / 2], [0, 0, 1]]); pj = cv2.projectPoints(P, r, t, K, None)[0].reshape(-1, 2)
+    out[k] = dict(r=r.tolist(), t=t.tolist(), f=float(f), size=[w, h], c=[0.0, 0.0], k1=0.0, err={n: float(v) for n, v in zip(nm, e)},
+                  ctl=np.hstack([pj, uv]).tolist())   # pontos de controle: projetado -> observado (correção suave da vista gerada)
     print(f'{k}: erro médio {m:.1f} px, máx {e.max():.1f}')
 json.dump(out, open(os.path.join(W, 'ref360_cams.json'), 'w'), indent=1)
