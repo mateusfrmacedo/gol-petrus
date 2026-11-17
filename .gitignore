@@ -1,0 +1,8 @@
+modelo/*.npy
+modelo/*.npz
+modelo/*.bin
+modelo/*.pkl
+modelo/*.png
+modelo/gol_meta.json
+__pycache__/
+.DS_Store
