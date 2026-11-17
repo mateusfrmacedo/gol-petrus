@@ -6,6 +6,19 @@ O arquivo inclui a carroceria branca, teto solar editável, quatro instâncias d
 
 As texturas e a fonte dos emblemas estão incorporadas no arquivo. A escala visual utiliza um comprimento de referência de 3,897 m. Perfil, largura e sulcos dos pneus e detalhes internos das lanternas foram reconstruídos visualmente a partir das imagens fornecidas.
 
+## Modelo integrado ao jogo
+
+O jogo utiliza uma exportação deste arquivo, com carroceria, vidros e rodas separados. As quatro rodas giram e esterçam com a física do veículo.
+
+Para atualizar a malha e o atlas do jogo a partir do Blender (Python com `bpy`, `numpy` e `Pillow`):
+
+```sh
+python modelo/exportar_blender_jogo.py
+node source/build.mjs
+```
+
+O exportador gera `source/js/30_car_a0_data.js` e `modelo/gol_atlas.webp`; o build incorpora esses recursos no `index.html` publicado.
+
 ## Prévias
 
 ![Vista traseira](traseira.png)

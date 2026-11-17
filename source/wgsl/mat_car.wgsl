@@ -383,6 +383,36 @@ fn surf(in: V2F, ff: bool) -> Surface {
           s.emissive = s.emissive + c * (led * (0.06 + 0.8 * br) + rev * sat(O.p0.y) * 0.6);
         } }
     }
+    case 20u: { // materiais e mapas exportados do Blender
+      let color = textureSample(tFoto, sLin, in.uv);
+      let flags = u32(round(pa));
+      s.albedo = color.rgb;
+      s.rough = max(0.07, f32(flags & 15u) / 15.0);
+      s.metal = f32(flags >> 4u) / 15.0;
+      s.coat = select(0.0, 0.35, s.rough < 0.4);
+      let mapped = pow(textureSample(tFoto, sLin, in.uv + vec2f(0.0, 0.5)).rgb, vec3f(1.0 / 2.2)) * 2.0 - 1.0;
+      let dp1 = dpdx(in.wpos); let dp2 = dpdy(in.wpos);
+      let uv1 = dpdx(in.uv); let uv2 = dpdy(in.uv);
+      let a = cross(dp2, s.normal); let b = cross(s.normal, dp1);
+      let tangent = a * uv1.x + b * uv2.x;
+      let bitangent = a * uv1.y + b * uv2.y;
+      let inv = inverseSqrt(max(max(dot(tangent, tangent), dot(bitangent, bitangent)), 1e-20));
+      let mappedNormal = tangent * inv * mapped.x + bitangent * inv * mapped.y + s.normal * mapped.z;
+      s.normal = normalize(mix(s.normal, mappedNormal, 0.7));
+      return s;
+    }
+    case 21u: { // cor sólida do Blender, incluindo a faixa preta do aerofólio
+      let flags = u32(round(pa));
+      s.rough = max(0.07, f32(flags & 15u) / 15.0);
+      s.metal = f32(flags >> 4u) / 15.0;
+      s.coat = select(0.0, 0.3, s.rough < 0.4);
+      return s;
+    }
+    case 22u: { // segmentos vermelhos e luz de freio
+      s.rough = 0.24; s.coat = 0.25;
+      s.emissive = 0.04 + 0.65 * sat(O.p0.x);
+      return s;
+    }
     case 19u: {   // roda de liga: face diamantada (a=0), grafite (a=1), disco de borrão (a=2), miolo com emblema VW (a=3)
       let r = length(lp.xy);
       if (pa < 0.5) {

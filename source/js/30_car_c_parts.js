@@ -36,11 +36,7 @@ function carBuildParts(mb, gl) {
   mb.mirror(v0, i0, 2); gl.mirror(gv0, gi0, 2);
   // ======================= peças não simétricas =======================
   // (sem rack nem escada: o Gol real não tem; carLadder fica no arquivo, sem uso)
-  // escapamento: silencioso transversal (aço fosco) + ponteira curta saindo para trás, como na foto
-  mb.mat(CM.STEEL, 1).color(0.03, 0.03, 0.032);
-  mb.push(m4translate(m4(), -1.50, 0.272, 0.0)); mb.push(m4rotX(m4(), PI / 2)); mb.cyl(0, 0, 0, 0.062, 0.34, 0.062, 20, true, true); mb.pop(); mb.pop();
-  mb.mat(CM.STEEL, 1).color(0.035, 0.035, 0.038);
-  mb.tube([[-1.51, 0.268, -0.38], [-1.70, 0.26, -0.38], [-1.90, 0.256, -0.38]], 0.019, 10);   // ponteira curta, escura, reta para trás
+  // Escapamento já incluído no modelo exportado do Blender.
   // volante: coluna fixa
   mb.mat(CM.INTERIOR, 3).color(0.04, 0.04, 0.045);
   mb.tube([[0.36, 0.875, -0.36], [0.56, 0.80, -0.36]], 0.03, 10);
