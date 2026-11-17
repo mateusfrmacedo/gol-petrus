@@ -1,8 +1,8 @@
-# Gol Petrus — Gol com escada
+# Gol Petrus
 
-**Um VW Gol G6 1.0 MSI branco, com uma escada de alumínio no teto, para pilotar num circuito de corrida, direto no navegador.**
+**Um VW Gol branco, rebaixado e com rodas 17, para pilotar num circuito de corrida, direto no navegador.**
 
-É o [Uno com escada](https://github.com/viktorkav/uno-com-escada) (versão do Fable 5.2), do canal [ViktorKav](https://www.youtube.com/@vkav), com o Uno trocado por um Gol de verdade: o carro foi modelado a partir de fotos de um Gol G6 branco de 4 portas com teto solar, aerofólio preto, lanternas fumê, rodas aro 17 grafite diamantadas e pinças de freio vermelhas. Pista, mata, céu, câmeras, física, painel e menus são os do jogo original.
+É o [Uno com escada](https://github.com/viktorkav/uno-com-escada) (versão do Fable 5.2), do canal [ViktorKav](https://www.youtube.com/@vkav), com o Uno trocado por um Gol de verdade, sem a escada no teto: o carro foi modelado a partir de fotos de um Gol G6 branco de 4 portas com teto solar, aerofólio preto, lanternas fumê, rodas aro 17 grafite diamantadas e pinças de freio vermelhas. Pista, mata, céu, câmeras, física, painel e menus são os do jogo original.
 
 ## Jogar
 
@@ -30,6 +30,7 @@ Para ver só o carro, sem a pista: abra a página com `#carro` no fim do endere�
 ## O que mudou em relação ao Uno com escada
 
 - **O carro, medido nas fotos.** As proporções vêm de fotos de rua do carro real. Pontos marcados em quatro fotos (cubos das rodas, placa, emblemas, maçanetas, quinas do para-brisa, antena) passam por um ajuste de feixes que resolve as câmeras e a posição 3D de cada ponto, com o entre-eixos de fábrica (2.466 mm) e a placa Mercosul como réguas. O resultado: carro rebaixado (soleira a 24 cm, teto a ~1,41 m), bitola de ~1,46 m e rodas 17. A carroceria é um campo de distância ajustado a esses pontos, extraído por *marching cubes* e limpo no Blender. Os vidros são painéis com a borda no contorno medido. As medidas e de onde veio cada uma estão em [`modelo/nota_medidas.md`](modelo/nota_medidas.md).
+- **Sem rack nem escada** no teto, como no carro real.
 - **A roda.** Traçada numa foto da roda retificada (5 troncos que se abrem em 10 braços usinados, com 10 raios finos grafite rebaixados entre eles, furação 4×100 e calota VW), extrudada com chanfro no Blender e conferida montada nas fotos do carro.
 - **Detalhes desenhados por pixel no shader** (`source/wgsl/mat_car.wgsl`, caso 18): molduras dos vidros, faróis com dois projetores, grade com frisos, grade inferior em colmeia com faróis de neblina, lanternas fumê com o desenho de LED que acende no freio, luz de freio no aerofólio, teto solar, aerofólio preto, vãos das portas, capô e tampa traseira, tampa de combustível e refletores. As mesmas regiões estão em `modelo/regions.py`.
 - **Placa Mercosul, emblemas VW, GOL e MSI** em decalques desenhados em canvas.

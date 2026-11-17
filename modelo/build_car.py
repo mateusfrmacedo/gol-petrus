@@ -89,13 +89,12 @@ bpy.ops.mesh.primitive_uv_sphere_add(segments=24, ring_count=12, radius=1); a = 
 a.scale = (0.09, 0.028, 0.055); a.location = (-1.28, 0, ya + 0.005); a.rotation_euler = (0, math.radians(-10), 0)
 for p in a.data.polygons: p.use_smooth = True
 bpy.context.view_layer.update(); P, N, T = blender_obj_to_arrays(a); part('antenna', 0, GOL, 1, (1, 1, 1), P, N, T, corner=True)
-# ---------------- pés do rack de teto ----------------
+# ---------------- altura do teto nas posições do antigo rack ----------------
 CRK_X = (0.0, -0.98); feet = {}
 for xb in CRK_X:
     for s in (1, -1):
         yr = surf_y(xb, 0.56); feet[xb] = yr
-        ft = bl_rbox('foot', (0.08, 0.075, 0.06), 0.012, 2, loc=(xb, yr + 0.03, s * 0.56))
-        P, N, T = blender_obj_to_arrays(ft); part('rackfoot', 0, STEEL, 0, (0.03, 0.03, 0.032), P, N, T, corner=True)
+        # (sem pés de rack: o Gol real não tem rack nem escada; a altura do teto fica registrada em barY)
 BAR_Y = max(feet.values()) + 0.075
 # ---------------- limpadores ----------------
 for (z0, z1) in ((0.40, -0.18), (-0.20, -0.68)):

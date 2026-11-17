@@ -1,4 +1,4 @@
-// Peças do carro que não vêm da malha do Gol: interior, piloto, rack + escada, escapamento, volante, placas e emblemas.
+// Peças do carro que não vêm da malha do Gol: interior, piloto, escapamento, volante, placas e emblemas.
 const CRK = { x0: 0.0, x1: -0.98, barY: GOL_META.barY, railZ: 0.205, lx0: -1.98, lx1: 1.22 };
 function carBuildParts(mb, gl) {
   const v0 = mb.nv, i0 = mb.ni, gv0 = gl.nv, gi0 = gl.ni;
@@ -35,10 +35,7 @@ function carBuildParts(mb, gl) {
   mb.mat(CM.INTERIOR).color(0.04, 0.04, 0.045); mb.box(-1.40, 0.925, 0.3, 0.28, 0.02, 0.6);
   mb.mirror(v0, i0, 2); gl.mirror(gv0, gi0, 2);
   // ======================= peças não simétricas =======================
-  // barras do rack + escada + cintas
-  mb.mat(CM.STEEL).color(0.035, 0.035, 0.038);
-  for (const xb of [CRK.x0, CRK.x1]) mb.rbox(xb, CRK.barY, 0, 0.036, 0.028, 1.2, 0.006, 2);
-  carLadder(mb);
+  // (sem rack nem escada: o Gol real não tem; carLadder fica no arquivo, sem uso)
   // escapamento: silencioso transversal (aço fosco) + ponteira curta saindo para trás, como na foto
   mb.mat(CM.STEEL, 1).color(0.03, 0.03, 0.032);
   mb.push(m4translate(m4(), -1.50, 0.272, 0.0)); mb.push(m4rotX(m4(), PI / 2)); mb.cyl(0, 0, 0, 0.062, 0.34, 0.062, 20, true, true); mb.pop(); mb.pop();
