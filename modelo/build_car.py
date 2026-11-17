@@ -21,13 +21,17 @@ keep = ~(fc < -0.014).all(1)
 cen = v[f].mean(1)
 cls = np.zeros(len(f), np.uint8)
 cls |= keep.astype(np.uint8) * 1
-cls |= (fc < 0.004).any(1).astype(np.uint8) * 2                                   # vidro
+# (vidros: painéis próprios gerados por vidros.py, ver abaixo)
 cls |= (R['hl'][f] < 0.003).any(1).astype(np.uint8) * 4                           # lente do farol
 cls |= (R['tl'][f] < 0.003).any(1).astype(np.uint8) * 8                           # lente da lanterna
 lin = (cen[:, 1] > 0.52) & (cen[:, 0] > -1.80) & (cen[:, 0] < 0.86) & (np.abs(cen[:, 2]) > 0.05)
 cls |= (lin & (cen[:, 1] <= 1.28)).astype(np.uint8) * 16                          # forro escuro
 cls |= (lin & (cen[:, 1] > 1.28)).astype(np.uint8) * 32                           # forro do teto (claro)
 part('body', 0, GOL, 0, (1, 1, 1), v, n, f, cls=cls)
+import vidros
+for nome_, Vg, Ng, Fg in vidros.todos(off=-0.003, step=0.022):
+    Fg = np.concatenate([Fg[:, [0, 1, 2]], Fg[:, [0, 2, 3]]])          # quads -> triângulos
+    part(nome_, 1, 0, 0, (0.16, 0.175, 0.18), Vg, Ng, Fg)
 # ---------------- utilitários de malha ----------------
 def surf_y(x, z):
     """altura da superfície do teto em (x, z) pelo campo de distância"""
@@ -120,88 +124,42 @@ for ax in (gs.AXF, gs.AXR):
         # gira em torno do cubo da roda (o bloco fica atrás/acima do eixo)
         part('caliper', 0, GOL, 2, (0.62, 0.03, 0.025), P, N, T, corner=True)
 
-# ---------------- roda: pneu 205/40 R17 e roda de liga com 5 raios em Y ----------------
-RW, RR, HW = 0.298, 0.216, 0.1025
+# ---------------- roda definitiva (roda.py: desenho traçado na foto 11.26.27) ----------------
+RW = 0.298
 def lathe(profile, seg, mat, pa, col, name):
     """perfil [(z, r)] em torno do eixo Z (face externa +Z)"""
-    pr = np.array(profile, float); m = len(pr)
-    ang = np.linspace(0, 2 * np.pi, seg + 1)[:-1]
-    V, Nn, F = [], [], []
+    pr = np.array(profile, float); m = len(pr); ang = np.linspace(0, 2 * np.pi, seg + 1)[:-1]; V, Nn, F = [], [], []
     for i, (z, r) in enumerate(pr):
-        # normal do perfil: perpendicular à tangente no plano (r, z)
-        a = pr[max(i - 1, 0)]; b = pr[min(i + 1, m - 1)]; tz, tr = b[0] - a[0], b[1] - a[1]
+        a_ = pr[max(i - 1, 0)]; b_ = pr[min(i + 1, m - 1)]; tz, tr = b_[0] - a_[0], b_[1] - a_[1]
         nr, nz = tz, -tr; l = math.hypot(nr, nz) or 1; nr /= l; nz /= l
-        for t in ang:
-            V.append((r * math.cos(t), r * math.sin(t), z)); Nn.append((nr * math.cos(t), nr * math.sin(t), nz))
+        for t in ang: V.append((r * math.cos(t), r * math.sin(t), z)); Nn.append((nr * math.cos(t), nr * math.sin(t), nz))
     for i in range(m - 1):
         for j in range(seg):
-            a0 = i * seg + j; a1 = i * seg + (j + 1) % seg; b0 = a0 + seg; b1 = a1 + seg
-            F += [(a0, b0, b1), (a0, b1, a1)]
+            a0 = i * seg + j; a1 = i * seg + (j + 1) % seg; F += [(a0, a0 + seg, a1 + seg), (a0, a1 + seg, a1)]
     part(name, 2, mat, pa, col, V, Nn, F)
-    return V, Nn, F
-# pneu: flanco interno, banda com 4 sulcos, flanco externo
-lathe([(-0.092, RR + 0.004), (-0.1, 0.235), (-0.104, 0.262), (-0.1, 0.282), (-0.092, 0.292)], 72, TIRE, 255, (0.02, 0.02, 0.021), 'tire_side_in')
-lathe([(0.092, 0.292), (0.1, 0.282), (0.104, 0.262), (0.1, 0.235), (0.092, RR + 0.004)], 72, TIRE, 255, (0.02, 0.02, 0.021), 'tire_side_out')
-tr = [(-0.092, 0.292), (-0.084, 0.297), (-0.07, RW)]
-for gz in (-0.045, -0.015, 0.015, 0.045): tr += [(gz - 0.006, RW), (gz - 0.005, RW - 0.007), (gz + 0.005, RW - 0.007), (gz + 0.006, RW)]
-tr += [(0.07, RW), (0.084, 0.297), (0.092, 0.292)]
-lathe(tr, 96, TIRE, 0, (0.02, 0.02, 0.021), 'tread')
-# aro: lábio diamantado, borda grafite e tambor interno escuro
-lathe([(0.093, RR + 0.006), (0.096, RR - 0.002), (0.094, RR - 0.012), (0.085, RR - 0.016)], 72, RIM, 0, (0.78, 0.79, 0.8), 'lip')
-lathe([(0.085, RR - 0.016), (0.07, RR - 0.02), (0.05, 0.19), (-0.09, 0.19), (-0.092, RR + 0.004)], 64, RIM, 1, (0.09, 0.095, 0.1), 'barrel')
-# disco de freio e cubo
-lathe([(-0.005, 0.07), (-0.005, 0.165), (-0.03, 0.165), (-0.03, 0.07)], 48, STEEL, 1, (0.18, 0.18, 0.19), 'disc')
-lathe([(0.0, 0.0), (0.0, 0.085), (0.035, 0.085), (0.05, 0.075)], 40, RIM, 1, (0.09, 0.095, 0.1), 'hubback')
-# face do cubo (pintada de grafite), com miolo diamantado onde fica o emblema
-lathe([(0.05, 0.075), (0.056, 0.06), (0.058, 0.032)], 48, RIM, 0, (0.78, 0.79, 0.8), 'hubface')
-lathe([(0.058, 0.032), (0.061, 0.0)], 48, RIM, 3, (0.8, 0.8, 0.82), 'hubcap')
-# raios: 5 pares em Y; cada braço sai do cubo e abre até o aro. Face externa diamantada, laterais grafite.
-def spoke(theta, sgn):
-    nr = 14; rs = np.linspace(0.07, 0.2, nr); V, Nn, Ff, Vs, Ns, Fs = [], [], [], [], [], []
-    for i, r in enumerate(rs):
-        u = (r - 0.07) / 0.13
-        th = theta + sgn * math.radians(1.5 + 9.5 * u ** 1.2)               # o braço abre conforme se afasta do centro
-        w = 0.034 - 0.008 * u                                                # largura
-        zf = 0.055 + 0.028 * u ** 1.3                                        # face côncava: mais funda no centro
-        zb = zf - 0.03
-        c, s_ = math.cos(th), math.sin(th); tx, ty = -s_, c                  # direção tangencial
-        cx, cy = r * c, r * s_
-        for (a, z) in ((-w / 2, zf), (w / 2, zf), (w / 2 + 0.006, zb), (-w / 2 - 0.006, zb)):
-            V.append((cx + tx * a, cy + ty * a, z))
-    V = np.array(V).reshape(nr, 4, 3)
-    def quadstrip(k0, k1, nrm_fn):
-        P, Nn, F = [], [], []
-        for i in range(nr):
-            for k in (k0, k1): P.append(V[i, k])
-        P = np.array(P)
-        for i in range(nr - 1):
-            a = 2 * i; F += [(a, a + 2, a + 3), (a, a + 3, a + 1)]
-        # normal pela geometria
-        Nn = np.zeros_like(P)
-        for (a, b, c) in F:
-            fn = np.cross(P[b] - P[a], P[c] - P[a]); Nn[a] += fn; Nn[b] += fn; Nn[c] += fn
-        Nn /= np.linalg.norm(Nn, axis=1)[:, None] + 1e-12
-        return P, Nn, np.array(F)
-    for (k0, k1, pa, col) in ((0, 1, 0, (0.8, 0.81, 0.82)), (1, 2, 1, (0.085, 0.09, 0.095)), (3, 0, 1, (0.085, 0.09, 0.095))):
-        P, Nn, F = quadstrip(k0, k1, None)
-        # orienta para fora: a face da frente aponta para +Z
-        if k0 == 0 and Nn[:, 2].mean() < 0: F = F[:, ::-1]; Nn = -Nn
-        if k0 != 0:
-            mid = V[:, :, :2].mean(1).mean(0); cen_ = P[:, :2].mean(0)
-            if ((cen_ - mid) * Nn[:, :2].mean(0)).sum() < 0: F = F[:, ::-1]; Nn = -Nn
-        part('spoke', 2, RIM, pa, col, P, Nn, F)
-for k in range(5):
-    th = math.radians(90 + k * 72)
-    spoke(th, 1); spoke(th, -1)
-# porcas (4 furos)
-for k in range(4):
-    a = math.radians(45 + k * 90); cx, cy = 0.05 * math.cos(a), 0.05 * math.sin(a)
-    seg = 12; V, Nn, F = [], [], []
-    for j in range(seg):
-        t = 2 * math.pi * j / seg; V.append((cx + 0.011 * math.cos(t), cy + 0.011 * math.sin(t), 0.058)); Nn.append((0, 0, 1))
-    V.append((cx, cy, 0.06)); Nn.append((0, 0, 1))
-    F = [(seg, j, (j + 1) % seg) for j in range(seg)]
-    part('lug', 2, CHROME, 1, (0.35, 0.35, 0.36), V, Nn, F)
+import roda
+C_R = bpy.data.collections.new('roda'); bpy.context.scene.collection.children.link(C_R)
+MAT_JOGO = {'Aluminio_usinado': (RIM, 0, (0.78, 0.79, 0.8)), 'Grafite_roda': (RIM, 1, (0.06, 0.064, 0.068)), 'Borracha_pneu': (TIRE, 0, (0.02, 0.02, 0.021)),
+            'Aco_disco': (STEEL, 1, (0.18, 0.18, 0.19)), 'Cromado': (CHROME, 1, (0.35, 0.35, 0.36)), 'Calota_emblema_VW': (RIM, 3, (0.8, 0.8, 0.82))}
+dg = bpy.context.evaluated_depsgraph_get()
+for ob in roda.construir(C_R):
+    if ob.name.startswith(('Roda_face', 'Roda_raios')):        # jogo: malha mais leve (o desenho fica, a densidade cai)
+        dm = ob.modifiers.new('dec', 'DECIMATE'); dm.ratio = 0.22; dm.use_symmetry = False
+    bpy.context.view_layer.update(); dg = bpy.context.evaluated_depsgraph_get()
+    e = ob.evaluated_get(dg); me = e.to_mesh(); me.calc_loop_triangles()
+    co = np.zeros(len(me.vertices) * 3); me.vertices.foreach_get('co', co); co = co.reshape(-1, 3)
+    nl = len(me.loops); cn = np.zeros(nl * 3); me.corner_normals.foreach_get('vector', cn); cn = cn.reshape(-1, 3)
+    lv_ = np.zeros(nl, int); me.loops.foreach_get('vertex_index', lv_)
+    tl = np.zeros(len(me.loop_triangles) * 3, int); me.loop_triangles.foreach_get('loops', tl); tl = tl.reshape(-1, 3)
+    tm = np.zeros(len(me.loop_triangles), int); me.loop_triangles.foreach_get('material_index', tm)
+    mw = np.array(ob.matrix_world); P = co[lv_] @ mw[:3, :3].T + mw[:3, 3]; N = cn @ np.linalg.inv(mw[:3, :3]); N /= np.linalg.norm(N, axis=1)[:, None] + 1e-12
+    for mi, slot in enumerate(me.materials):
+        sel = tm == mi
+        if not sel.any() or slot is None: continue
+        mat_, pa_, col_ = MAT_JOGO.get(slot.name, (RIM, 1, (0.1, 0.1, 0.1)))
+        # roda em coordenadas próprias: X, Y no plano da roda, Z para fora (sem trocar eixos)
+        part(ob.name, 2, mat_, pa_, col_, P, N, tl[sel], corner=True)
+    e.to_mesh_clear()
 # disco de borrão (raios girando): substitui os raios a partir de certa rotação
 lathe([(0.087, 0.0), (0.087, 0.205)], 48, RIM, 2, (0.42, 0.43, 0.44), 'blur')
 parts[-1]['dest'] = 3
@@ -222,7 +180,7 @@ for (name, y, z, front, w, h, lift) in (('plateF', 0.425, 0.0, True, 0.40, 0.13,
                                          ('golR', 0.735, -0.43, False, 0.115, 0.04, 0.003), ('msiR', 0.70, 0.43, False, 0.095, 0.03, 0.003)):
     p, nn = surf_x(y, z, front); p = [p[0] + nn[0] * lift, p[1] + nn[1] * lift, p[2] + nn[2] * lift]
     DEC.append(dict(name=name, p=p, n=nn, w=w, h=h))
-meta = dict(barY=float(BAR_Y), axf=gs.AXF, wheelR=RW, track=1.42, decals=DEC)
+meta = dict(barY=float(BAR_Y), axf=gs.AXF, wheelR=RW, track=1.456, decals=DEC)
 pass  # np.savez(os.path.join(W, 'gol_parts.npz'), parts=np.array([{**p, 'col': p['col'][:3], 'c': None} for p in parts], dtype=object))
 json.dump(meta, open(os.path.join(W, 'gol_meta.json'), 'w'))
 # ---------------- binário para o jogo ----------------

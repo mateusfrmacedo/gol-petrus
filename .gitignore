@@ -3,6 +3,9 @@ modelo/*.npz
 modelo/*.bin
 modelo/*.pkl
 modelo/*.png
+modelo/*.blend
+modelo/*.blend1
+modelo/renders/
 modelo/gol_meta.json
 __pycache__/
 .DS_Store

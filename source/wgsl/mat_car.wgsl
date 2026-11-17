@@ -10,7 +10,7 @@ fn carBulgeW(x: f32) -> f32 { return 0.055 * smoothstep(-0.15, 0.25, x) - 0.036 
 // ---------- VW Gol G6: regiões da carroceria (mesmas fórmulas de modelo/regions.py) ----------
 fn gsmax(a: f32, b: f32, k: f32) -> f32 { let h = clamp(0.5 - 0.5 * (b - a) / k, 0.0, 1.0); return a * h + b * (1.0 - h) + k * h * (1.0 - h); }
 fn grr(a: f32, b: f32, ha: f32, hb: f32, r: f32) -> f32 { let q = vec2f(abs(a) - ha + r, abs(b) - hb + r); return length(max(q, vec2f(0.0))) + min(max(q.x, q.y), 0.0) - r; }
-fn gbelt(x: f32) -> f32 { return 0.948 + 0.032 * clamp((0.70 - x) / 1.87, 0.0, 1.0); }
+fn gbelt(x: f32) -> f32 { return 0.921 + 0.05 * clamp((0.545 - x) / 1.6, 0.0, 1.0); }   // medida na foto 11.26.25
 fn gwg(y: f32) -> f32 { return 0.785 - 0.19 * pow(clamp((y - 0.95) / 0.45, 0.0, 1.2), 1.1); }
 fn gseg(p: vec2f, a: vec2f, b: vec2f) -> f32 { let ab = b - a; let t = clamp(dot(p - a, ab) / dot(ab, ab), 0.0, 1.0); return length(p - a - ab * t); }
 fn gcov(d: f32) -> f32 { let w = max(fwidth(d), 1e-5); return clamp(0.5 - d / w, 0.0, 1.0); }
@@ -19,18 +19,18 @@ fn gseam(p: vec3f, n: vec3f) -> f32 {
   let az = abs(p.z); var d = 1.0; let q = p.xy;
   if (abs(n.z) > 0.45 && az > 0.55) {
     let bl = gbelt(p.x);
-    d = min(d, gseg(q, vec2f(0.785, 0.24), vec2f(0.785, 0.94)));            // frente da porta dianteira
-    d = min(d, gseg(q, vec2f(-0.255, 0.24), vec2f(-0.255, gbelt(-0.255))));   // coluna B
+    d = min(d, gseg(q, vec2f(0.575, 0.28), vec2f(0.575, gbelt(0.575))));    // frente da porta dianteira (foto 11.26.25)
+    d = min(d, gseg(q, vec2f(-0.21, 0.28), vec2f(-0.21, gbelt(-0.21))));     // coluna B
     d = min(d, gseg(q, vec2f(-0.99, 0.66), vec2f(-0.99, gbelt(-0.99))));      // traseira da porta de trás
     if (p.x < -0.99 && p.x > -1.25 && p.y > 0.3 && p.y < 0.68) { d = min(d, abs(length(q - vec2f(-1.2335, 0.298)) - 0.40)); }
-    d = min(d, gseg(q, vec2f(-1.06, 0.245), vec2f(0.785, 0.245)));           // base das portas
+    d = min(d, gseg(q, vec2f(-1.0, 0.28), vec2f(0.575, 0.28)));              // base das portas
     if (p.z > 0.0) { d = min(d, abs(length(q - vec2f(-1.37, 0.835)) - 0.072)); }   // tampa de combustível (lado direito)
   }
   if (p.x > 1.5 && p.y < 0.7) { d = min(d, abs(p.y - 0.668)); }                // para-choque dianteiro × farol/para-lama
   if (p.x < -1.5 && p.y < 0.62) { d = min(d, abs(p.y - 0.57)); }               // para-choque traseiro
-  if (n.y > 0.3 && p.x > 0.8 && p.y > 0.75) {                                   // capô
-    d = min(d, select(1.0, abs(p.x - 0.845), az < 0.7));
-    d = min(d, select(1.0, abs(az - 0.70), p.x > 0.845 && p.x < 1.72));
+  if (n.y > 0.3 && p.x > 0.95 && p.y > 0.72) {                                   // capô
+    d = min(d, select(1.0, abs(p.x - 1.02), az < 0.66));
+    d = min(d, select(1.0, abs(az - 0.66), p.x > 1.02 && p.x < 1.78));
   }
   if (p.x < -1.6 && n.x < -0.3) {                                               // tampa traseira em volta das lanternas
     d = min(d, select(1.0, abs(az - 0.505), p.y > 0.57 && p.y < 0.88));
@@ -285,14 +285,18 @@ fn surf(in: V2F, ff: bool) -> Surface {
       let well = max(gcov(arch), (1.0 - smoothstep(0.205, 0.215, y)) * step(nO.y, 0.2));
       if (well > 0.0) { s.albedo = mix(s.albedo, vec3f(0.01), well); s.coat *= 1.0 - well; s.rough = mix(s.rough, 0.95, well); s.ao = min(s.ao, 1.0 - 0.5 * well); }
       // vidros: a borda em volta do furo vira moldura preta brilhante (o vidro cobre o resto)
-      let fz = ((x - 0.70) * 0.352 + (y - 0.948) * 0.42) / 0.548; let rz = ((x + 1.165) * -0.32 + (y - 0.985) * 0.19) / 0.372;
-      let dlo = max(gsmax(gsmax(gbelt(x) - y, y - 1.322, 0.03), gsmax(fz, rz, 0.05), 0.05), (0.45 - abs(nO.z)) * 0.2);
-      let ws = max(gsmax(gsmax(0.252 - x, x - 0.762, 0.03), az - (gwg(y) - 0.085), 0.06), (0.15 - nO.x) * 0.2 + select(0.0, 1.0, y < 0.9));
-      let rg = max(gsmax(gsmax(1.012 - y, y - 1.262, 0.03), az - (gwg(y) - 0.095), 0.07), (nO.x + 0.12) * 0.2 + select(0.0, 1.0, x > -1.3));
+      // contornos medidos nas fotos (iguais a modelo/regions.py)
+      let fz = ((x - 0.545) * 0.338 + (y - 0.921) * 0.329) / 0.4717;
+      let r1 = ((x + 1.053) * -0.13 + (y - 0.97) * -0.087) / 0.156; let r2 = ((x + 0.988) * -0.164 + (y - 1.261) * 0.152) / 0.2236;
+      let dlo = max(gsmax(gsmax(gbelt(x) - y, y - 1.272, 0.03), gsmax(fz, gsmax(r1, r2, 0.05), 0.04), 0.04), (0.45 - abs(nO.z)) * 0.2);
+      let wzf = 0.624 - 0.089 * (y - 0.975) / 0.344;
+      let ws = max(gsmax(gsmax(0.235 - x, x - 0.975, 0.03), az - wzf, 0.04), (0.15 - nO.x) * 0.2 + select(0.0, 1.0, y < 0.9));
+      let wzr = 0.58 - 0.05 * (y - 1.0) / 0.27;
+      let rg = max(gsmax(gsmax(0.998 - y, y - 1.266, 0.03), az - wzr, 0.05), (nO.x + 0.12) * 0.2 + select(0.0, 1.0, x > -1.3));
       let gd = min(min(dlo, ws), rg);
       black = max(black, gcov(gd - 0.009));
       // grade da base do para-brisa
-      black = max(black, gcov(max(max(0.75 - x, x - 0.86), max(az - 0.66, 0.3 - nO.y))));
+      black = max(black, gcov(max(max(0.975 - x, x - 1.08), max(az - 0.62, 0.3 - nO.y))));
       // aerofólio preto brilhante e teto solar
       let spo = max(1.272 - y, x + 1.31); black = max(black, gcov(spo));
       let sun = max(grr(x - 0.22, lp.z, 0.36, 0.40, 0.05), 0.7 - nO.y);

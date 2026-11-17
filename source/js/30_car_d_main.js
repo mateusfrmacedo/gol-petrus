@@ -1,7 +1,7 @@
 // Montagem do carro, contrato com o jogo (CAR) e visualizador isolado (?scene=car).
 const CAR = {
-  wheelbase: 2.467, trackF: 1.42, trackR: 1.42, wheelR: 0.298,
-  hubs: [[1.2335, 0.298, -0.71], [1.2335, 0.298, 0.71], [-1.2335, 0.298, -0.71], [-1.2335, 0.298, 0.71]],
+  wheelbase: 2.467, trackF: 1.456, trackR: 1.456, wheelR: 0.298,
+  hubs: [[1.2335, 0.298, -0.728], [1.2335, 0.298, 0.728], [-1.2335, 0.298, -0.728], [-1.2335, 0.298, 0.728]],
   slotBody: 0, slotWheel: [0, 0, 0, 0], slotSteer: 0,
   steerMat: m4(), tris: 0, _t: m4(), _t2: m4(), _t3: m4(), set: null, glass: null, atlasBG: null, fam: null,
   build() {

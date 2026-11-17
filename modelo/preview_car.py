@@ -27,7 +27,7 @@ for p in P:
         for (hx,s) in ((1.2335,1),(1.2335,-1),(-1.2335,1),(-1.2335,-1)):
             vv=v.copy(); nn=n.copy()
             if s<0: vv[:,0]*=-1; vv[:,2]*=-1; nn[:,0]*=-1; nn[:,2]*=-1
-            vv[:,0]+=hx; vv[:,1]+=0.298; vv[:,2]+=s*0.71
+            vv[:,0]+=hx; vv[:,1]+=0.298; vv[:,2]+=s*0.728
             # eixo da roda: local Z -> lateral (já é Z do jogo); local X,Y no plano da roda
             add(p['name'],vv,nn,f,col,0.35,0.6 if p['mat']==19 else 0.0)
         continue

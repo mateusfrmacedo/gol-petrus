@@ -29,7 +29,8 @@ Para ver só o carro, sem a pista: abra a página com `#carro` no fim do endere�
 
 ## O que mudou em relação ao Uno com escada
 
-- **O carro.** A carroceria do Gol G6 é um campo de distância assinado (silhueta lateral medida na foto de lado, planta e seção frontal com cantos suavizados, caixas de roda). A malha sai por *marching cubes*, passa pelo Blender (fusão de vértices, redução *decimate* com simetria, verificação de arestas não-manifold) e cada vértice é reprojetado na superfície exata, com a normal tirada do gradiente do campo. Retrovisores, maçanetas, antena, limpadores, pés do rack e pinças saem do Blender com *bevel*. As rodas de 5 raios em Y, o pneu 205/40 R17 e o disco de freio são gerados em Python.
+- **O carro, medido nas fotos.** As proporções vêm de fotos de rua do carro real. Pontos marcados em quatro fotos (cubos das rodas, placa, emblemas, maçanetas, quinas do para-brisa, antena) passam por um ajuste de feixes que resolve as câmeras e a posição 3D de cada ponto, com o entre-eixos de fábrica (2.466 mm) e a placa Mercosul como réguas. O resultado: carro rebaixado (soleira a 24 cm, teto a ~1,41 m), bitola de ~1,46 m e rodas 17. A carroceria é um campo de distância ajustado a esses pontos, extraído por *marching cubes* e limpo no Blender. Os vidros são painéis com a borda no contorno medido. As medidas e de onde veio cada uma estão em [`modelo/nota_medidas.md`](modelo/nota_medidas.md).
+- **A roda.** Traçada numa foto da roda retificada (5 troncos que se abrem em 10 braços usinados, com 10 raios finos grafite rebaixados entre eles, furação 4×100 e calota VW), extrudada com chanfro no Blender e conferida montada nas fotos do carro.
 - **Detalhes desenhados por pixel no shader** (`source/wgsl/mat_car.wgsl`, caso 18): molduras dos vidros, faróis com dois projetores, grade com frisos, grade inferior em colmeia com faróis de neblina, lanternas fumê com o desenho de LED que acende no freio, luz de freio no aerofólio, teto solar, aerofólio preto, vãos das portas, capô e tampa traseira, tampa de combustível e refletores. As mesmas regiões estão em `modelo/regions.py`.
 - **Placa Mercosul, emblemas VW, GOL e MSI** em decalques desenhados em canvas.
 - **Vidros com película escura** nas laterais e na vigia.
@@ -44,18 +45,19 @@ O jogo é um único `index.html` montado a partir de `source/`. Com o [Node.js](
 node source/build.mjs
 ```
 
-A malha do Gol fica embutida em `source/js/30_car_a0_data.js` (compactada). Para gerar de novo a partir do modelo, com Python 3, `numpy`, `scipy`, `scikit-image`, `matplotlib` e `bpy` (o Blender como módulo: `pip install bpy`):
+A malha do Gol fica embutida em `source/js/30_car_a0_data.js` (compactada). Para gerar de novo, com Python 3, `numpy`, `scipy`, `scikit-image`, `matplotlib`, `opencv-python` e `bpy` (o Blender como módulo: `pip install bpy`):
 
 ```bash
 cd modelo
+python3 fotogrametria.py           # câmeras das fotos e pontos 3D (fotogrametria.json)
 python3 gen_body.py 0.0065         # campo de distância + marching cubes
 python3 process_body.py 52000 0    # Blender: limpeza, decimate, reprojeção e normais
-python3 build_car.py               # peças, vidros, rodas e o binário do jogo
+python3 build_car.py               # peças, vidros, roda e o binário do jogo
 python3 emit_js.py ../source/js/30_car_a0_data.js
 cd .. && node source/build.mjs
 ```
 
-`modelo/render.py` e `modelo/preview_car.py` renderizam o carro no Blender (Cycles) em vistas fixas para comparar com as fotos. Os arquivos intermediários ficam na própria pasta `modelo/`. As fotos de referência não estão no repositório; `overlay.py` espera a foto lateral no caminho indicado dentro dele.
+Conferência no Blender: `cena.py bloco_roda` monta a cena com as câmeras casadas com as fotos e salva `gol_bloco_roda.blend`; `sobrepor.py bloco_roda` gera as sobreposições; `render_roda.py` faz o close da roda. Esses três precisam das fotos de referência, que não estão no repositório: aponte a pasta delas em `FOTOS` (e as vistas geradas em `REF360`).
 
 ## Créditos e licença
 
