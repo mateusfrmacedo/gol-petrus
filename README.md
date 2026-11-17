@@ -27,7 +27,6 @@ Para ver só o carro, sem a pista: abra a página com `#carro` no fim do endere�
 
 `M` liga e desliga o som, `H` mostra o desempenho, `B` roda o benchmark, `F` mostra a volta roteirizada e `1` a `6` pulam para as poses fixas de câmera.
 
-## O que mudou em relação ao Uno com escada
 
 - **O carro, medido nas fotos.** As proporções vêm de fotos de rua do carro real. Pontos marcados em quatro fotos (cubos das rodas, placa, emblemas, maçanetas, quinas do para-brisa, antena) passam por um ajuste de feixes que resolve as câmeras e a posição 3D de cada ponto, com o entre-eixos de fábrica (2.466 mm) e a placa Mercosul como réguas. O resultado: carro rebaixado (soleira a 24 cm, teto a ~1,41 m), bitola de ~1,46 m e rodas 17. A carroceria é um campo de distância ajustado a esses pontos, extraído por *marching cubes* e limpo no Blender. Os vidros são painéis com a borda no contorno medido. As medidas e de onde veio cada uma estão em [`modelo/nota_medidas.md`](modelo/nota_medidas.md).
 - **Sem rack nem escada** no teto, como no carro real.
