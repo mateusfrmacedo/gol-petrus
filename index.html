@@ -4334,8 +4334,8 @@ async function golDecode() {
     let a = 0; for (let i = 0; i < p.nI; i++) { a = (a + u16()) & 0xffff; I[i] = a; }
     if (p.hasCls & 1) { p.cls = buf.slice(o, o + p.nI / 3); o += p.nI / 3; }
     if (p.hasCls & 2) {   // coordenadas de textura (insertos fotográficos), 16 bits em deltas
-      const U = p.uv = new Float32Array(p.nV * 2); let a = 0;
-      for (let i = 0; i < p.nV * 2; i++) { a = (a + u16()) & 0xffff; U[i] = a / 65535; }
+      const U = p.uv = new Float32Array(p.nV * 2); let au = 0, av = 0;   // u e v intercalados, cada um com seu acumulador
+      for (let i = 0; i < p.nV; i++) { au = (au + u16()) & 0xffff; av = (av + u16()) & 0xffff; U[i * 2] = au / 65535; U[i * 2 + 1] = av / 65535; }
     }
   }
   GOL.parts = hdr;
