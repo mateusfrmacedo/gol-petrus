@@ -1,6 +1,5 @@
 """Monta todas as peças do Gol e grava gol_parts.npz (pré-visualização) e gol_mesh.bin (jogo).
 Peças de superfície dura (retrovisores, antena, maçanetas) saem do Blender com bevel + weighted normal."""
-import os; W = os.path.dirname(os.path.abspath(__file__))
 import numpy as np, sys, math, json, zlib, struct, os
 sys.path.insert(0, W)
 import regions as RG, gol_shape as gs
@@ -68,6 +67,8 @@ for k, sel in ((kk, (best == i) & (bestv > 0.45)) for i, kk in enumerate(ks)):
     if crop.width > ATL_W: crop = crop.resize((ATL_W, int(crop.height * ATL_W / crop.width)), _Image.LANCZOS)
     atlas.paste(crop, (0, ty)); sx = crop.width / (x1 - x0); sy = crop.height / (y1 - y0)
     TILES[k] = (x0, y0, sx, sy, ty); INS.append((k, tri, uvp)); ty += crop.height + 8
+_rw = _Image.open(os.environ.get('RODA_IMG', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'RodaGol.png'))).convert('RGBA').resize((640, 640), _Image.LANCZOS)
+atlas.paste(_rw, (0, ty)); TILES['roda'] = (0, 0, 640 / 1254.0, 640 / 1254.0, ty); ty += 640 + 8
 atlas = atlas.crop((0, 0, ATL_W, ty))
 atlas.save(os.path.join(W, 'gol_atlas.webp'), 'WEBP', quality=88, method=6)
 for k, tri, uvp in INS:
@@ -186,14 +187,14 @@ def lathe(profile, seg, mat, pa, col, name):
         for j in range(seg):
             a0 = i * seg + j; a1 = i * seg + (j + 1) % seg; F += [(a0, a0 + seg, a1 + seg), (a0, a1 + seg, a1)]
     part(name, 2, mat, pa, col, V, Nn, F)
-import roda
+import roda, roda2
 C_R = bpy.data.collections.new('roda'); bpy.context.scene.collection.children.link(C_R)
 MAT_JOGO = {'Aluminio_usinado': (RIM, 0, (0.78, 0.79, 0.8)), 'Grafite_roda': (RIM, 1, (0.06, 0.064, 0.068)), 'Borracha_pneu': (TIRE, 0, (0.02, 0.02, 0.021)),
             'Aco_disco': (STEEL, 1, (0.18, 0.18, 0.19)), 'Cromado': (CHROME, 1, (0.35, 0.35, 0.36)), 'Calota_emblema_VW': (RIM, 3, (0.8, 0.8, 0.82))}
 dg = bpy.context.evaluated_depsgraph_get()
-for ob in roda.construir(C_R):
-    if ob.name.startswith(('Roda_face', 'Roda_raios')):        # jogo: malha mais leve (o desenho fica, a densidade cai)
-        dm = ob.modifiers.new('dec', 'DECIMATE'); dm.ratio = 0.22; dm.use_symmetry = False
+for ob in roda2.construir(C_R):
+    if ob.name.startswith(('Roda_base', 'Roda_usinada')):      # jogo: malha mais leve (o desenho fica, a densidade cai)
+        dm = ob.modifiers.new('dec', 'DECIMATE'); dm.ratio = 0.3; dm.use_symmetry = False
     bpy.context.view_layer.update(); dg = bpy.context.evaluated_depsgraph_get()
     e = ob.evaluated_get(dg); me = e.to_mesh(); me.calc_loop_triangles()
     co = np.zeros(len(me.vertices) * 3); me.vertices.foreach_get('co', co); co = co.reshape(-1, 3)
@@ -205,6 +206,10 @@ for ob in roda.construir(C_R):
     for mi, slot in enumerate(me.materials):
         sel = tm == mi
         if not sel.any() or slot is None: continue
+        if slot.name == 'Roda_foto':   # faces de frente: a imagem da roda como textura (UV planar)
+            x0_, y0_, sx_, sy_, ty0_ = TILES['roda']
+            U_ = (roda2.C0 + P[:, 0] * roda2.S) * sx_ / ATL_W; V_ = ((roda2.C1 - P[:, 1] * roda2.S) * sy_ + ty0_) / atlas.height
+            part(ob.name, 2, 12, 2, (0.8, 0.8, 0.8), P, N, tl[sel], corner=True, uv=np.stack([U_, V_], 1)); continue
         mat_, pa_, col_ = MAT_JOGO.get(slot.name, (RIM, 1, (0.1, 0.1, 0.1)))
         # roda em coordenadas próprias: X, Y no plano da roda, Z para fora (sem trocar eixos)
         part(ob.name, 2, mat_, pa_, col_, P, N, tl[sel], corner=True)
@@ -243,8 +248,10 @@ def delta16(a):   # a: int array (n, k) -> deltas por coluna, embrulhados em 16 
 hdr = bytearray(struct.pack('<I', len(parts))); body = bytearray()
 for p in parts:
     V = p['v']; Nn = p['n']; F = p['f']
+    UVp = p.get('uv')
     if p.get('corner'):
         idx = F.ravel(); V = V[idx]; Nn = Nn[idx]; F = np.arange(len(idx)).reshape(-1, 3)
+        if UVp is not None: UVp = UVp[idx]
     if p.get('twosided'):
         F = np.concatenate([F, F[:, ::-1]])
     c = [int(round(max(0, min(1, x)) * 255)) for x in p['col']]
@@ -255,7 +262,7 @@ for p in parts:
     body += delta16(oct16(Nn)).tobytes()
     body += delta16(F.reshape(-1, 1).astype(np.int64)).tobytes()
     if hcls & 1: body += p['cls'].tobytes()
-    if hcls & 2: body += delta16(np.clip(np.round(p['uv'] * 65535), 0, 65535).astype(np.int64)).tobytes()
+    if hcls & 2: body += delta16(np.clip(np.round(UVp * 65535), 0, 65535).astype(np.int64)).tobytes()
 raw = bytes(hdr) + bytes(body); comp = zlib.compress(raw, 9)
 open(os.path.join(W, 'gol_mesh.bin'), 'wb').write(comp)
 pickle_parts = [{k: p[k] for k in p} for p in parts]

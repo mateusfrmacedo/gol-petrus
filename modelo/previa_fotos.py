@@ -45,13 +45,16 @@ for p in P:
         gd = np.minimum(np.minimum(R['dlo'], R['ws']), R['rg']); blk = (gd < 0.009) | (R['spo'] < 0) | (R['sun'] < 0)
         obj('Carroceria', V, Fb, N, PINT, cols=blk[Fb].mean(1) > 0.5); continue
     if p['dest'] == 3: continue
-    if p.get('uv') is not None: obj(p['name'], V, F, N, INS, uv=p['uv']); continue
+    if p.get('uv') is not None and p['dest'] != 2: obj(p['name'], V, F, N, INS, uv=p['uv']); continue
     if p['dest'] == 1: obj(p['name'], V, F, N, VID); continue
     if p['dest'] == 2:
         for (hx, s) in ((AX, 1), (AX, -1), (-AX, 1), (-AX, -1)):
             vv = V.copy(); nn = N.copy()
             if s < 0: vv[:, 0] *= -1; vv[:, 2] *= -1; nn[:, 0] *= -1; nn[:, 2] *= -1
             vv = vv + np.array([hx, 0.298, s * 0.728])
+            if p.get('uv') is not None:
+                UVp = p['uv'] if not p.get('corner') else p['uv'][p['f'].ravel()]
+                obj(p['name'], vv, F, nn, INS, uv=UVp); continue
             mm = mat('roda_%d_%d' % (p['mat'], p['pa']), p['col'], 0.3 if p['mat'] != 4 else 0.85, 0.8 if p['mat'] == 19 and p['pa'] == 0 else 0.0)
             obj(p['name'], vv, F, nn, mm)
         continue

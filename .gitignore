@@ -10,3 +10,4 @@ modelo/renders/
 modelo/gol_meta.json
 __pycache__/
 .DS_Store
+!modelo/RodaGol.png
