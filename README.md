@@ -71,3 +71,9 @@ Jogo original: [Uno com escada](https://github.com/viktorkav/uno-com-escada), de
 [PolyForm Noncommercial 1.0.0](LICENSE.md): livre para usar, estudar, mudar e compartilhar sem fim comercial.
 
 Required Notice: Copyright (c) 2026 ViktorKav (https://github.com/viktorkav/uno-com-escada)
+
+## Borghi Veículos e músicas
+
+Os painéis publicitários usam a logo fornecida da **Borghi Veículos**, com algumas placas dedicadas a **Nova Aliança**. O Gol usa a placa PETRUS e o aplique preto acompanha a moldura do para-choque traseiro.
+
+Adicione MP3 à pasta [musica](musica/) na branch `main`. Depois da publicação do GitHub Pages, recarregue o jogo: **P** toca/pausa e **0** troca de faixa. As faixas avançam automaticamente e seguem a ordem dos nomes dos arquivos. Veja as instruções na pasta.

@@ -2,7 +2,7 @@
 
 [Baixar o modelo editável do Blender](gol-branco.blend)
 
-O arquivo inclui a carroceria branca, teto solar editável, quatro instâncias da roda aro 17, pneus de perfil baixo com textura e sulcos, aerofólio com faixa preta estreita, lanternas fumê, aplique reduzido no nicho da placa e emblemas GOL, MSI e VW.
+O arquivo inclui a carroceria branca, teto solar editável, quatro instâncias da roda aro 17, pneus de perfil baixo com textura e sulcos, aerofólio com faixa preta estreita, lanternas fumê, aplique preto alinhado ao rebaixo do para-choque, placa PETRUS original na frente e atrás e emblemas GOL, MSI e VW.
 
 As texturas e a fonte dos emblemas estão incorporadas no arquivo. A escala visual utiliza um comprimento de referência de 3,897 m. Perfil, largura e sulcos dos pneus e detalhes internos das lanternas foram reconstruídos visualmente a partir das imagens fornecidas.
 

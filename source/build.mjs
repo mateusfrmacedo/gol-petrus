@@ -18,6 +18,11 @@ for (const f of ls('wgsl', '.wgsl')) {
   if (s.includes('`') || s.includes('${')) throw new Error('wgsl com crase: ' + f);
   wg += `WGSL[${JSON.stringify(f.replace('.wgsl', ''))}] = \`${s.replace(/\\/g, '\\\\')}\`;\n`;
 }
+// Reserva local para a rádio quando a API pública do GitHub estiver indisponível.
+const musicDir = path.join(here, '..', 'musica');
+fs.mkdirSync(musicDir, { recursive: true });
+const tracks = fs.readdirSync(musicDir, { withFileTypes: true }).filter(f => f.isFile() && /\.mp3$/i.test(f.name)).map(f => f.name).sort();
+fs.writeFileSync(path.join(musicDir, 'playlist.json'), JSON.stringify(tracks, null, 2) + '\n');
 let js = '';
 for (const f of ls('js', '.js')) {
   let s = fs.readFileSync(path.join(src, 'js', f), 'utf8');

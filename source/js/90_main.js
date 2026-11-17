@@ -40,6 +40,7 @@ function buildTestScene() {
 async function main() {
   try {
     await gpuInit();
+    await brandInit();
     setMsg('gerando circuito…'); await new Promise(r => setTimeout(r));
     trackBuild(); heightFieldBuild(); worldMapBuild(); aiBuild();   // aiBuild define TRK.line (trajetória) antes dos construtores de cena
     rendererInit();
@@ -87,6 +88,7 @@ function rafLoop(t) {
 // --- API de captura (usada pelos scripts em trabalho/) ---
 let _cap2d = null;
 window.__cap = {
+  music: () => ({tracks: MUSIC.tracks.slice(), index: MUSIC.index, paused: MUSIC.audio?.paused, wanted: MUSIC.wanted, currentTime: MUSIC.audio?.currentTime, error: MUSIC.audio?.error?.code || null}),
   ready: () => GAME.ready, error: () => GAME.error || G.lastErr || null,
   cam(ex, ey, ez, tx, ty, tz, fov) { if (typeof GS !== 'undefined') { GS.freeCam = true; GS.cut = true; } setCamera(ex, ey, ez, tx, ty, tz, fov); },
   // avança n quadros com passo fixo e renderiza cada um

@@ -6,7 +6,7 @@ const UI = { st: ST.INICIO, back: ST.JOGO, el: null, tag: null, res: null, b0: n
 const $ = id => document.getElementById(id);
 function uiInit() {
   UI.el = $('ui'); UI.tag = $('tag'); UI.res = $('res'); UI.b0 = $('b0'); UI.b1 = $('b1');
-  hudInit(); uiWarmup();
+  hudInit(); uiWarmup(); musicInit();
   try { const b = +localStorage.getItem('gol-melhor'); if (b > 20 && b < 600) LAP[2] = b; } catch (e) { /* sem armazenamento local: a melhor volta vale só nesta sessão */ }
   UI.b0.onclick = () => { if (UI.st === ST.INICIO) { sndStart(); uiSet(ST.JOGO); } else uiResume(); };
   UI.b1.onclick = () => benchStart();
@@ -41,6 +41,8 @@ function uiPose(i) { if (UI.st === ST.BENCH) benchStop(); UI.pose = i; poseApply
 function uiKey(e) {
   if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
   const c = e.code, st = UI.st;
+  if (c === 'KeyP') { e.preventDefault(); musicToggle(); return; }
+  if (c === 'Digit0' || c === 'Numpad0') { e.preventDefault(); void musicNext(); return; }
   if (c === 'KeyM') { sndMute(!SND.mute); return; }
   if (c === 'KeyH') { UI.stats = !UI.stats; hudStats(UI.stats); if (st !== ST.BENCH) perfAttach(UI.stats, 12); return; }
   if (st === ST.INICIO) return;                                   // na tela de início só o botão começa o jogo (e o som)

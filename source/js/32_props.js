@@ -1,5 +1,5 @@
 // Adereços do circuito: guard-rails, barreiras de pneus, muros e alambrados, pórtico, arquibancada, boxes, torre,
-// postos de fiscal, placas, painéis publicitários (marcas inventadas, letras desenhadas por traços), paddock.
+// postos de fiscal, placas, painéis publicitários (Borghi Veículos e Nova Aliança), paddock.
 const PROPS = { sets: [], regions: {} };
 
 // ---------- letras desenhadas por caminhos (retas + curvas de Bézier) numa caixa 4x6; traço grosso de ponta redonda ----------
@@ -181,24 +181,20 @@ function atlasBuild() {
   reg('chev', 1024, 0, 512, 128);
   // faixa "BOXES"
   g.fillStyle = '#d8d6ce'; g.fillRect(1536, 0, 512, 128); centered('BOXES', 1536, 0, 512, 128, 74, '#16181c', 1.8, 0.1); reg('boxes', 1536, 0, 512, 128);
-  // marcas inventadas
-  const brands = [
-    ['ARARA PNEUS', '#c9281c', '#fff6e0', 0], ['TORQUE FREIOS', '#16181c', '#f2c318', 1], ['CAFE SERRANO', '#3b2416', '#f0dfc0', 2], ['JATOBA SEGUROS', '#0f5d3a', '#f4f4ee', 3],
-    ['VELA NORTE', '#f0efe8', '#1b3f8f', 4], ['ESCADAS ALUMINAR', '#b8bec4', '#12202e', 5], ['ZEBRA TINTAS', '#f4f4f0', '#111111', 6], ['GUARANA DO VALE', '#1f7a2e', '#ffe14a', 2],
-    ['RADIO PISTA 98', '#5a1b78', '#ffffff', 1], ['MOTOR CLUBE DA MATA', '#e0791a', '#1a1a1a', 0], ['OFICINA DO TONHO', '#18406b', '#ffd23a', 3], ['POSTO IPE 24H', '#f2d21f', '#16501e', 4],
-  ];
-  brands.forEach((b, i) => {
-    const x = (i % 4) * 512, y = 128 + Math.floor(i / 4) * 128; g.fillStyle = b[1]; g.fillRect(x, y, 512, 128);
-    g.fillStyle = b[2]; g.strokeStyle = b[2]; g.lineWidth = 7;
-    const ic = b[3], ix = x + 62, iy = y + 64;
-    if (ic === 0) { g.beginPath(); g.arc(ix, iy, 36, 0, TAU); g.stroke(); g.beginPath(); g.arc(ix, iy, 14, 0, TAU); g.fill(); }
-    else if (ic === 1) { g.beginPath(); g.moveTo(ix - 34, iy + 32); g.lineTo(ix + 4, iy - 36); g.lineTo(ix + 2, iy - 2); g.lineTo(ix + 34, iy - 32); g.lineTo(ix - 2, iy + 36); g.lineTo(ix, iy + 4); g.closePath(); g.fill(); }
-    else if (ic === 2) { g.beginPath(); g.ellipse(ix, iy, 26, 38, 0.5, 0, TAU); g.fill(); g.strokeStyle = b[1]; g.lineWidth = 5; g.beginPath(); g.moveTo(ix - 12, iy + 30); g.quadraticCurveTo(ix + 10, iy, ix + 8, iy - 34); g.stroke(); }
-    else if (ic === 3) { g.beginPath(); g.moveTo(ix, iy - 40); g.lineTo(ix + 36, iy - 22); g.lineTo(ix + 30, iy + 18); g.lineTo(ix, iy + 40); g.lineTo(ix - 30, iy + 18); g.lineTo(ix - 36, iy - 22); g.closePath(); g.stroke(); }
-    else if (ic === 4) { g.beginPath(); g.moveTo(ix - 36, iy + 34); g.lineTo(ix, iy - 38); g.lineTo(ix + 36, iy + 34); g.closePath(); g.fill(); }
-    else if (ic === 5) { g.lineWidth = 8; g.beginPath(); g.moveTo(ix - 22, iy - 40); g.lineTo(ix - 22, iy + 40); g.moveTo(ix + 22, iy - 40); g.lineTo(ix + 22, iy + 40); for (let k = -2; k <= 2; k++) { g.moveTo(ix - 22, iy + k * 16); g.lineTo(ix + 22, iy + k * 16); } g.stroke(); }
-    else { for (let k = 0; k < 5; k++) { g.beginPath(); g.moveTo(ix - 40 + k * 18, iy + 38); g.lineTo(ix - 22 + k * 18, iy - 38); g.lineTo(ix - 12 + k * 18, iy - 38); g.lineTo(ix - 30 + k * 18, iy + 38); g.closePath(); g.fill(); } }
-    const th = Math.min(62, 376 / textW(b[0], 1)); centered(b[0], x + 116, y, 388, 128, th, b[2], 1.8, 0.1);
+  // Patrocínio: logo original e letreiros legíveis em painéis compridos.
+  const brands = Array.from({length: 12}, (_, i) => i % 4 === 3 ? 'Nova Aliança' : 'Borghi Veículos');
+  brands.forEach((name, i) => {
+    const x = (i % 4) * 512, y = 128 + Math.floor(i / 4) * 128;
+    g.fillStyle = i % 4 === 3 ? '#f2f2f3' : '#101114'; g.fillRect(x, y, 512, 128);
+    g.fillStyle = '#e51b23'; g.fillRect(x, y + 121, 512, 7);
+    // Preserva a proporção da logo e o alfa do PNG.
+    const h = 116, w = h * borghiLogo.naturalWidth / borghiLogo.naturalHeight;
+    g.drawImage(borghiLogo, x + 8, y + 3, w, h);
+    g.fillStyle = i % 4 === 3 ? '#17171a' : '#fff';
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = 'italic bold 36px Arial, sans-serif';
+    g.fillText(name, x + 164 + 170, y + 58, 330);
+    if (i % 4 !== 3) { g.font = '18px Arial, sans-serif'; g.fillText('Nova Aliança', x + 334, y + 96); }
     reg('b' + i, x, y, 512, 128);
   });
   PROPS.nBrands = brands.length;
