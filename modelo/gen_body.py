@@ -13,8 +13,15 @@ xs = np.arange(X0, X1, H); ys = np.arange(Y0, Y1, H); zs = np.arange(0, Z1, H)  
 print('grid', len(xs), len(ys), len(zs), 'side sdf', time.time() - t)
 D = np.empty((len(xs), len(ys), len(zs)), np.float32)
 YY, ZZ = np.meshgrid(ys, zs, indexing='ij')
+import casco
+USE_HULL = os.environ.get('CASCO', '0') == '1'   # casco visual: só para estudo (erros de 5-10 cm)
 for i, x in enumerate(xs):
     D[i] = gs.body_sdf(np.full_like(YY, x), YY, ZZ, side_P)
+    if USE_HULL:
+        # recorta só onde o modelo está mais gordo que as fotos (o casco nunca acrescenta volume)
+        P = np.stack([np.full(YY.size, x), YY.ravel(), ZZ.ravel()], 1)
+        hd = casco.amostra(P).reshape(YY.shape)
+        D[i] = gs.smax(D[i], hd, 0.008)
 print('sdf', time.time() - t)
 np.save(os.path.join(W, 'sdf.npy'), D); np.save(os.path.join(W, 'sdf_meta.npy'), np.array([X0, Y0, 0.0, H]))
 # espelha para malha fechada

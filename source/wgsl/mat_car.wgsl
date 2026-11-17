@@ -5,6 +5,7 @@
 // O.p0 da carroceria: x = luz de freio, y = luz de ré, z = faróis. O.p0.x das rodas = |velocidade angular|.
 #include mesh_vert
 @group(3) @binding(0) var tAtlas: texture_2d<f32>;
+@group(3) @binding(1) var tFoto: texture_2d<f32>;   // insertos fotográficos do Gol (frente e traseira)
 const PAINT_COL = vec3f(0.168, 0.275, 0.425);   // azul-claro metálico de estúdio: mais escuro e acinzentado (o sol do jogo é forte)
 fn carBulgeW(x: f32) -> f32 { return 0.055 * smoothstep(-0.15, 0.25, x) - 0.036 * smoothstep(-1.15, -1.42, x); }
 // ---------- VW Gol G6: regiões da carroceria (mesmas fórmulas de modelo/regions.py) ----------
@@ -237,7 +238,19 @@ fn surf(in: V2F, ff: bool) -> Surface {
       let w = sin((lp.z + lp.y) * 1800.0) * sin(lp.x * 1800.0);
       s.albedo = in.col.rgb * (0.9 + 0.12 * w); s.rough = 0.8;
     }
-    case 12u: {  // decalque (placa / emblemas)
+    case 12u: {  // decalque (placa / emblemas); a=2: inserto fotográfico sobre a pintura branca
+      if (pa > 1.5) {
+        let f = textureSample(tFoto, sLin, in.uv);
+        // a foto já traz a luz da rua: tira o grosso do sombreamento dela e deixa a luz do jogo trabalhar
+        let c = f.rgb; let lum = dot(c, vec3f(0.299, 0.587, 0.114));
+        let ph = c / max(0.35 + 0.65 * smoothstep(0.0, 0.9, lum), 0.35) * 0.82;
+        s.albedo = mix(vec3f(0.74, 0.75, 0.75), clamp(ph, vec3f(0.0), vec3f(0.95)), f.a);
+        s.rough = mix(0.2, 0.22, f.a); s.coat = mix(1.0, 0.75, f.a);
+        // lanterna (vermelho) acende com o freio; o resto da foto não emite
+        let red = f.a * smoothstep(0.12, 0.3, c.r - max(c.g, c.b)) * step(lp.x, -1.4);
+        s.emissive = red * (0.04 + 0.7 * sat(O.p0.x));
+        return s;
+      }
       let t = textureSample(tAtlas, sLin, in.uv);
       if (pa > 0.5 && t.a < 0.5) { discard; }
       s.albedo = t.rgb * select(0.7, 1.0, pa > 0.5); s.rough = select(0.62, 0.28, pa > 0.5); s.metal = select(0.0, 0.4, pa > 0.5); s.coat = select(0.0, 0.6, pa > 0.5);
@@ -304,12 +317,17 @@ fn surf(in: V2F, ff: bool) -> Surface {
       // farol: máscara escura com dois projetores redondos
       let t = clamp((az - 0.33) / 0.45, 0.0, 1.0);
       let hl = max(gsmax(gsmax(0.672 + 0.05 * t - y, y - (0.792 + 0.012 * t), 0.012), gsmax(0.335 - az, 1.66 - x, 0.02), 0.02), select(-1.0, 1.0, x < 1.5));
+      let hl_off = 1.0;
       // grade superior, grade inferior e painel da placa traseira
       let gr = max(grr(lp.z, y - 0.718, 0.33, 0.05, 0.012), 1.8 - x);
+      let gr_off = 1.0;
       let gl = max(grr(lp.z, y - 0.385, 0.62, 0.095, 0.03), 1.75 - x);
+      let gl_off = 1.0;
       let t2 = clamp((az - 0.5) / 0.3, 0.0, 1.0);
       let tl = max(gsmax(gsmax(0.655 + 0.015 * t2 - y, y - (0.872 - 0.01 * t2), 0.012), gsmax(0.50 - az, x + 1.60, 0.02), 0.02), select(-1.0, 1.0, x > -1.4));
+      let tl_off = 1.0;
       let dif = max(grr(lp.z, y - 0.385, 0.40 - 0.1 * clamp((0.47 - y) / 0.17, 0.0, 1.0), 0.085, 0.02), x + 1.82);
+      let dif_off = 1.0;
       // vãos dos painéis
       let sd = gseam(lp, nO); let sw = max(fwidth(sd), 1e-5); let hw = 0.0018;
       let line = clamp((hw - sd) / sw + 0.5, 0.0, 1.0) * min(1.0, 2.0 * hw / sw);
@@ -320,7 +338,7 @@ fn surf(in: V2F, ff: bool) -> Surface {
       s.albedo = mix(s.albedo, vec3f(0.008), black); s.rough = mix(s.rough, 0.12, black); s.coat = mix(s.coat, 0.9, black);
       let rightW = normalize((O.model * vec4f(0.0, 0.0, 1.0, 0.0)).xyz); let upW = normalize((O.model * vec4f(0.0, 1.0, 0.0, 0.0)).xyz);
       // farol
-      { let c = gcov(hl);
+      { let c = gcov(hl_off);
         if (c > 0.0) {
           let zc = select(0.6, 0.45, az < 0.53); let pr = length(vec2f(az - zc, y - 0.728)); let rr = select(0.046, 0.04, az < 0.53);
           let ring = (1.0 - smoothstep(0.002, 0.006, abs(pr - rr))); let core = 1.0 - smoothstep(rr * 0.55, rr * 0.62, pr);
@@ -331,11 +349,11 @@ fn surf(in: V2F, ff: bool) -> Surface {
           s.emissive = c * (core * (0.05 + O.p0.z * 0.6) + drl * 0.25);
         } }
       // grade superior: preto brilhante com frisos horizontais
-      { let c = gcov(gr);
+      { let c = gcov(gr_off);
         if (c > 0.0) { let k = fract((y - 0.668) / 0.025); let bar = smoothstep(0.1, 0.2, k) * (1.0 - smoothstep(0.55, 0.65, k));
           s.albedo = mix(s.albedo, vec3f(0.006 + 0.02 * bar), c); s.rough = mix(s.rough, 0.15, c); s.normal = normalize(s.normal + upW * (k - 0.5) * 0.5 * c * (1.0 - bar)); } }
       // grade inferior: colmeia preta fosca + faróis de neblina
-      { let c = gcov(gl);
+      { let c = gcov(gl_off);
         if (c > 0.0) {
           let hp = vec2f(lp.z / 0.022, (y - 0.385) / 0.019); let hh = abs(fract(hp + vec2f(0.5 * floor(hp.y), 0.0)) - 0.5);
           let cell = smoothstep(0.32, 0.42, max(hh.x, hh.y));
@@ -345,14 +363,14 @@ fn surf(in: V2F, ff: bool) -> Surface {
           s.albedo = mix(s.albedo, gc, c); s.rough = mix(s.rough, mix(0.8, 0.15, max(pod, fogC)), c); s.coat = mix(s.coat, 0.0, c); s.ao = min(s.ao, 1.0 - 0.3 * c * cell);
           s.emissive = c * fogC * 0.02; } }
       // painel escuro da placa traseira e refletores vermelhos
-      { let c = gcov(dif); s.albedo = mix(s.albedo, vec3f(0.035, 0.037, 0.04), c); s.rough = mix(s.rough, 0.7, c); s.coat = mix(s.coat, 0.0, c); }
-      { let refl = gcov(max(grr(az - 0.6, y - 0.292, 0.13, 0.012, 0.006), x + 1.75));
+      { let c = gcov(dif_off); s.albedo = mix(s.albedo, vec3f(0.035, 0.037, 0.04), c); s.rough = mix(s.rough, 0.7, c); s.coat = mix(s.coat, 0.0, c); }
+      { let refl = 0.0;   // refletores: vêm da foto
         s.albedo = mix(s.albedo, vec3f(0.3, 0.008, 0.006), refl); s.rough = mix(s.rough, 0.25, refl); s.emissive = s.emissive + refl * 0.02; }
       // brake-light do aerofólio
       { let c3 = gcov(max(max(az - 0.13, abs(y - 1.292) - 0.008), x + 1.4)) * step(nO.y, 0.2);
         s.albedo = mix(s.albedo, vec3f(0.25, 0.01, 0.01), c3); s.emissive = s.emissive + c3 * (0.04 + 0.9 * sat(O.p0.x)); }
       // lanterna: lente fumê com o desenho de LED vermelho (contorno + "C" interno); acende no freio, luz de ré embaixo
-      { let c = gcov(tl);
+      { let c = gcov(tl_off);
         if (c > 0.0) {
           let br = sat(O.p0.x);
           let ring = gcov(abs(tl + 0.016) - 0.0045);

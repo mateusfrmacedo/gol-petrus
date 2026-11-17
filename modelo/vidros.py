@@ -52,15 +52,15 @@ def panel(region, u_rng, v_rng, axis, lo, hi, build, step=0.008, off=0.002):
         F.append((idx[i, j], idx[i + 1, j], idx[i + 1, j + 1], idx[i, j + 1]))
     F = np.array(F); used = np.unique(F); m = -np.ones(U.size, int); m[used] = np.arange(len(used))
     return P[used], N[used], m[F]
-def todos(off=0.002):
+def todos(off=0.002, step=0.008):
     pecas = []
     for s in (1, -1):
         b = lambda U, V, M, s=s: np.stack([U, V, s * M], 1)          # lateral: u=x, v=y, eixo z
-        V_, N_, F_ = panel('dlo', (-1.25, 0.62), (0.88, 1.30), 2, 0.3, 0.95, b, off=off)
+        V_, N_, F_ = panel('dlo', (-1.25, 0.62), (0.88, 1.30), 2, 0.3, 0.95, b, step=step, off=off)
         if s < 0: F_ = F_[:, ::-1]
         pecas.append(('Vidros_laterais_' + ('dir' if s > 0 else 'esq'), V_, N_, F_))
     b = lambda U, V, M: np.stack([U, M, V], 1)                         # para-brisa: u=x, v=z, eixo y
-    V_, N_, F_ = panel('ws', (0.18, 1.02), (-0.70, 0.70), 1, 0.7, 1.55, b, off=off); pecas.append(('Para_brisa', V_, N_, F_[:, ::-1]))
+    V_, N_, F_ = panel('ws', (0.18, 1.02), (-0.70, 0.70), 1, 0.7, 1.55, b, step=step, off=off); pecas.append(('Para_brisa', V_, N_, F_[:, ::-1]))
     b = lambda U, V, M: np.stack([M, U, V], 1)                         # vigia: u=y, v=z, eixo x (para trás)
-    V_, N_, F_ = panel('rg', (0.95, 1.30), (-0.65, 0.65), 0, -1.2, -1.95, b, off=off); pecas.append(('Vigia', V_, N_, F_[:, ::-1]))
+    V_, N_, F_ = panel('rg', (0.95, 1.30), (-0.65, 0.65), 0, -1.2, -1.95, b, step=step, off=off); pecas.append(('Vigia', V_, N_, F_[:, ::-1]))
     return pecas

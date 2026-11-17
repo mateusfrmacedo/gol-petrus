@@ -22,7 +22,7 @@ const CAR = {
     // desenhável: liga o atlas (grupo 3) e não entra no mapa de sombras estático do mundo
     R.drawables.push({ draw(pass, ctx) {
       if (ctx.kind === KIND.SHADOW && ctx.cascade === 3) return;
-      if (!CAR.atlasBG) { if (!fam.bgl3) return; CAR.atlasBG = G.dev.createBindGroup({ layout: fam.bgl3, entries: [{ binding: 0, resource: tex.createView() }] }); }
+      if (!CAR.atlasBG) { if (!fam.bgl3) return; CAR.atlasBG = G.dev.createBindGroup({ layout: fam.bgl3, entries: [{ binding: 0, resource: tex.createView() }, { binding: 1, resource: GOL.foto.createView() }] }); }
       pass.setBindGroup(3, CAR.atlasBG); set.draw(pass, ctx);
     } });
     R.transparents.push(glass);

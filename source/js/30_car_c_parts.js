@@ -71,8 +71,7 @@ function carBuildParts(mb, gl) {
     mb.mat(CM.GLOSS, 1).color(0.01, 0.011, 0.014);
     mb.rbox(-0.2, 1.178, zd, 0.13, 0.08, 0.233, 0.034, 5);        // viseira: faixa escura que envolve a frente e os lados do casco
   }
-  // placas, emblemas VW, GOL e MSI (decalques do atlas)
-  carDecals(mb);
+  // placas e emblemas: vêm dos insertos fotográficos (carDecals fica sem uso)
 }
 function carLadder(mb) {
   const yb = CRK.barY + 0.014, h = 0.062, yc = yb + h / 2, L = CRK.lx1 - CRK.lx0, xc = (CRK.lx0 + CRK.lx1) / 2;

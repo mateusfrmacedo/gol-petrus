@@ -30,11 +30,24 @@ async function golDecode() {
       const l = Math.hypot(x, y, z) || 1; N[i * 3] = x / l; N[i * 3 + 1] = y / l; N[i * 3 + 2] = z / l;
     }
     let a = 0; for (let i = 0; i < p.nI; i++) { a = (a + u16()) & 0xffff; I[i] = a; }
-    if (p.hasCls) { p.cls = buf.slice(o, o + p.nI / 3); o += p.nI / 3; }
+    if (p.hasCls & 1) { p.cls = buf.slice(o, o + p.nI / 3); o += p.nI / 3; }
+    if (p.hasCls & 2) {   // coordenadas de textura (insertos fotográficos), 16 bits em deltas
+      const U = p.uv = new Float32Array(p.nV * 2); let a = 0;
+      for (let i = 0; i < p.nV * 2; i++) { a = (a + u16()) & 0xffff; U[i] = a / 65535; }
+    }
   }
   GOL.parts = hdr;
 }
 BUILD.push(golDecode);
+// textura dos insertos fotográficos (frente e traseira), decodificada pelo navegador
+async function golFotoTex() {
+  const bin = Uint8Array.from(atob(GOL_FOTO_WEBP), c => c.charCodeAt(0));
+  const bmp = await createImageBitmap(new Blob([bin], { type: 'image/webp' }), { colorSpaceConversion: 'none' });
+  const tex = mkTex(bmp.width, bmp.height, 'rgba8unorm-srgb', TU.RT | TU.TB | TU.CD, { mipLevelCount: 5 });
+  G.dev.queue.copyExternalImageToTexture({ source: bmp }, { texture: tex }, [bmp.width, bmp.height]);
+  genMips(tex, 'rgba8unorm-srgb'); GOL.foto = tex;
+}
+BUILD.push(golFotoTex);
 // joga triângulos de uma peça no construtor: off = deslocamento ao longo da normal; flip inverte faces e normais
 function golEmit(mb, p, triMask, off, flip) {
   const P = p.pos, N = p.nrm, I = p.idx, map = new Int32Array(p.nV).fill(-1), nT = p.nI / 3, s = flip ? -1 : 1;
@@ -43,7 +56,7 @@ function golEmit(mb, p, triMask, off, flip) {
     const r = [0, 0, 0];
     for (let k = 0; k < 3; k++) {
       const i = I[t * 3 + k];
-      if (map[i] < 0) map[i] = mb.v(P[i * 3] + N[i * 3] * off, P[i * 3 + 1] + N[i * 3 + 1] * off, P[i * 3 + 2] + N[i * 3 + 2] * off, N[i * 3] * s, N[i * 3 + 1] * s, N[i * 3 + 2] * s, 0, 0);
+      if (map[i] < 0) map[i] = mb.v(P[i * 3] + N[i * 3] * off, P[i * 3 + 1] + N[i * 3 + 1] * off, P[i * 3 + 2] + N[i * 3 + 2] * off, N[i * 3] * s, N[i * 3 + 1] * s, N[i * 3 + 2] * s, p.uv ? p.uv[i * 2] : 0, p.uv ? p.uv[i * 2 + 1] : 0);
       r[k] = map[i];
     }
     if (flip) mb.tri(r[0], r[2], r[1]); else mb.tri(r[0], r[1], r[2]);

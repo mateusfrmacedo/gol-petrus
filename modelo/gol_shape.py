@@ -25,7 +25,7 @@ def chaikin(pts, sharp, it=4):
 SIDE = [   # perfil lateral (x, y); pontos marcados com * vêm da fotogrametria
     (1.968, 0.262, 0), (2.010, 0.330, 0), (2.028, 0.420, 0),           # * para-choque mais à frente (2,028; 0,418)
     (2.022, 0.540, 0), (2.004, 0.640, 0),                               # * emblema na grade (1,991; 0,678)
-    (1.982, 0.735, 0), (1.935, 0.795, 0), (1.840, 0.835, 0), (1.600, 0.880, 0), (1.300, 0.930, 0),
+    (1.982, 0.735, 0), (1.945, 0.790, 1), (1.840, 0.835, 0), (1.600, 0.880, 0), (1.300, 0.930, 0),
     (0.920, 0.995, 0),                                                  # base do para-brisa no centro (* quinas em 0,958; 0,975)
     (0.230, 1.362, 0), (0.000, 1.402, 0), (-0.300, 1.416, 0), (-0.700, 1.412, 0), (-1.000, 1.398, 0),   # * teto ~1,40-1,42
     (-1.250, 1.372, 0), (-1.400, 1.340, 0), (-1.470, 1.322, 0), (-1.492, 1.296, 1),                   # * aerofólio (−1,47; 1,30)
@@ -66,22 +66,25 @@ def sstep(e0, e1, x):
 
 def half_width(x, y):
     """meia largura da seção (vista de frente) por altura; o vinco do ombro sobe da frente (0,76) para trás (0,88)"""
-    ys = 0.76 + 0.12 * sstep(1.65, -0.6, x)                          # altura do ombro
+    ys = 0.775 + 0.10 * np.clip((1.55 - x) / 3.1, 0, 1)               # altura do vinco: 0,775 no farol a 0,875 na lanterna
     flare = 0.016 * (np.exp(-((x - AXF) / 0.42) ** 2) + np.exp(-((x - AXR) / 0.42) ** 2))   # leve alargamento nas caixas de roda
     w = 0.806 + flare - 0.010 * ((y - 0.60) / 0.24) ** 2               # * lateral a ~0,80 na altura das maçanetas
-    w = np.where(y > ys, 0.806 + flare - 0.010 * ((ys - 0.60) / 0.24) ** 2 - 0.08 * (y - ys), w)
+    # vinco do ombro (linha que passa logo acima das maçanetas): acima dele a chapa deita para dentro (~14°),
+    # abaixo dela a lateral desce quase reta, com um leve rebaixo logo sob o vinco
+    w_ys = 0.806 + flare - 0.010 * ((ys - 0.60) / 0.24) ** 2
+    w = np.where(y > ys, w_ys - 0.25 * (y - ys), w - 0.004 * np.exp(-((y - ys + 0.05) / 0.035) ** 2))
     w = w - 0.022 * sstep(-0.8, -1.5, x) * sstep(0.74, 0.92, y)          # ombro traseiro recolhe acima das lanternas
     w = np.where(y < 0.43, w - 0.05 * (0.43 - y) - 1.5 * np.maximum(0, 0.30 - y) ** 1.5, w)
     # estufa: da cintura (0,77) ao teto (0,57)
     belt = 0.945 + 0.03 * np.clip((0.70 - x) / 1.9, 0, 1)
     g = np.clip((y - belt) / (1.40 - belt), 0, 1.2)
     rr_ = sstep(-0.6, -1.45, x)                                        # a estufa afina para trás (colunas C)
-    wg = 0.772 - 0.20 * g ** 1.1 - 0.06 * rr_ - 0.20 * rr_ * g         # * medido nas vistas 11.26.28 e gol-06
+    wg = 0.758 - 0.19 * g ** 1.1 - 0.06 * rr_ - 0.20 * rr_ * g         # * medido nas vistas 11.26.28 e gol-06
     wg = np.where((y > 1.22) & (x < -1.25), np.minimum(wg, 0.50), wg)    # * aerofólio: ponta a 0,47 do centro
     w = smin(w, np.where(y > belt - 0.06, wg, 9.0), 0.02)
     # planta: a frente afina e arredonda (o canto do farol fica bem recolhido), a traseira arredonda
     fx = np.clip((x - 1.30) / 0.73, 0, 1); rx = np.clip((-x - 1.30) / 0.58, 0, 1)
-    w = w - 0.17 * fx ** 2.2 - 0.19 * rx ** 2.2
+    w = w - 0.04 * fx ** 2.2 - 0.05 * rx ** 2.2
     return w
 
 def body_sdf(X, Y, Z, side_P):
@@ -89,12 +92,17 @@ def body_sdf(X, Y, Z, side_P):
     # abaulamento do teto/capô (a borda fica mais baixa que o centro) e frente em "V" (o centro avança)
     # abaulamento: no capô o para-lama cai bastante perto do farol (* canto do farol a 0,73 m de altura)
     crown = (0.04 + 0.09 * sstep(0.9, 1.7, X)) * (az / 0.8) ** 2 * sstep(0.45, 0.75, Y)   # só na parte de cima
-    # o centro da frente é o ponto mais avançado (medido); as quinas recuam
-    vfront = -0.07 * (az / 0.8) ** 2 * sstep(1.4, 1.8, X)
-    vrear = -0.03 * (az / 0.8) ** 2 * sstep(-1.5, -1.8, X)
+    # planta da frente e da traseira (medida): o centro é o ponto mais avançado e as quinas recuam muito.
+    # frente, na faixa dos faróis: recuo 6 cm em |z|=0,37 (canto interno do farol) e 50 cm em |z|=0,695 (canto externo);
+    # na faixa do para-choque: 22 cm em |z|=0,62 (neblinas). Traseira: 4,5 cm em 0,59 (lanterna) e ~20 cm em 0,77.
+    cf = 1.12 + 0.61 * sstep(0.50, 0.68, Y)
+    vfront = -cf * az ** 3.38 * sstep(1.0, 1.6, X)
+    vrear = -0.86 * az ** 5.6 * sstep(-1.1, -1.6, X)
     d_side = poly_sdf_interp(side_P, X - vfront + vrear, Y + crown)
     d_w = az - half_width(X, Y)
-    d = smax(d_side, d_w, 0.07)
+    # quinas: vivas embaixo (para-choques, borda do capô), mais arredondadas no teto
+    k = 0.012 + 0.03 * sstep(1.05, 1.3, Y)
+    d = smax(d_side, d_w, k)
     # caixas de roda: cilindro ao longo de z, só na parte de fora
     for ax in (AXF, AXR):
         cyl = np.hypot(X - ax, Y - ARCH_Y) - ARCH_R

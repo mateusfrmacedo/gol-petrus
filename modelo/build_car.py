@@ -1,7 +1,7 @@
 """Monta todas as peças do Gol e grava gol_parts.npz (pré-visualização) e gol_mesh.bin (jogo).
 Peças de superfície dura (retrovisores, antena, maçanetas) saem do Blender com bevel + weighted normal."""
 import os; W = os.path.dirname(os.path.abspath(__file__))   # pasta de trabalho = esta pasta
-import numpy as np, sys, math, json, zlib, struct
+import numpy as np, sys, math, json, zlib, struct, os
 sys.path.insert(0, W)
 import regions as RG, gol_shape as gs
 import bpy, bmesh
@@ -27,6 +27,40 @@ cls |= (R['tl'][f] < 0.003).any(1).astype(np.uint8) * 8                         
 lin = (cen[:, 1] > 0.52) & (cen[:, 0] > -1.80) & (cen[:, 0] < 0.86) & (np.abs(cen[:, 2]) > 0.05)
 cls |= (lin & (cen[:, 1] <= 1.28)).astype(np.uint8) * 16                          # forro escuro
 cls |= (lin & (cen[:, 1] > 1.28)).astype(np.uint8) * 32                           # forro do teto (claro)
+# ---------------- insertos fotográficos (frente: vista gol-00, traseira: vista gol-06) ----------------
+import json as _json, cv2 as _cv2
+from PIL import Image as _Image
+RC = _json.load(open(os.path.join(W, 'ref360_cams.json')))
+def _proj(k, P):
+    c = RC[k]; w, h = c['size']; K = np.array([[c['f'], 0, w / 2], [0, c['f'], h / 2], [0, 0, 1]])
+    uv, _ = _cv2.projectPoints(P.reshape(-1, 1, 3).astype(np.float64), np.array(c['r']), np.array(c['t']), K, None); return uv.reshape(-1, 2)
+cen = v[f].mean(1); fn = np.cross(v[f[:, 1]] - v[f[:, 0]], v[f[:, 2]] - v[f[:, 0]]); fn /= np.linalg.norm(fn, axis=1)[:, None] + 1e-12
+ATL_W = 1280; TILES = {}; atlas = _Image.new('RGBA', (ATL_W, 1300), (0, 0, 0, 0)); ty = 0
+INS = []
+for k, sel in (('00', (cen[:, 0] > 1.30) & (fn[:, 0] > 0.30) & (np.abs(cen[:, 2]) < 0.80) & (cen[:, 1] < 0.86)),
+               ('06', (cen[:, 0] < -1.40) & (fn[:, 0] < -0.25) & (np.abs(cen[:, 2]) < 0.82) & ((cen[:, 1] < 0.93) | (np.abs(cen[:, 2]) < 0.60)))):
+    img = _Image.open(f'{W}/insertos/{k}_rgba.png'); A = np.array(img)
+    uvp = _proj(k, v)                                                       # pixel na vista para cada vértice
+    m = A[..., 3]; H_, W_ = m.shape
+    ui = np.clip(np.round(uvp[:, 0]).astype(int), 0, W_ - 1); vi = np.clip(np.round(uvp[:, 1]).astype(int), 0, H_ - 1)
+    mv = m[vi, ui]
+    tri = sel & (mv[f].max(1) > 12)
+    # recorte da vista que cobre os triângulos escolhidos, colocado no atlas
+    pu = uvp[f[tri].ravel()]; x0, y0 = np.floor(pu.min(0)) - 4; x1, y1 = np.ceil(pu.max(0)) + 4
+    x0, y0 = max(0, x0), max(0, y0); x1, y1 = min(W_, x1), min(H_, y1)
+    crop = img.crop((int(x0), int(y0), int(x1), int(y1)))
+    if crop.width > ATL_W: crop = crop.resize((ATL_W, int(crop.height * ATL_W / crop.width)), _Image.LANCZOS)
+    atlas.paste(crop, (0, ty)); sx = crop.width / (x1 - x0); sy = crop.height / (y1 - y0)
+    TILES[k] = (x0, y0, sx, sy, ty); INS.append((k, tri, uvp)); ty += crop.height + 8
+atlas = atlas.crop((0, 0, ATL_W, ty))
+atlas.save(os.path.join(W, 'gol_atlas.webp'), 'WEBP', quality=88, method=6)
+for k, tri, uvp in INS:
+    x0, y0, sx, sy, ty0 = TILES[k]
+    U = ((uvp[:, 0] - x0) * sx) / ATL_W; Vv = ((uvp[:, 1] - y0) * sy + ty0) / atlas.height
+    ff = f[tri]; u_ = np.unique(ff); mp = -np.ones(len(v), int); mp[u_] = np.arange(len(u_))
+    part('insert_' + k, 0, 12, 2, (0.74, 0.75, 0.75), v[u_] + n[u_] * 0.0005, n[u_], mp[ff], uv=np.stack([U[u_], Vv[u_]], 1))
+    cls[tri] &= ~np.uint8(1)                                                # a pintura comum não desenha esses triângulos
+print('insertos: frente', int(INS[0][1].sum()), 'traseira', int(INS[1][1].sum()), 'tri; atlas', atlas.size, os.path.getsize(os.path.join(W, 'gol_atlas.webp')) // 1024, 'KiB')
 part('body', 0, GOL, 0, (1, 1, 1), v, n, f, cls=cls)
 import vidros
 for nome_, Vg, Ng, Fg in vidros.todos(off=-0.003, step=0.022):
@@ -198,13 +232,14 @@ for p in parts:
     if p.get('twosided'):
         F = np.concatenate([F, F[:, ::-1]])
     c = [int(round(max(0, min(1, x)) * 255)) for x in p['col']]
-    hcls = 1 if 'cls' in p else 0
+    hcls = (1 if 'cls' in p else 0) | (2 if p.get('uv') is not None else 0)
     hdr += struct.pack('<BBBBBBBII', p['dest'], p['mat'], p['pa'], *c, hcls, len(V), F.size)
     q = np.clip(np.round(V * 8192), -32767, 32767).astype(np.int32)
     body += delta16(q).tobytes()
     body += delta16(oct16(Nn)).tobytes()
     body += delta16(F.reshape(-1, 1).astype(np.int64)).tobytes()
-    if hcls: body += p['cls'].tobytes()
+    if hcls & 1: body += p['cls'].tobytes()
+    if hcls & 2: body += delta16(np.clip(np.round(p['uv'] * 65535), 0, 65535).astype(np.int64)).tobytes()
 raw = bytes(hdr) + bytes(body); comp = zlib.compress(raw, 9)
 open(os.path.join(W, 'gol_mesh.bin'), 'wb').write(comp)
 pickle_parts = [{k: p[k] for k in p} for p in parts]

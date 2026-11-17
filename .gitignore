@@ -3,6 +3,7 @@ modelo/*.npz
 modelo/*.bin
 modelo/*.pkl
 modelo/*.png
+!modelo/insertos/*_rgba.png
 modelo/*.blend
 modelo/*.blend1
 modelo/renders/
