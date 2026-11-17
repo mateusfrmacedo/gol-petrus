@@ -112,6 +112,8 @@ def emit_object(ob,dest):
             color=tuple(min(.45,max(.025,c)) for c in color)
         if mat.name.startswith(('Desenho vermelho','Refletores')):
             material=22
+        if mat.name.startswith('Faixa cristal inferior da lanterna'):
+            material=23
         groups=[(selected,color,material,tile)]
         if ob.name=='PINTURA':
             centers=position[tri[selected]].mean(1)

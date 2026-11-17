@@ -408,6 +408,13 @@ fn surf(in: V2F, ff: bool) -> Surface {
       s.coat = select(0.0, 0.3, s.rough < 0.4);
       return s;
     }
+    case 23u: { // faixa cristal: luz de ré branca, separada da luz de freio vermelha
+      let reverse = sat(O.p0.y);
+      s.albedo = mix(vec3f(0.12, 0.13, 0.14), vec3f(0.95, 0.97, 1.0), reverse);
+      s.rough = 0.24; s.metal = 0.0; s.coat = 0.25;
+      s.emissive = reverse * 0.9;
+      return s;
+    }
     case 22u: { // segmentos vermelhos e luz de freio
       s.rough = 0.24; s.coat = 0.25;
       s.emissive = 0.04 + 0.65 * sat(O.p0.x);
