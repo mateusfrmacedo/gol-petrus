@@ -2,6 +2,9 @@
 const CRK = { x0: 0.0, x1: -0.98, barY: GOL_META.barY, railZ: 0.205, lx0: -1.98, lx1: 1.22 };
 function carBuildParts(mb, gl) {
   const v0 = mb.nv, i0 = mb.ni, gv0 = gl.nv, gi0 = gl.ni;
+  // Interior e piloto acompanham a altura da carroceria aprovada no Blender.
+  const drop = GOL_META.bodyDrop || 0;
+  mb.push(m4translate(m4(), 0, -drop, 0)); gl.push(m4translate(m4(), 0, -drop, 0));
   // ================= interior (metade direita; espelhado) =================
   mb.mat(CM.INTERIOR).color(0.05, 0.05, 0.055);
   mb.quad(-0.86, 0.235, 0.72, 0.85, 0.235, 0.72, 0.85, 0.235, 0, -0.86, 0.235, 0);
@@ -68,6 +71,7 @@ function carBuildParts(mb, gl) {
     mb.rbox(-0.2, 1.178, zd, 0.13, 0.08, 0.233, 0.034, 5);        // viseira: faixa escura que envolve a frente e os lados do casco
   }
   // placas e emblemas: vêm dos insertos fotográficos (carDecals fica sem uso)
+  mb.pop(); gl.pop();
 }
 function carLadder(mb) {
   const yb = CRK.barY + 0.014, h = 0.062, yc = yb + h / 2, L = CRK.lx1 - CRK.lx0, xc = (CRK.lx0 + CRK.lx1) / 2;
@@ -148,5 +152,5 @@ function carBuildSteer(mb) {
   mb.tube(ring, 0.0135, 10, { closed: true, up: [1, 0, 0] });
   mb.rbox(-0.035, -0.01, 0, 0.05, 0.1, 0.16, 0.025, 3);
   mb.rbox(-0.02, 0.0, 0.1, 0.022, 0.03, 0.17, 0.008, 1); mb.rbox(-0.02, 0.0, -0.1, 0.022, 0.03, 0.17, 0.008, 1); mb.rbox(-0.02, -0.1, 0, 0.022, 0.17, 0.035, 0.008, 1);
-  m4translate(CAR._t, 0.345, 0.885, -0.36); m4rotZ(CAR._t2, 158 * PI / 180); m4mul(CAR.steerMat, CAR._t, CAR._t2);
+  m4translate(CAR._t, 0.345, 0.885 - (GOL_META.bodyDrop || 0), -0.36); m4rotZ(CAR._t2, 158 * PI / 180); m4mul(CAR.steerMat, CAR._t, CAR._t2);
 }

@@ -185,10 +185,17 @@ for p in parts:
     payload+=delta16(q)+delta16(oct16(p['n']))+delta16(p['f'].reshape(-1,1).astype(np.int64))
     if flag:payload+=delta16(np.round(p['uv']*65535).astype(np.int64))
 compressed=zlib.compress(bytes(header)+bytes(payload),9)
+# Usa as instâncias aprovadas no Blender para preservar bitola, altura e centros das rodas.
+instances=list(bpy.data.collections['Quatro rodas 17'].objects)
+assert len(instances)==4, 'O modelo precisa de quatro instâncias de roda'
+hubs=sorted([[origin_y-o.matrix_world.translation.y,o.matrix_world.translation.z,-o.matrix_world.translation.x] for o in instances],key=lambda p:(-p[0],p[2]))
+track=(hubs[1][2]-hubs[0][2]+hubs[3][2]-hubs[2][2])/2
+body_drop=float(bpy.context.scene.get('body_drop_m',0))
+tyre=bpy.data.objects['Pneu de perfil baixo']
 meta={'version':'blender-2026-11-17','blender':True,'sourceSha256':hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
-      'barY':1.42,'axf':1.25394635,'wheelR':.278,'track':1.398,
-      'hubs':[[1.25394635,.278,-.699],[1.25394635,.278,.699],[-1.25394635,.278,-.699],[-1.25394635,.278,.699]],
-      'decals':[],'parts':len(parts),'trianglesBody':sum(len(p['f']) for p in parts if p['dest']!=2),
+      'barY':1.42-body_drop,'bodyDrop':body_drop,'axf':(hubs[0][0]-hubs[2][0])/2,
+      'wheelR':float(tyre.dimensions.x/2),'tyreWidth':float(tyre.dimensions.z),'track':track,
+      'hubs':hubs,'decals':[],'parts':len(parts),'trianglesBody':sum(len(p['f']) for p in parts if p['dest']!=2),
       'trianglesWheel':sum(len(p['f']) for p in parts if p['dest']==2)}
 target=ROOT/'source/js/30_car_a0_data.js'
 target.write_text('// Gerado por modelo/exportar_blender_jogo.py.\nconst GOL_META = '+json.dumps(meta,separators=(',',':'))+

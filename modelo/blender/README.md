@@ -19,6 +19,12 @@ node source/build.mjs
 
 O exportador gera `source/js/30_car_a0_data.js` e `modelo/gol_atlas.webp`; o build incorpora esses recursos no `index.html` publicado.
 
+## Ajuste aprovado de altura e rodas
+
+Pneus 8% mais largos (aproximadamente 195 mm no modelo), carroceria 20 mm mais baixa e centros das rodas afastados para ±0,7448754 m. A bitola visual é de aproximadamente 1,490 m. As quatro rodas mantêm o diâmetro e o contato com o chão.
+
+O exportador lê os centros das rodas diretamente das instâncias do Blender. O interior e o volante do jogo acompanham o rebaixamento.
+
 ## Prévias
 
 ![Vista traseira](traseira.png)
