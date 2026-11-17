@@ -1,6 +1,6 @@
 """Monta todas as peças do Gol e grava gol_parts.npz (pré-visualização) e gol_mesh.bin (jogo).
 Peças de superfície dura (retrovisores, antena, maçanetas) saem do Blender com bevel + weighted normal."""
-import os; W = os.path.dirname(os.path.abspath(__file__))   # pasta de trabalho = esta pasta
+import os; W = os.path.dirname(os.path.abspath(__file__))
 import numpy as np, sys, math, json, zlib, struct, os
 sys.path.insert(0, W)
 import regions as RG, gol_shape as gs
@@ -41,18 +41,26 @@ def _proj(k, P):
 cen = v[f].mean(1); fn = np.cross(v[f[:, 1]] - v[f[:, 0]], v[f[:, 2]] - v[f[:, 0]]); fn /= np.linalg.norm(fn, axis=1)[:, None] + 1e-12
 ATL_W = 1280; TILES = {}; atlas = _Image.new('RGBA', (ATL_W, 2600), (0, 0, 0, 0)); ty = 0
 INS = []
-livre = np.ones(len(f), bool)
-lado = (np.abs(fn[:, 2]) > 0.45) & (cen[:, 1] > 0.2) & (cen[:, 1] < 0.93) & (cen[:, 0] > -1.80) & (cen[:, 0] < 1.72)
-for k, sel in (('00', (cen[:, 0] > 1.30) & (fn[:, 0] > 0.30) & (np.abs(cen[:, 2]) < 0.80) & (cen[:, 1] < 0.86)),
-               ('06', (cen[:, 0] < -1.40) & (fn[:, 0] < -0.25) & (np.abs(cen[:, 2]) < 0.82) & ((cen[:, 1] < 0.93) | (np.abs(cen[:, 2]) < 0.60))),
-               ('03', lado & (cen[:, 2] < 0)), ('09', lado & (cen[:, 2] > 0))):
-    sel = sel & livre
+# cada triângulo usa a vista que o enxerga mais de frente (evita a foto esticada de raspão nas quinas)
+def _cam_dir(k):
+    c = RC[k]; R_, _ = _cv2.Rodrigues(np.array(c['r'])); C_ = -R_.T @ np.array(c['t']); d = C_[None, :] - cen
+    return d / np.linalg.norm(d, axis=1)[:, None]
+FACE = {k: (fn * _cam_dir(k)).sum(1) for k in ('00', '06', '03', '09')}
+FACE['03'] = np.where(cen[:, 2] < 0, FACE['03'], -1); FACE['09'] = np.where(cen[:, 2] > 0, FACE['09'], -1)
+FACE['03'] = np.where(cen[:, 1] < 0.93, FACE['03'], -1); FACE['09'] = np.where(cen[:, 1] < 0.93, FACE['09'], -1)
+FACE['00'] = np.where(cen[:, 1] < 0.86, FACE['00'], -1)
+FACE['06'] = np.where((cen[:, 1] < 0.93) | (np.abs(cen[:, 2]) < 0.60), FACE['06'], -1)
+ks = ['00', '06', '03', '09']
+# frente/traseira têm prioridade (mais detalhe e câmera mais precisa) sempre que enxergam bem o triângulo
+for k in ('00', '06'): FACE[k] = np.where(FACE[k] > 0.30, FACE[k] + 1.0, FACE[k])
+FM = np.stack([FACE[k] for k in ks]); best = FM.argmax(0); bestv = FM.max(0)
+for k, sel in ((kk, (best == i) & (bestv > 0.45)) for i, kk in enumerate(ks)):
     img = _Image.open(f'{W}/insertos/{k}_rgba.png'); A = np.array(img)
     uvp = _proj(k, v)                                                       # pixel na vista para cada vértice
     m = A[..., 3]; H_, W_ = m.shape
     ui = np.clip(np.round(uvp[:, 0]).astype(int), 0, W_ - 1); vi = np.clip(np.round(uvp[:, 1]).astype(int), 0, H_ - 1)
     mv = m[vi, ui]
-    tri = sel & (mv[f].max(1) > 12); livre &= ~tri
+    tri = sel & (mv[f].max(1) > 12)
     # recorte da vista que cobre os triângulos escolhidos, colocado no atlas
     pu = uvp[f[tri].ravel()]; x0, y0 = np.floor(pu.min(0)) - 4; x1, y1 = np.ceil(pu.max(0)) + 4
     x0, y0 = max(0, x0), max(0, y0); x1, y1 = min(W_, x1), min(H_, y1)
