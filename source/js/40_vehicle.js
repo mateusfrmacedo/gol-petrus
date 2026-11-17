@@ -2,7 +2,7 @@
 // tração dianteira, câmbio automático, freio de mão, relevo/inclinação da pista e colisão com barreiras.
 // Passo fixo de 1/120 s. Nenhuma alocação durante a simulação.
 const PHYS_DT = 1 / 120;
-const K_W = 1, K_S = 2, K_A = 4, K_D = 8, K_SPACE = 16, K_C = 32, K_R = 64, K_V = 128, K_PAD = 256, K_PADS = 512;
+const K_W = 1, K_S = 2, K_A = 4, K_D = 8, K_SPACE = 16, K_C = 32, K_R = 64, K_V = 128, K_PAD = 256, K_PADS = 512, K_UP = 1024, K_DOWN = 2048;
 // Entrada analógica do controle: VIN[0] acelerador 0..1, VIN[1] freio 0..1 (valem quando as teclas trazem K_PAD), VIN[2] direção -1..1 (K_PADS).
 // As teclas gravadas da volta roteirizada nunca trazem esses bits: a via digital fica exatamente como era.
 const VIN = new Float64Array(3);
@@ -14,6 +14,7 @@ const VP = {
 };
 const VEH = {
   x: 0, z: 0, yaw: 0, vx: 0, vy: 0, r: 0,                  // posição do CG no plano, direção, velocidades no corpo (frente, direita), guinada
+  manual: true, shiftTime: 0,
   steer: 0, rpm: 900, gear: 1, throttle: 0, brake: 0, hand: 0,
   ax: 0, ay: 0,                                              // acelerações filtradas (corpo)
   roll: 0, rollV: 0, pitch: 0, pitchV: 0, heave: 0, heaveV: 0,
@@ -61,7 +62,7 @@ const ZMU = [1.0, 0.96, 0.56, 0.5, 0.5, 0.95, 0.95], ZDRAG = [0, 0.005, 0.07, 0.
 function vehicleReset(s, d, heading) {
   const V = VEH; trackPos(s, d, _vp);
   V.x = _vp[0]; V.z = _vp[2]; V.yaw = Math.atan2(_vp[4], _vp[3]) + (heading || 0);
-  V.vx = V.vy = V.r = 0; V.steer = 0; V.rpm = 900; V.gear = 1; V.ax = V.ay = 0; V.roll = V.rollV = V.pitch = V.pitchV = V.heave = V.heaveV = 0;
+  V.vx = V.vy = V.r = 0; V.steer = 0; V.rpm = 900; V.gear = 1; V.shiftTime = 0; V.ax = V.ay = 0; V.roll = V.rollV = V.pitch = V.pitchV = V.heave = V.heaveV = 0;
   V.hint = -1; V.whint.fill(-1); V.omega.fill(0); V.slip.fill(0);
   _gq[0] = V.x; _gq[1] = V.z; groundQ(-1); V.y = _gq[8]; V.gPitch = 0; V.gRoll = 0; V.lastS = V.s;
   for (let k = 0; k < 6; k++) vehicleGround(1);
@@ -82,6 +83,18 @@ function vehicleGround(k) {
   const gy = (yF * VP.b + yR * VP.a) / VP.L, gp = Math.atan2(yF - yR, VP.L), gr = Math.atan2(yRt - yL, VP.tw);
   V.y += (gy - V.y) * k; V.gPitch += (gp - V.gPitch) * k; V.gRoll += (gr - V.gRoll) * k;
   _gq[0] = V.x; _gq[1] = V.z; V.zone = groundQ(-1);
+}
+// A volta gravada e o piloto automático mantêm o comportamento original.
+function manualGearbox() { return VEH.manual && !GS.replayOn && !GS.ai; }
+function vehicleShift(direction) {
+  const V = VEH;
+  if (!manualGearbox() || V.gear === 0 || V.shiftTime > 0) return false;
+  const next = V.gear + direction;
+  if (next < 1 || next > VP.gears.length) return false;
+  const wheel = Math.max(Math.abs((V.omega[0] + V.omega[1]) * 0.5), Math.abs(V.vx) / VP.R);
+  if (direction < 0 && wheel * VP.gears[next - 1] * VP.final * 9.5493 > 6500) return false;
+  V.gear = next; V.shiftTime = 0.18;
+  return true;
 }
 function vehicleStep(keys) {
   const V = VEH, P = VP, dt = PHYS_DT, g = 9.81;
@@ -107,7 +120,7 @@ function vehicleStep(keys) {
   const wheelSpd = (V.omega[0] + V.omega[1]) * 0.5;
   let ratio = reverse ? -P.rev * P.final : P.gears[V.gear - 1] * P.final;
   let rpm = Math.abs(wheelSpd * ratio) * 9.5493;
-  if (!reverse) {
+  if (!reverse && !manualGearbox()) {
     if (rpm > 6250 && V.gear < 5) { V.gear++; }
     else if (V.gear > 1 && Math.abs(wheelSpd * P.gears[V.gear - 2] * P.final) * 9.5493 < 5350) V.gear--;
     ratio = P.gears[V.gear - 1] * P.final; rpm = Math.abs(wheelSpd * ratio) * 9.5493;
@@ -116,6 +129,7 @@ function vehicleStep(keys) {
   V.rpm += (rpmE - V.rpm) * 0.25;
   const ex = rpmE / 1000, ek = (ex - 0.6) / 5.4, eT = 180 + 118 * Math.sin((ek < 0 ? 0 : ek > 1 ? 1 : ek) * PI) - (ex > 6 ? (ex - 6) * 110 : 0);   // = engineTorque(rpmE), embutido
   let Tdrive = throttle * (eT > 0 ? eT : 0) * ratio * P.eff;                  // torque total nas rodas dianteiras
+  if (V.shiftTime > 0) { V.shiftTime = Math.max(0, V.shiftTime - dt); Tdrive = 0; }
   if (rpm > 6500) Tdrive = 0;
   if (reverse && V.vx < -11) Tdrive = 0;
   Tdrive -= (1 - throttle) * 0.012 * rpmE * Math.sign(wheelSpd) * Math.abs(ratio) * 0.1;   // freio-motor

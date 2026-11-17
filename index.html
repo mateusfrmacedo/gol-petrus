@@ -30,6 +30,9 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 #ui button{font:inherit;font-size:1.15em;font-weight:600;color:#fff;background:#d8351c;border:0;border-radius:.5em;padding:.6em 2em;margin:0 .4em;cursor:pointer}
 #ui button+button{background:rgba(255,255,255,.16)}
 #ui button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#transmission{display:none;position:absolute;right:1.6vh;top:1.6vh;padding:.55em .9em;border-radius:.6em;background:rgba(9,11,14,.72);color:#fff;font-variant-numeric:tabular-nums;pointer-events:none}
+#gear-mode{font:inherit;color:#fff;background:#25282d;border:1px solid #777;border-radius:.4em;padding:.4em .7em}
+.gear-setting{margin:1.2em 0 0}
 </style>
 </head>
 <body>
@@ -37,6 +40,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 <div id="msg">carregando…</div>
 <div id="hint">W acelera · S freia/ré · A/D faz curvas · Espaço freio de mão · C câmera · R volta à pista</div>
 <canvas id="hg"></canvas><canvas id="ht"></canvas><canvas id="hs"></canvas><div id="tag"></div>
+<div id="transmission" role="status" aria-live="polite"></div>
 <div id="ui"><div>
 <h1>Gol Petrus</h1>
 <p class="sub">VW Gol G6 1.0 MSI branco · circuito</p>
@@ -47,6 +51,8 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 <tr><td>S ou ↓</td><td>freia e dá ré</td></tr>
 <tr><td>A D ou ← →</td><td>faz curvas</td></tr>
 <tr><td>Espaço</td><td>freio de mão</td></tr>
+<tr><td>E / Q</td><td>sobe / reduz marcha</td></tr>
+<tr><td>T</td><td>câmbio manual / automático</td></tr>
 <tr><td>C</td><td>troca a câmera</td></tr>
 <tr><td>V (segurar)</td><td>olha para trás</td></tr>
 <tr><td>R</td><td>devolve o carro à pista</td></tr>
@@ -57,6 +63,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 <tr><td>Gatilho esquerdo</td><td>freia e dá ré</td></tr>
 <tr><td>Analógico esquerdo</td><td>faz curvas</td></tr>
 <tr><td>A</td><td>freio de mão</td></tr>
+<tr><td>B / LB</td><td>sobe / reduz marcha</td></tr>
 <tr><td>Y</td><td>troca a câmera</td></tr>
 <tr><td>RB (segurar)</td><td>olha para trás</td></tr>
 <tr><td>X</td><td>devolve o carro à pista</td></tr>
@@ -70,9 +77,10 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 <tr><td>B</td><td>benchmark (volta roteirizada de 60 s)</td></tr>
 <tr><td>F</td><td>assistir à volta roteirizada</td></tr>
 <tr><td>1 a 6</td><td>poses fixas</td></tr>
-<tr><td colspan="2" style="font-weight:400;color:#ddd;opacity:.75;padding-top:.5em">Câmbio automático · a volta conta<br>ao cruzar a linha de largada</td></tr>
+<tr><td colspan="2" style="font-weight:400;color:#ddd;opacity:.75;padding-top:.5em">5 marchas · embreagem automática<br>S freia e engata ré ao parar<br>A volta conta ao cruzar a largada</td></tr>
 </table></div>
 </div>
+<p class="gear-setting"><label for="gear-mode">Câmbio </label><select id="gear-mode"><option value="manual">Manual · E/Q ou B/LB</option><option value="auto">Automático</option></select></p>
 <div class="bt"><button id="b0">Começar</button><button id="b1">Benchmark</button></div>
 </div></div>
 <script>
@@ -6528,7 +6536,7 @@ function grassBuild() {
 // tração dianteira, câmbio automático, freio de mão, relevo/inclinação da pista e colisão com barreiras.
 // Passo fixo de 1/120 s. Nenhuma alocação durante a simulação.
 const PHYS_DT = 1 / 120;
-const K_W = 1, K_S = 2, K_A = 4, K_D = 8, K_SPACE = 16, K_C = 32, K_R = 64, K_V = 128, K_PAD = 256, K_PADS = 512;
+const K_W = 1, K_S = 2, K_A = 4, K_D = 8, K_SPACE = 16, K_C = 32, K_R = 64, K_V = 128, K_PAD = 256, K_PADS = 512, K_UP = 1024, K_DOWN = 2048;
 // Entrada analógica do controle: VIN[0] acelerador 0..1, VIN[1] freio 0..1 (valem quando as teclas trazem K_PAD), VIN[2] direção -1..1 (K_PADS).
 // As teclas gravadas da volta roteirizada nunca trazem esses bits: a via digital fica exatamente como era.
 const VIN = new Float64Array(3);
@@ -6540,6 +6548,7 @@ const VP = {
 };
 const VEH = {
   x: 0, z: 0, yaw: 0, vx: 0, vy: 0, r: 0,                  // posição do CG no plano, direção, velocidades no corpo (frente, direita), guinada
+  manual: true, shiftTime: 0,
   steer: 0, rpm: 900, gear: 1, throttle: 0, brake: 0, hand: 0,
   ax: 0, ay: 0,                                              // acelerações filtradas (corpo)
   roll: 0, rollV: 0, pitch: 0, pitchV: 0, heave: 0, heaveV: 0,
@@ -6587,7 +6596,7 @@ const ZMU = [1.0, 0.96, 0.56, 0.5, 0.5, 0.95, 0.95], ZDRAG = [0, 0.005, 0.07, 0.
 function vehicleReset(s, d, heading) {
   const V = VEH; trackPos(s, d, _vp);
   V.x = _vp[0]; V.z = _vp[2]; V.yaw = Math.atan2(_vp[4], _vp[3]) + (heading || 0);
-  V.vx = V.vy = V.r = 0; V.steer = 0; V.rpm = 900; V.gear = 1; V.ax = V.ay = 0; V.roll = V.rollV = V.pitch = V.pitchV = V.heave = V.heaveV = 0;
+  V.vx = V.vy = V.r = 0; V.steer = 0; V.rpm = 900; V.gear = 1; V.shiftTime = 0; V.ax = V.ay = 0; V.roll = V.rollV = V.pitch = V.pitchV = V.heave = V.heaveV = 0;
   V.hint = -1; V.whint.fill(-1); V.omega.fill(0); V.slip.fill(0);
   _gq[0] = V.x; _gq[1] = V.z; groundQ(-1); V.y = _gq[8]; V.gPitch = 0; V.gRoll = 0; V.lastS = V.s;
   for (let k = 0; k < 6; k++) vehicleGround(1);
@@ -6608,6 +6617,18 @@ function vehicleGround(k) {
   const gy = (yF * VP.b + yR * VP.a) / VP.L, gp = Math.atan2(yF - yR, VP.L), gr = Math.atan2(yRt - yL, VP.tw);
   V.y += (gy - V.y) * k; V.gPitch += (gp - V.gPitch) * k; V.gRoll += (gr - V.gRoll) * k;
   _gq[0] = V.x; _gq[1] = V.z; V.zone = groundQ(-1);
+}
+// A volta gravada e o piloto automático mantêm o comportamento original.
+function manualGearbox() { return VEH.manual && !GS.replayOn && !GS.ai; }
+function vehicleShift(direction) {
+  const V = VEH;
+  if (!manualGearbox() || V.gear === 0 || V.shiftTime > 0) return false;
+  const next = V.gear + direction;
+  if (next < 1 || next > VP.gears.length) return false;
+  const wheel = Math.max(Math.abs((V.omega[0] + V.omega[1]) * 0.5), Math.abs(V.vx) / VP.R);
+  if (direction < 0 && wheel * VP.gears[next - 1] * VP.final * 9.5493 > 6500) return false;
+  V.gear = next; V.shiftTime = 0.18;
+  return true;
 }
 function vehicleStep(keys) {
   const V = VEH, P = VP, dt = PHYS_DT, g = 9.81;
@@ -6633,7 +6654,7 @@ function vehicleStep(keys) {
   const wheelSpd = (V.omega[0] + V.omega[1]) * 0.5;
   let ratio = reverse ? -P.rev * P.final : P.gears[V.gear - 1] * P.final;
   let rpm = Math.abs(wheelSpd * ratio) * 9.5493;
-  if (!reverse) {
+  if (!reverse && !manualGearbox()) {
     if (rpm > 6250 && V.gear < 5) { V.gear++; }
     else if (V.gear > 1 && Math.abs(wheelSpd * P.gears[V.gear - 2] * P.final) * 9.5493 < 5350) V.gear--;
     ratio = P.gears[V.gear - 1] * P.final; rpm = Math.abs(wheelSpd * ratio) * 9.5493;
@@ -6642,6 +6663,7 @@ function vehicleStep(keys) {
   V.rpm += (rpmE - V.rpm) * 0.25;
   const ex = rpmE / 1000, ek = (ex - 0.6) / 5.4, eT = 180 + 118 * Math.sin((ek < 0 ? 0 : ek > 1 ? 1 : ek) * PI) - (ex > 6 ? (ex - 6) * 110 : 0);   // = engineTorque(rpmE), embutido
   let Tdrive = throttle * (eT > 0 ? eT : 0) * ratio * P.eff;                  // torque total nas rodas dianteiras
+  if (V.shiftTime > 0) { V.shiftTime = Math.max(0, V.shiftTime - dt); Tdrive = 0; }
   if (rpm > 6500) Tdrive = 0;
   if (reverse && V.vx < -11) Tdrive = 0;
   Tdrive -= (1 - throttle) * 0.012 * rpmE * Math.sign(wheelSpd) * Math.abs(ratio) * 0.1;   // freio-motor
@@ -6912,7 +6934,7 @@ const GS = {
 const LAP = new Float64Array(4);
 // Controle (Gamepad API): PADV[0] gatilho direito, [1] gatilho esquerdo, [2] analógico esquerdo já com zona morta e curva. Preenchido por padPoll.
 const PADV = new Float64Array(3);
-const KEYMAP = { KeyW: K_W, ArrowUp: K_W, KeyS: K_S, ArrowDown: K_S, KeyA: K_A, ArrowLeft: K_A, KeyD: K_D, ArrowRight: K_D, Space: K_SPACE, KeyC: K_C, KeyR: K_R, KeyV: K_V };
+const KEYMAP = { KeyW: K_W, ArrowUp: K_W, KeyS: K_S, ArrowDown: K_S, KeyA: K_A, ArrowLeft: K_A, KeyD: K_D, ArrowRight: K_D, Space: K_SPACE, KeyC: K_C, KeyR: K_R, KeyV: K_V, KeyE: K_UP, KeyQ: K_DOWN };
 function onKeyDown(e) { const k = KEYMAP[e.code]; if (k) { GS.held |= k; e.preventDefault(); } }
 function onKeyUp(e) { const k = KEYMAP[e.code]; if (k) { GS.held &= ~k; e.preventDefault(); } }
 function onBlur() { GS.held = 0; }
@@ -7037,6 +7059,7 @@ function gameStep() {
     GS.prevKeys = GS.keys; GS.keys = k; GS.tick60++;
     const edge = k & ~GS.prevKeys;
     if ((k ^ GS.prevKeys) & K_V) { GS.cut = true; GS.chaseInit = false; }   // olhar para trás é um corte de câmera
+    if (!(edge & K_UP) !== !(edge & K_DOWN)) vehicleShift(edge & K_UP ? 1 : -1);
     if (edge & K_C) { GS.cam = (GS.cam + 1) % 3; GS.cut = true; GS.chaseInit = false; GS.tvCur = -1; }
     if (edge & K_R) { // devolve o carro à pista: no eixo, alinhado, parado
       const s = VEH.s; vehicleReset(s, clamp(VEH.d, -2, 2), 0); GS.cut = true; GS.chaseInit = false;
@@ -7644,6 +7667,11 @@ function hudDec(g, A, v10, x, y) {
 function hudFrame() { hudRead(); hudDraw(); }
 function hudRead() {
   const V = HUD.V, v = VEH; let kmh = GS.speed * 36; if (kmh > 2000) kmh = 2000; let rpm = v.rpm; if (rpm > 7000) rpm = 7000;
+  if (!UI.warm) {
+    const label = manualGearbox() ? 'MANUAL' : 'AUTO', gear = v.gear === 0 ? 'R' : v.gear;
+    const text = label + ' · ' + gear + (v.gear === 0 ? '' : 'ª') + (manualGearbox() ? (v.rpm >= 6000 && v.gear < 5 ? ' · ↑ TROCAR' : ' · E ↑ / Q ↓') : ' · T manual');
+    const el = $('transmission'); if (el.textContent !== text) el.textContent = text;
+  }
   V[0] = kmh; V[1] = rpm; V[2] = v.gear; V[3] = LAP[3] === 1 ? (v.time - LAP[0]) * 100 : 0; V[4] = LAP[1] > 0 ? LAP[1] * 100 : -1; V[5] = LAP[2] > 0 ? LAP[2] * 100 : -1;
 }
 function hudDraw() {
@@ -7675,7 +7703,7 @@ function hudStatsFrame() {
   a[0] = 0; a[1] = 0;
   s.clearRect(0, 0, L[27], L[28]); s.drawImage(H.bgS, 0, 0); hudInt(s, C, fps > 999 ? 999 : fps, 3, L[20], y, 1); hudDec(s, C, ms, L[21], y); hudDec(s, C, gpu, L[22], y);
 }
-function hudShow(on) { HUD.vis = on; HUD.cg.style.display = HUD.ct.style.display = on ? 'block' : 'none'; HUD.K.fill(-9); }
+function hudShow(on) { $('transmission').style.display = on ? 'block' : 'none'; HUD.vis = on; HUD.cg.style.display = HUD.ct.style.display = on ? 'block' : 'none'; HUD.K.fill(-9); }
 function hudStats(on) { HUD.stats = on; HUD.cs.style.display = on ? 'block' : 'none'; HUD.acc[0] = 0; HUD.acc[1] = 0; if (on) { const L = HUD.L; HUD.s.clearRect(0, 0, L[27], L[28]); HUD.s.drawImage(HUD.bgS, 0, 0); } }
 
 // ---- 52_ui.js
@@ -7691,6 +7719,8 @@ function uiInit() {
   try { const b = +localStorage.getItem('gol-melhor'); if (b > 20 && b < 600) LAP[2] = b; } catch (e) { /* sem armazenamento local: a melhor volta vale só nesta sessão */ }
   UI.b0.onclick = () => { if (UI.st === ST.INICIO) { sndStart(); uiSet(ST.JOGO); } else uiResume(); };
   UI.b1.onclick = () => benchStart();
+  $('gear-mode').value = VEH.manual ? 'manual' : 'auto';
+  $('gear-mode').onchange = e => { VEH.manual = e.target.value === 'manual'; };
   addEventListener('keydown', uiKey);
   document.addEventListener('visibilitychange', () => { if (document.hidden && (UI.st === ST.JOGO || UI.st === ST.FITA || UI.st === ST.BENCH)) uiPause(); });
   addEventListener('gamepadconnected', padCount); addEventListener('gamepaddisconnected', padCount);
@@ -7726,6 +7756,7 @@ function uiKey(e) {
   if (c === 'Digit0' || c === 'Numpad0') { e.preventDefault(); void musicNext(); return; }
   if (c === 'KeyM') { sndMute(!SND.mute); return; }
   if (c === 'KeyH') { UI.stats = !UI.stats; hudStats(UI.stats); if (st !== ST.BENCH) perfAttach(UI.stats, 12); return; }
+  if (c === 'KeyT' && (st === ST.JOGO || st === ST.PAUSA || st === ST.INICIO)) { VEH.manual = !VEH.manual; $('gear-mode').value = VEH.manual ? 'manual' : 'auto'; e.preventDefault(); return; }
   if (st === ST.INICIO) return;                                   // na tela de início só o botão começa o jogo (e o som)
   if (c === 'Escape') { if (st === ST.JOGO || st === ST.FITA || st === ST.BENCH) uiPause(); else uiResume(); e.preventDefault(); }
   else if (c === 'KeyB') benchStart();
@@ -7773,6 +7804,7 @@ function padApply() {
   if (ax < 0.12) x = 0; else { const u = (ax - 0.12) / 0.88; x = (x < 0 ? -1 : 1) * u * (0.45 + 0.55 * u); }   // zona morta + curva suave no centro
   PADV[2] = x;
   if (rt > 0.06) k |= K_W; if (lt > 0.06) k |= K_S;
+  if (m & 2) k |= K_UP; if (m & 16) k |= K_DOWN;
   if (m & 1) k |= K_SPACE; if (m & 8) k |= K_C; if (m & 4) k |= K_R; if (m & 32) k |= K_V;
   GS.padKeys = k;
   const edge = m & ~UI.padPrev; UI.padPrev = m;
@@ -8004,7 +8036,7 @@ window.__cap = {
   somNivel() { if (!SND.node) return null; if (!SND.an) { SND.an = SND.ctx.createAnalyser(); SND.an.fftSize = 2048; SND.node.connect(SND.an); SND.anBuf = new Float32Array(2048); } SND.an.getFloatTimeDomainData(SND.anBuf); let p = 0; for (const v of SND.anBuf) p = Math.max(p, Math.abs(v)); return p; },
   // estado da interface para os testes
   ui() { return { ligada: GAME.ui, estado: GAME.ui ? Object.keys(ST)[UI.st] : null, menu: GAME.ui && UI.el.style.display !== 'none', painel: HUD.vis, stats: HUD.stats, mudo: SND.mute, som: SND.ctx ? SND.ctx.state : 'nenhum', somOk: SND.ok, somVia: SND.P ? 'AudioWorklet' : SND.node ? 'ScriptProcessor' : null, tempoAudio: SND.ctx ? SND.ctx.currentTime : 0, pose: UI.pose, bench: UI.bench, pad: UI.padN, replay: GS.replayOn, gpuTempo: G.hasTS, perfOn: PERF.on, gpuVivo: PERF.live[0] }; },
-  state() { const V = VEH; return { rpm: V.rpm, thr: V.ctl[0], brk: V.ctl[1], keys: GS.keys, volta: LAP[3] === 1 ? V.time - LAP[0] : 0, ultima: LAP[1], melhor: LAP[2], voltas: V.laps, tempo: V.time, camPos: Array.from(R.cam.pos), camFwd: Array.from(R.cam.fwd), x: V.x, z: V.z, y: V.y, yaw: V.yaw, speed: Math.hypot(V.vx, V.vy), vx: V.vx, steer: V.steer, s: V.s, d: V.d, gear: V.gear, cam: GS.cam, lapS: V.lapS, off: V.offCount, hits: V.hits, tick: GS.tick60, zone: V.zone, brake: objParams(carObj().slotBody)[0], slip: Array.from(V.slip), particles: FX.pAlive, roll: V.roll, pitch: V.pitch, spin: V.spin[0] }; },
+  state() { const V = VEH; return { manual: manualGearbox(), shiftTime: V.shiftTime, rpm: V.rpm, thr: V.ctl[0], brk: V.ctl[1], keys: GS.keys, volta: LAP[3] === 1 ? V.time - LAP[0] : 0, ultima: LAP[1], melhor: LAP[2], voltas: V.laps, tempo: V.time, camPos: Array.from(R.cam.pos), camFwd: Array.from(R.cam.fwd), x: V.x, z: V.z, y: V.y, yaw: V.yaw, speed: Math.hypot(V.vx, V.vy), vx: V.vx, steer: V.steer, s: V.s, d: V.d, gear: V.gear, cam: GS.cam, lapS: V.lapS, off: V.offCount, hits: V.hits, tick: GS.tick60, zone: V.zone, brake: objParams(carObj().slotBody)[0], slip: Array.from(V.slip), particles: FX.pAlive, roll: V.roll, pitch: V.pitch, spin: V.spin[0] }; },
   dbg(name, scale, alpha) { setDebugView(name, scale, alpha); },
   R, G, GAME, TRK, GS, VEH, FX, RT, renderFrame, SND, HUD, UI, PERF, LAP,
 };

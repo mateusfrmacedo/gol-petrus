@@ -20,10 +20,14 @@ Para ver só o carro, sem a pista: abra a página com `#carro` no fim do endere�
 | Frear e dar ré | `S` ou `↓` | Gatilho esquerdo |
 | Fazer curvas | `A` `D` ou `←` `→` | Analógico esquerdo |
 | Freio de mão | `Espaço` | `A` |
+| Subir / reduzir marcha | `E` / `Q` | `B` / `LB` |
+| Manual / automático | `T` ou seletor no menu | Seletor no menu |
 | Trocar a câmera | `C` | `Y` |
 | Olhar para trás | Segurar `V` | Segurar `RB` |
 | Devolver o carro à pista | `R` | `X` |
 | Pausar e abrir o menu | `Esc` | `Start` |
+
+O câmbio manual tem cinco marchas e embreagem automática. O painel mostra a marcha e avisa quando subir. Reduções que excederiam 6.500 rpm são bloqueadas. `S` freia e engata a ré ao parar; as voltas roteirizadas usam o automático.
 
 `M` liga e desliga o som, `H` mostra o desempenho, `B` roda o benchmark, `F` mostra a volta roteirizada e `1` a `6` pulam para as poses fixas de câmera.
 

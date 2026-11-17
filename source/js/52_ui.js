@@ -10,6 +10,8 @@ function uiInit() {
   try { const b = +localStorage.getItem('gol-melhor'); if (b > 20 && b < 600) LAP[2] = b; } catch (e) { /* sem armazenamento local: a melhor volta vale só nesta sessão */ }
   UI.b0.onclick = () => { if (UI.st === ST.INICIO) { sndStart(); uiSet(ST.JOGO); } else uiResume(); };
   UI.b1.onclick = () => benchStart();
+  $('gear-mode').value = VEH.manual ? 'manual' : 'auto';
+  $('gear-mode').onchange = e => { VEH.manual = e.target.value === 'manual'; };
   addEventListener('keydown', uiKey);
   document.addEventListener('visibilitychange', () => { if (document.hidden && (UI.st === ST.JOGO || UI.st === ST.FITA || UI.st === ST.BENCH)) uiPause(); });
   addEventListener('gamepadconnected', padCount); addEventListener('gamepaddisconnected', padCount);
@@ -45,6 +47,7 @@ function uiKey(e) {
   if (c === 'Digit0' || c === 'Numpad0') { e.preventDefault(); void musicNext(); return; }
   if (c === 'KeyM') { sndMute(!SND.mute); return; }
   if (c === 'KeyH') { UI.stats = !UI.stats; hudStats(UI.stats); if (st !== ST.BENCH) perfAttach(UI.stats, 12); return; }
+  if (c === 'KeyT' && (st === ST.JOGO || st === ST.PAUSA || st === ST.INICIO)) { VEH.manual = !VEH.manual; $('gear-mode').value = VEH.manual ? 'manual' : 'auto'; e.preventDefault(); return; }
   if (st === ST.INICIO) return;                                   // na tela de início só o botão começa o jogo (e o som)
   if (c === 'Escape') { if (st === ST.JOGO || st === ST.FITA || st === ST.BENCH) uiPause(); else uiResume(); e.preventDefault(); }
   else if (c === 'KeyB') benchStart();
@@ -92,6 +95,7 @@ function padApply() {
   if (ax < 0.12) x = 0; else { const u = (ax - 0.12) / 0.88; x = (x < 0 ? -1 : 1) * u * (0.45 + 0.55 * u); }   // zona morta + curva suave no centro
   PADV[2] = x;
   if (rt > 0.06) k |= K_W; if (lt > 0.06) k |= K_S;
+  if (m & 2) k |= K_UP; if (m & 16) k |= K_DOWN;
   if (m & 1) k |= K_SPACE; if (m & 8) k |= K_C; if (m & 4) k |= K_R; if (m & 32) k |= K_V;
   GS.padKeys = k;
   const edge = m & ~UI.padPrev; UI.padPrev = m;
