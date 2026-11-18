@@ -3,13 +3,14 @@ const CAR = {
   wheelbase: GOL_META.axf * 2, trackF: GOL_META.track, trackR: GOL_META.track, wheelR: GOL_META.wheelR,
   hubs: GOL_META.hubs || [[1.2335, 0.298, -0.728], [1.2335, 0.298, 0.728], [-1.2335, 0.298, -0.728], [-1.2335, 0.298, 0.728]],
   slotBody: 0, slotWheel: [0, 0, 0, 0], slotSteer: 0,
-  steerMat: m4(), tris: 0, _t: m4(), _t2: m4(), _t3: m4(), set: null, glass: null, atlasBG: null, fam: null,
+  steerMat: m4(), tris: 0, _t: m4(), _t2: m4(), _t3: m4(), set: null, glass: null, atlasBG: null, fam: null, driver: null,
   build() {
     const fam = CAR.fam = mkFamily('car', { src: 'mat_car', noCube: true });
     CAR.slotBody = objSlot(); for (let i = 0; i < 4; i++) CAR.slotWheel[i] = objSlot(); CAR.slotSteer = objSlot();
     const set = CAR.set = new MeshSet(fam), glass = CAR.glass = new GlassSet();
     const mb = new MeshBuilder(1 << 18), gl = new MeshBuilder(1 << 14);
-    carBuildBody(mb, gl);
+    const driver = new MeshBuilder(1 << 14);
+    carBuildBody(mb, gl, driver);
     if (typeof carBuildParts === 'function') carBuildParts(mb, gl);
     CAR.tris = mb.ni / 3 + gl.ni / 3;
     set.add(mb.upload(), CAR.slotBody, 3); glass.add_(gl.upload(), CAR.slotBody);
@@ -17,12 +18,14 @@ const CAR = {
       const w = new MeshBuilder(1 << 15), wb = new MeshBuilder(1 << 11); carBuildWheel(w, wb); const wm = w.upload(), wbm = wb.upload(); CAR.tris += 4 * (w.ni + wb.ni) / 3;
       for (let i = 0; i < 4; i++) { set.add(wm, CAR.slotWheel[i], 3); set.add(wbm, CAR.slotWheel[i], 1); }   // disco de borrão: só no passe principal
     }
+    carBuildDriver(driver); CAR.driver = set.add(driver.upload(), CAR.slotBody, 3); CAR.tris += driver.ni / 3;
     if (typeof carBuildSteer === 'function') { const s = new MeshBuilder(1 << 12); carBuildSteer(s); CAR.tris += s.ni / 3; set.add(s.upload(), CAR.slotSteer, 3); }
     const tex = typeof carAtlas === 'function' ? carAtlas() : mkTex(4, 4, 'rgba8unorm-srgb');
     // desenhável: liga o atlas (grupo 3) e não entra no mapa de sombras estático do mundo
     R.drawables.push({ draw(pass, ctx) {
       if (ctx.kind === KIND.SHADOW && ctx.cascade === 3) return;
-      if (!CAR.atlasBG) { if (!fam.bgl3) return; CAR.atlasBG = G.dev.createBindGroup({ layout: fam.bgl3, entries: [{ binding: 0, resource: tex.createView() }, { binding: 1, resource: GOL.foto.createView() }] }); }
+      if (!CAR.atlasBG) { if (!fam.bgl3) return; CAR.atlasBG = G.dev.createBindGroup({ layout: fam.bgl3, entries: [{ binding: 0, resource: tex.createView() }, { binding: 1, resource: GOL.foto.createView() }, { binding: 2, resource: CABIN_IMAGES.texture.createView() }] }); }
+      CAR.driver.flags = objParams(CAR.slotBody)[3] > .5 ? 2 : 3;
       pass.setBindGroup(3, CAR.atlasBG); set.draw(pass, ctx);
     } });
     R.transparents.push(glass);
@@ -51,7 +54,7 @@ const CAR = {
       m4mul(objModel(s), body, t);
     }
     objPrev(CAR.slotSteer).set(objModel(CAR.slotSteer));
-    const ca = Math.cos(-steerWheelAngle), sa = Math.sin(-steerWheelAngle); t2.fill(0); t2[0] = 1; t2[5] = ca; t2[6] = sa; t2[9] = -sa; t2[10] = ca; t2[15] = 1;
+    const ca = Math.cos(steerWheelAngle), sa = Math.sin(steerWheelAngle); t2.fill(0); t2[0] = 1; t2[5] = ca; t2[6] = sa; t2[9] = -sa; t2[10] = ca; t2[15] = 1;
     m4mul(t, CAR.steerMat, t2); m4mul(objModel(CAR.slotSteer), body, t);
   },
 };

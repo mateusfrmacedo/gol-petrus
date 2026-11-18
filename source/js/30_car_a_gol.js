@@ -63,7 +63,49 @@ function golEmit(mb, p, triMask, off, flip) {
   }
 }
 // carroceria (com as regiões pintadas no shader), vidros, lentes, forro interno e peças presas à carroceria
-function carBuildBody(mb, gl) {
+// Banco e encosto de cabeça do motorista no modelo importado: a câmera fica no seu volume.
+// É separado junto ao piloto para aparecer por fora, sem atravessar os olhos na cabine.
+function carDriverSeat(p, t) {
+  if (p.dest !== 0 || p.mat !== 21) return false;
+  for (let k = 0; k < 3; k++) {
+    const i = p.idx[t * 3 + k] * 3, x = p.pos[i], y = p.pos[i + 1], z = p.pos[i + 2];
+    if (x < -.15 || x > .10 || y < .71 || y > 1.20 || z < -.61 || z > -.12) return false;
+  }
+  return true;
+}
+// Subtrai apenas o volume do painel antigo. Triângulos que atravessam o limite
+// são divididos: a parte do forro das portas e das colunas permanece intacta.
+function carEmitCabinReplacement(mb, p, driver) {
+  const bounds = [[0,-.12,1],[0,1.08,-1],[1,.77,1],[1,.97,-1],[2,-.72,1],[2,.72,-1]];
+  const emit = (builder, poly) => {
+    if (poly.length < 3) return;
+    const ids = poly.map(v => builder.v(...v));
+    for (let k = 1; k + 1 < ids.length; k++) builder.tri(ids[0], ids[k], ids[k + 1]);
+  };
+  driver.mat(p.mat,p.pa).color(...p.col);
+  for (let t = 0; t < p.nI / 3; t++) {
+    let poly = [];
+    for (let k = 0; k < 3; k++) {
+      const i = p.idx[t * 3 + k], o = i * 3;
+      poly.push([p.pos[o],p.pos[o+1],p.pos[o+2],p.nrm[o],p.nrm[o+1],p.nrm[o+2],p.uv ? p.uv[i*2] : 0,p.uv ? p.uv[i*2+1] : 0]);
+    }
+    if (carDriverSeat(p,t)) { emit(driver,poly); continue; }
+    for (const [axis,edge,sign] of bounds) {
+      if (!poly.length) break;
+      const inside = [], outside = [];
+      for (let k = 0; k < poly.length; k++) {
+        const a = poly[k], b = poly[(k+1)%poly.length], da = (a[axis]-edge)*sign, db = (b[axis]-edge)*sign;
+        (da >= 0 ? inside : outside).push(a);
+        if ((da >= 0) !== (db >= 0)) {
+          const u = da / (da-db), v = a.map((value,i) => value+(b[i]-value)*u);
+          inside.push(v); outside.push(v);
+        }
+      }
+      emit(mb,outside); poly = inside;
+    }
+  }
+}
+function carBuildBody(mb, gl, driver) {
   for (const p of GOL.parts) {
     if (p.dest !== 0 && p.dest !== 1) continue;
     if (p.cls) {
@@ -77,7 +119,10 @@ function carBuildBody(mb, gl) {
       continue;
     }
     const b = p.dest === 0 ? mb : gl;
-    b.mat(p.mat, p.pa).color(p.col[0], p.col[1], p.col[2]); golEmit(b, p, null, 0, false);
+    b.mat(p.mat, p.pa).color(p.col[0], p.col[1], p.col[2]);
+    if (driver && p.dest === 0 && p.mat === 21) {
+      carEmitCabinReplacement(b,p,driver);
+    } else golEmit(b, p, null, 0, false);
   }
 }
 // roda de liga 17" com pneu 205/40: eixo Z local, face externa em +Z

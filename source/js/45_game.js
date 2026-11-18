@@ -204,7 +204,7 @@ function gamePose() {
     GS.susp[i] = su; GS.spin[i] = V.pspin[i] + (V.spin[i] - V.pspin[i]) * al;
   }
   C.inp[0] = GS.steer; C.inp[1] = GS.steer * 14; C.place(B, GS.spin, GS.susp);
-  const bp = objParams(C.slotBody), k = GS.keys; bp[0] = ((k & K_S) && V.gear !== 0) || ((k & K_W) && V.gear === 0) ? 1 : 0; bp[1] = V.gear === 0 ? 1 : 0; bp[2] = 1;
+  const bp = objParams(C.slotBody), k = GS.keys; bp[0] = ((k & K_S) && V.gear !== 0) || ((k & K_W) && V.gear === 0) ? 1 : 0; bp[1] = V.gear === 0 ? 1 : 0; bp[2] = 1; bp[3] = GS.cam === 1 && !GS.freeCam ? 1 : 0; bp[4] = GS.speed * 3.6; bp[5] = V.rpm;
   for (let i = 0; i < 4; i++) { const w = V.omega[i]; objParams(C.slotWheel[i])[0] = w < 0 ? -w : w; }
   FR.data.set(B, FO.carMat); m4inv(T, B); FR.data.set(T, FO.carInv);
   // rodas: a matriz anterior passa a ser a roda atual levada pelo deslocamento rígido da carroceria (anterior × atual⁻¹).
@@ -234,11 +234,11 @@ function gameCamera() {
     let rl = -V.ay * 0.004; rl = rl < -0.05 ? -0.05 : rl > 0.05 ? 0.05 : rl;
     q[0] = ex; q[1] = ey; q[2] = ez; q[3] = GS.cx + c * 1.6 * lb; q[4] = GS.cy + 0.95 + V.gPitch * 1.6; q[5] = GS.cz + s * 1.6 * lb; q[6] = 0.93 + (GS.speed < 50 ? GS.speed : 50) * 0.0042; q[7] = rl;
   } else if (GS.cam === 1) {
-    // capô: presa à carroceria
-    const B = GS.body;
-    q[0] = B[0] * 0.5 + B[4] * 1.15 + B[12]; q[1] = B[1] * 0.5 + B[5] * 1.15 + B[13]; q[2] = B[2] * 0.5 + B[6] * 1.15 + B[14];   // acima da base do para-brisa: capô inteiro, com a grelha de ventilação junto à base do quadro
-    q[3] = B[0] * 6.5 + B[4] * 0.52 + B[12]; q[4] = B[1] * 6.5 + B[5] * 0.52 + B[13]; q[5] = B[2] * 6.5 + B[6] * 0.52 + B[14];
-    q[6] = 1.0; q[7] = -(V.gRoll + V.roll) * 0.8;
+    // Interna: olhos do motorista, à esquerda, atrás do volante. Acompanha a carroceria.
+    const B = GS.body, eyeX = -0.22, eyeY = 1.18 - (GOL_META.bodyDrop || 0), eyeZ = -0.36;
+    q[0] = B[0] * eyeX + B[4] * eyeY + B[8] * eyeZ + B[12]; q[1] = B[1] * eyeX + B[5] * eyeY + B[9] * eyeZ + B[13]; q[2] = B[2] * eyeX + B[6] * eyeY + B[10] * eyeZ + B[14];
+    q[3] = B[0] * 6.0 + B[4] * (eyeY - 0.70) + B[8] * eyeZ + B[12]; q[4] = B[1] * 6.0 + B[5] * (eyeY - 0.70) + B[9] * eyeZ + B[13]; q[5] = B[2] * 6.0 + B[6] * (eyeY - 0.70) + B[10] * eyeZ + B[14];
+    q[6] = 1.20; q[7] = -(V.gRoll + V.roll) * 0.8;
     if (lb < 0) {   // para trás: do alto da tampa traseira, sem o carro no quadro
       q[0] = B[0] * -2.0 + B[4] * 1.05 + B[12]; q[1] = B[1] * -2.0 + B[5] * 1.05 + B[13]; q[2] = B[2] * -2.0 + B[6] * 1.05 + B[14];
       q[3] = B[0] * -9 + B[4] * 0.6 + B[12]; q[4] = B[1] * -9 + B[5] * 0.6 + B[13]; q[5] = B[2] * -9 + B[6] * 0.6 + B[14]; q[7] = -q[7];

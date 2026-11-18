@@ -29,6 +29,8 @@ Para ver só o carro, sem a pista: abra a página com `#carro` no fim do endere�
 
 O câmbio manual tem cinco marchas e embreagem automática. O painel mostra a marcha e avisa quando subir. Reduções que excederiam 6.500 rpm são bloqueadas. `S` freia e engata a ré ao parar; as voltas roteirizadas usam o automático.
 
+`C` alterna entre a câmera externa, a visão interna do motorista e a câmera da pista. A cabine usa painel cinza fosco, quatro difusores redondos, rádio, comandos do ar, câmbio manual e volante VW de três raios, com base na referência fornecida do interior. Velocímetro e conta-giros funcionam no próprio painel; os mostradores grandes ficam ocultos nessa câmera. O para-brisa não aplica película nem reflexos na visão interna.
+
 `M` liga e desliga o som, `H` mostra o desempenho, `B` roda o benchmark, `F` mostra a volta roteirizada e `1` a `6` pulam para as poses fixas de câmera.
 
 
@@ -63,6 +65,12 @@ cd .. && node source/build.mjs
 ```
 
 Conferência no Blender: `cena.py bloco_roda` monta a cena com as câmeras casadas com as fotos e salva `gol_bloco_roda.blend`; `sobrepor.py bloco_roda` gera as sobreposições; `render_roda.py` faz o close da roda. Esses três precisam das fotos de referência, que não estão no repositório: aponte a pasta delas em `FOTOS` (e as vistas geradas em `REF360`).
+
+## Interior do carro real
+
+A cabine utiliza as fotos do proprietário em `assets/interior/painel-real.jpeg` e `assets/interior/volante-real.jpeg`. O volante tem espessura e aberturas em 3D, com contornos traçados na foto; botões, emblema e revestimento utilizam a própria imagem. Rádio e comandos do ar também usam recortes das fotos reais. O painel e os forros recebem granulado extraído de `PAINEL.png`, com mapa de relevo e rugosidade fosca; a tampa superior do passageiro acompanha a superfície curva do painel.
+
+Para reconstruir o atlas dessas superfícies, execute `python scripts/build-cabin-textures.py` (Pillow, numpy e OpenCV) e depois `node source/build.mjs`. As fotos originais e `painel-detalhes.png` permanecem locais para regenerar o atlas; o jogo publicado incorpora apenas as texturas recortadas. A geometria está em `source/js/30_car_b_cabin.js` e `source/js/30_car_c_parts.js`.
 
 ## Modelo editável no Blender
 

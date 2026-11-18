@@ -19,6 +19,9 @@ fn shade(in: V2F, ff: bool) -> vec4f {
   let nv = max(dot(N, V), 1e-3);
   // para-brisa e vigia (normal ao longo do carro) refletem um pouco mais o céu que os vidros laterais
   let nO = normalize((vec4f(N, 0.0) * O.model).xyz);
+  // Só o para-brisa do carro ativo fica invisível na câmera interna.
+  // Respostas neutras nos dois passes preservam a pista sem película nem reflexos.
+  let clearWindshield = O.p0.w > 0.5 && id == 0u && in.ext.x > 0.15 && in.ext.y > 0.9 && abs(nO.x) > 0.3;
   let ws = smoothstep(0.3, 0.6, abs(nO.x));   // 1 = para-brisa/vigia
   let f0w = mix(0.08, 0.17, ws);
   let fr = min(fSchlick1(select(f0w, 0.06, id == 1u), nv), 0.6);   // janelas um pouco acima do vidro real (reflexo do céu legível); lente do farol como vidro comum
@@ -30,7 +33,7 @@ fn shade(in: V2F, ff: bool) -> vec4f {
   var base = select(select(in.col.rgb, vec3f(0.62, 0.68, 0.66), nO.x > 0.3), in.col.rgb, id == 1u);
   if (id != 1u && nO.x > 0.3) { base *= mix(vec3f(1.0), vec3f(0.5, 0.66, 0.62), smoothstep(1.3, 1.4, in.ext.y)); }
   let tint = base * (1.0 - fr) * (1.0 - milk) * flute;
-  return vec4f(tint, 1.0);
+  return vec4f(select(tint, vec3f(1.0), clearWindshield), 1.0);
 #else
   let R = reflect(-V, N);
   var env = textureSampleLevel(tEnv, sClamp, R, select(1.2, 0.3, id == 1u)).rgb;
@@ -44,6 +47,6 @@ fn shade(in: V2F, ff: bool) -> vec4f {
   // espalhamento leitoso da lente
   c += (shIrr(N) + F.sunCol.rgb * nl * sh / PI) * milk;
   if (!ff) { c *= 0.35; }
-  return vec4f(c, 0.0);
+  return vec4f(select(c, vec3f(0.0), clearWindshield), 0.0);
 #endif
 }

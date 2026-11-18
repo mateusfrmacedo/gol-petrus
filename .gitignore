@@ -11,3 +11,8 @@ modelo/gol_meta.json
 __pycache__/
 .DS_Store
 !modelo/RodaGol.png
+
+# Fotos de referência locais; o atlas recortado é incorporado ao jogo.
+assets/interior/painel-real.jpeg
+assets/interior/volante-real.jpeg
+assets/interior/painel-detalhes.png

@@ -86,6 +86,7 @@ function hudFrame() { hudRead(); hudDraw(); }
 function hudRead() {
   const V = HUD.V, v = VEH; let kmh = GS.speed * 36; if (kmh > 2000) kmh = 2000; let rpm = v.rpm; if (rpm > 7000) rpm = 7000;
   if (!UI.warm) {
+    hudGaugeVisibility();
     const label = manualGearbox() ? 'MANUAL' : 'AUTO', gear = v.gear === 0 ? 'R' : v.gear;
     const text = label + ' · ' + gear + (v.gear === 0 ? '' : 'ª') + (manualGearbox() ? (v.rpm >= 6000 && v.gear < 5 ? ' · ↑ TROCAR' : ' · E ↑ / Q ↓') : ' · T manual');
     const el = $('transmission'); if (el.textContent !== text) el.textContent = text;
@@ -121,5 +122,10 @@ function hudStatsFrame() {
   a[0] = 0; a[1] = 0;
   s.clearRect(0, 0, L[27], L[28]); s.drawImage(H.bgS, 0, 0); hudInt(s, C, fps > 999 ? 999 : fps, 3, L[20], y, 1); hudDec(s, C, ms, L[21], y); hudDec(s, C, gpu, L[22], y);
 }
-function hudShow(on) { $('transmission').style.display = on ? 'block' : 'none'; HUD.vis = on; HUD.cg.style.display = HUD.ct.style.display = on ? 'block' : 'none'; HUD.K.fill(-9); }
+// A cabine já tem velocímetro e conta-giros próprios: o HUD grande é só para as câmeras externas.
+function hudGaugeVisibility() {
+  const display = HUD.vis && !(GS.cam === 1 && !GS.freeCam) ? 'block' : 'none';
+  if (HUD.cg.style.display !== display) HUD.cg.style.display = display;
+}
+function hudShow(on) { $('transmission').style.display = on ? 'block' : 'none'; HUD.vis = on; HUD.ct.style.display = on ? 'block' : 'none'; hudGaugeVisibility(); HUD.K.fill(-9); }
 function hudStats(on) { HUD.stats = on; HUD.cs.style.display = on ? 'block' : 'none'; HUD.acc[0] = 0; HUD.acc[1] = 0; if (on) { const L = HUD.L; HUD.s.clearRect(0, 0, L[27], L[28]); HUD.s.drawImage(HUD.bgS, 0, 0); } }

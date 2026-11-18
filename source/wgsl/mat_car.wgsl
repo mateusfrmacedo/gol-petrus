@@ -5,6 +5,7 @@
 // O.p0 da carroceria: x = luz de freio, y = luz de ré, z = faróis. O.p0.x das rodas = |velocidade angular|.
 #include mesh_vert
 @group(3) @binding(0) var tAtlas: texture_2d<f32>;
+@group(3) @binding(2) var tCabin: texture_2d<f32>;
 @group(3) @binding(1) var tFoto: texture_2d<f32>;   // insertos fotográficos do Gol (frente e traseira)
 const PAINT_COL = vec3f(0.168, 0.275, 0.425);   // azul-claro metálico de estúdio: mais escuro e acinzentado (o sol do jogo é forte)
 fn carBulgeW(x: f32) -> f32 { return 0.055 * smoothstep(-0.15, 0.25, x) - 0.036 * smoothstep(-1.15, -1.42, x); }
@@ -38,6 +39,26 @@ fn gseam(p: vec3f, n: vec3f) -> f32 {
     d = min(d, select(1.0, abs(p.y - 0.885), az > 0.505 && az < gwg(0.885)));
   }
   return d;
+}
+// Dígitos do visor vermelho; os números acompanham a velocidade real da simulação.
+fn cabinDigit(q: vec2f, digit: u32) -> f32 {
+  let masks = array<u32,10>(63u,6u,91u,79u,102u,109u,125u,7u,127u,111u);
+  let mask = masks[min(digit,9u)]; var d = 10.0;
+  for (var k=0u;k<7u;k++) {
+    if ((mask & (1u<<k)) == 0u) { continue; }
+    var a=vec2f(-0.28,-0.78); var b=vec2f(0.28,-0.78);
+    switch(k) {
+      case 1u: {a=vec2f(0.33,-0.72);b=vec2f(0.33,-0.06);}
+      case 2u: {a=vec2f(0.33,0.06);b=vec2f(0.33,0.72);}
+      case 3u: {a=vec2f(-0.28,0.78);b=vec2f(0.28,0.78);}
+      case 4u: {a=vec2f(-0.33,0.06);b=vec2f(-0.33,0.72);}
+      case 5u: {a=vec2f(-0.33,-0.72);b=vec2f(-0.33,-0.06);}
+      case 6u: {a=vec2f(-0.28,0.0);b=vec2f(0.28,0.0);}
+      default: {}
+    }
+    let ab=b-a; let t=clamp(dot(q-a,ab)/dot(ab,ab),0.0,1.0);d=min(d,length(q-a-ab*t));
+  }
+  return 1.0-smoothstep(0.045,0.08,d);
 }
 fn surf(in: V2F, ff: bool) -> Surface {
   var s = surfDefault(normalize(in.nrm));
@@ -383,6 +404,60 @@ fn surf(in: V2F, ff: bool) -> Surface {
           s.emissive = s.emissive + c * (led * (0.06 + 0.8 * br) + rev * sat(O.p0.y) * 0.6);
         } }
     }
+    case 26u: { // plástico granulado real, com cor, microrrelevo e rugosidade
+      let localN = normalize((vec4f(s.normal,0.0) * O.model).xyz);
+      var w = pow(abs(localN),vec3f(4.0)); w /= max(w.x+w.y+w.z,0.0001);
+      let px = lp.zy * 18.0; let py = lp.xz * 18.0; let pz = lp.xy * 18.0;
+      let scale = vec2f(0.496,0.248); let origin = vec2f(0.002,0.751);
+      let ux = fract(px)*scale+origin; let uy = fract(py)*scale+origin; let uz = fract(pz)*scale+origin;
+      let dx1=dpdx(px)*scale; let dx2=dpdy(px)*scale;
+      let dy1=dpdx(py)*scale; let dy2=dpdy(py)*scale;
+      let dz1=dpdx(pz)*scale; let dz2=dpdy(pz)*scale;
+      let grain = (textureSampleGrad(tCabin,sLin,ux,dx1,dx2).r*w.x + textureSampleGrad(tCabin,sLin,uy,dy1,dy2).r*w.y + textureSampleGrad(tCabin,sLin,uz,dz1,dz2).r*w.z) / 0.21586;
+      let ox=textureSampleGrad(tCabin,sLin,ux+vec2f(0.5,0.0),dx1,dx2).rgb;
+      let oy=textureSampleGrad(tCabin,sLin,uy+vec2f(0.5,0.0),dy1,dy2).rgb;
+      let oz=textureSampleGrad(tCabin,sLin,uz+vec2f(0.5,0.0),dz1,dz2).rgb;
+      let nx=pow(ox,vec3f(1.0/2.2))*2.0-1.0;
+      let ny=pow(oy,vec3f(1.0/2.2))*2.0-1.0;
+      let nz=pow(oz,vec3f(1.0/2.2))*2.0-1.0;
+      let bump=vec3f(ny.x*w.y+nz.x*w.z,nx.y*w.x+nz.y*w.z,nx.x*w.x+ny.y*w.y);
+      let tangentBump=bump-localN*dot(bump,localN);
+      let detailedN=normalize(localN+tangentBump*0.25);
+      s.normal=normalize((O.model*vec4f(detailedN,0.0)).xyz);
+      s.albedo=in.col.rgb*clamp(grain,0.88,1.12);
+      s.rough=clamp(0.88+(1.0-grain)*0.08,0.84,0.94);s.metal=0.0;s.coat=0.0;
+      if(pa>0.5){s.rough=0.65;s.metal=0.22;s.albedo=in.col.rgb*mix(1.0,clamp(grain,0.85,1.15),0.3);}
+      return s;
+    }
+    case 25u: { // superfícies traçadas nas fotos reais: volante e console
+      let color = textureSample(tCabin, sLin, in.uv).rgb;
+      s.albedo = color * 0.78; s.rough = select(0.84, 0.38, pa > 0.5); s.coat = select(0.0, 0.10, pa > 0.5); s.metal = 0.0;
+      let red = smoothstep(0.08, 0.25, color.r - max(color.g, color.b));
+      s.emissive = red * 0.12;
+      return s;
+    }
+    case 24u: { // rádio, comandos e instrumentos da cabine
+      let t = textureSample(tAtlas, sLin, in.uv);
+      s.albedo = t.rgb; s.rough = 0.84; s.metal = 0.0; s.coat = 0.0;
+      if (pa > 2.5) {
+        let uv=vec2f((in.uv.x-0.25)*8.0,(in.uv.y-0.75)*4.0);
+        let speed=u32(clamp(round(O.p1.x),0.0,299.0));var ink=0.0;
+        if(speed>=100u){ink=max(ink,cabinDigit(vec2f((uv.x-0.18)/0.22,(uv.y-0.52)/0.22),speed/100u));}
+        if(speed>=10u){ink=max(ink,cabinDigit(vec2f((uv.x-0.46)/0.22,(uv.y-0.52)/0.22),(speed/10u)%10u));}
+        ink=max(ink,cabinDigit(vec2f((uv.x-0.74)/0.22,(uv.y-0.52)/0.22),speed%10u));
+        s.albedo=mix(s.albedo,vec3f(1.0,0.75,0.61),ink);s.emissive=0.16+ink*0.18;
+      } else if (pa > 0.5) {
+        let q = vec2f(in.uv.x * 8.0 - select(0.5, 1.5, pa > 1.5), (in.uv.y - 0.75) * 4.0 - 0.5);
+        let value = select(O.p1.x / 200.0, O.p1.y / 8000.0, pa > 1.5);
+        let angle = (140.0 + clamp(value, 0.0, 1.0) * 260.0) * 0.01745329252;
+        let end = vec2f(cos(angle), sin(angle)) * 0.37;
+        let h = clamp(dot(q, end) / dot(end, end), 0.0, 1.0);
+        let pointer = 1.0 - smoothstep(0.008, 0.016, length(q - end * h));
+        s.albedo = mix(s.albedo, vec3f(0.65, 0.025, 0.012), pointer);
+        s.emissive = 0.08 + pointer * 0.12;
+      }
+      return s;
+    }
     case 20u: { // materiais e mapas exportados do Blender
       let color = textureSample(tFoto, sLin, in.uv);
       let flags = u32(round(pa));
@@ -399,6 +474,9 @@ fn surf(in: V2F, ff: bool) -> Surface {
       let inv = inverseSqrt(max(max(dot(tangent, tangent), dot(bitangent, bitangent)), 1e-20));
       let mappedNormal = tangent * inv * mapped.x + bitangent * inv * mapped.y + s.normal * mapped.z;
       s.normal = normalize(mix(s.normal, mappedNormal, 0.7));
+      if (O.p0.w > 0.5 && lp.y > 1.15 && lp.x < 0.75 && abs(lp.z) < 0.72) {
+        s.rough = 0.95; s.metal = 0.0; s.coat = 0.0; s.albedo = min(s.albedo, vec3f(0.04));
+      }
       return s;
     }
     case 21u: { // cor sólida do Blender, incluindo a faixa preta do aerofólio
@@ -406,6 +484,10 @@ fn surf(in: V2F, ff: bool) -> Surface {
       s.rough = max(0.07, f32(flags & 15u) / 15.0);
       s.metal = f32(flags >> 4u) / 15.0;
       s.coat = select(0.0, 0.3, s.rough < 0.4);
+      // Forro do teto fosco na cabine, sem o reflexo da pintura externa.
+      if (O.p0.w > 0.5 && lp.y > 1.15 && lp.x < 0.75 && abs(lp.z) < 0.72) {
+        s.rough = 0.95; s.metal = 0.0; s.coat = 0.0; s.albedo = min(s.albedo, vec3f(0.04));
+      }
       return s;
     }
     case 23u: { // faixa cristal: luz de ré branca, separada da luz de freio vermelha

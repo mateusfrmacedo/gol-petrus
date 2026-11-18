@@ -11,13 +11,6 @@ function carBuildParts(mb, gl) {
   mb.quad(-1.33, 0.235, 0.5, -0.86, 0.235, 0.5, -0.86, 0.235, 0, -1.33, 0.235, 0);   // ao lado das rodas traseiras o carpete é estreito (o plano inteiro atravessava a calota: risco fino horizontal)
   mb.quad(-1.63, 0.45, 0.72, -1.33, 0.45, 0.72, -1.33, 0.45, 0, -1.63, 0.45, 0);                         // assoalho do porta-malas (acima do fundo elevado)                       // assoalho (carpete)
   mb.quad(0.82, 0.2, 0, 0.82, 0.2, 0.72, 0.82, 0.93, 0.72, 0.82, 0.93, 0);                               // parede corta-fogo
-  mb.mat(CM.INTERIOR, 3).color(0.045, 0.045, 0.05);
-  mb.rbox(0.60, 0.80, 0.34, 0.40, 0.22, 0.70, 0.05, 4);                                                  // painel
-  mb.rbox(0.45, 0.52, 0.05, 0.3, 0.34, 0.12, 0.03, 2);                                                   // console
-  mb.mat(CM.INTERIOR, 3).color(0.075, 0.075, 0.082); mb.rbox(0.62, 0.915, 0.34, 0.34, 0.024, 0.69, 0.01, 2);              // tampo do painel (mais claro)
-  mb.mat(CM.GRILLE).color(0.02, 0.02, 0.022);                                                                              // saídas de ar (palhetas)
-  mb.box(0.397, 0.862, 0.615, 0.008, 0.045, 0.1); mb.box(0.397, 0.862, 0.09, 0.008, 0.045, 0.1);
-  mb.mat(CM.INTERIOR, 3).color(0.03, 0.03, 0.034); mb.rbox(0.396, 0.775, 0.34, 0.012, 0.085, 0.3, 0.005, 2);               // tampa do porta-luvas / rádio
   // banco dianteiro
   const seat = (x, z, w, color) => {
     mb.mat(CM.INTERIOR, 4).color(color[0], color[1], color[2]);
@@ -40,14 +33,16 @@ function carBuildParts(mb, gl) {
   // ======================= peças não simétricas =======================
   // (sem rack nem escada: o Gol real não tem; carLadder fica no arquivo, sem uso)
   // Escapamento já incluído no modelo exportado do Blender.
-  // volante: coluna fixa
-  mb.mat(CM.INTERIOR, 3).color(0.04, 0.04, 0.045);
-  mb.tube([[0.36, 0.875, -0.36], [0.56, 0.80, -0.36]], 0.03, 10);
-  mb.rbox(0.47, 0.925, -0.36, 0.2, 0.07, 0.32, 0.03, 3);        // capela dos instrumentos
-  // retrovisor interno, alavanca de câmbio, freio de mão
-  mb.rbox(0.23, 1.29, 0, 0.025, 0.055, 0.2, 0.012, 2); mb.tube([[0.24, 1.29, 0], [0.2, 1.35, 0]], 0.008, 6);
-  mb.tube([[0.2, 0.42, 0.0], [0.17, 0.6, 0.0]], 0.01, 6); mb.rbox(0.168, 0.62, 0, 0.045, 0.045, 0.045, 0.02, 3);
-  mb.rbox(-0.12, 0.40, 0, 0.3, 0.05, 0.04, 0.015, 2);
+  carBuildCabin(mb);
+  // Retrovisor interno.
+  mb.mat(CM.INTERIOR).color(0.018, 0.019, 0.022);
+  mb.rbox(0.23, 1.29, 0, 0.025, 0.055, 0.2, 0.012, 3);
+  mb.tube([[0.24, 1.29, 0], [0.2, 1.35, 0]], 0.008, 8);
+  mb.pop(); gl.pop();
+}
+// O piloto permanece visível por fora; na cabine não encobre a câmera nem o volante.
+function carBuildDriver(mb) {
+  mb.push(m4translate(m4(), 0, -(GOL_META.bodyDrop || 0), 0));
   // piloto: tronco, ombros, braços no volante e capacete (simples, visto pelos vidros)
   {
     const zd = -0.345;
@@ -71,7 +66,7 @@ function carBuildParts(mb, gl) {
     mb.rbox(-0.2, 1.178, zd, 0.13, 0.08, 0.233, 0.034, 5);        // viseira: faixa escura que envolve a frente e os lados do casco
   }
   // placas e emblemas: vêm dos insertos fotográficos (carDecals fica sem uso)
-  mb.pop(); gl.pop();
+  mb.pop();
 }
 function carLadder(mb) {
   const yb = CRK.barY + 0.014, h = 0.062, yc = yb + h / 2, L = CRK.lx1 - CRK.lx0, xc = (CRK.lx0 + CRK.lx1) / 2;
@@ -139,18 +134,61 @@ function carAtlas() {
   // GOL e MSI (traseira, letras pretas)
   g.fillStyle = '#0b0b0c'; g.textAlign = 'center'; g.font = 'italic bold 46px Arial, Helvetica, sans-serif'; g.fillText('GOL', 154, 230);
   g.font = 'bold 34px Arial, Helvetica, sans-serif'; g.fillText('MSI', 450, 225);
+  cabinDrawAtlas(g);
   const im = g.getImageData(0, 0, W, H);
   const tex = mkTex(W, H, 'rgba8unorm-srgb', TU.RT | TU.TB | TU.CD, { mipLevelCount: 6 });
   G.dev.queue.writeTexture({ texture: tex }, im.data, { bytesPerRow: W * 4 }, [W, H]);
   genMips(tex, 'rgba8unorm-srgb');
   return tex;
 }
-// ---------- volante (eixo da coluna = X local) ----------
+// ---------- volante real: contornos traçados na foto e textura do próprio carro ----------
 function carBuildSteer(mb) {
-  mb.mat(CM.INTERIOR, 3).color(0.035, 0.035, 0.038);
-  const ring = []; for (let i = 0; i < 40; i++) { const a = i / 40 * TAU; ring.push([0, 0.185 * Math.cos(a), 0.185 * Math.sin(a)]); }
-  mb.tube(ring, 0.0135, 10, { closed: true, up: [1, 0, 0] });
-  mb.rbox(-0.035, -0.01, 0, 0.05, 0.1, 0.16, 0.025, 3);
-  mb.rbox(-0.02, 0.0, 0.1, 0.022, 0.03, 0.17, 0.008, 1); mb.rbox(-0.02, 0.0, -0.1, 0.022, 0.03, 0.17, 0.008, 1); mb.rbox(-0.02, -0.1, 0, 0.022, 0.17, 0.035, 0.008, 1);
-  m4translate(CAR._t, 0.345, 0.885 - (GOL_META.bodyDrop || 0), -0.36); m4rotZ(CAR._t2, 158 * PI / 180); m4mul(CAR.steerMat, CAR._t, CAR._t2);
+  const diameter = .372;
+  const vtx = (u,v,x,nx,ny,nz) => mb.v(x,(.5-v/1024)*diameter,(u/1024-.5)*diameter,nx,ny,nz,u/1024,v/2048);
+  // Aro de seção arredondada, base levemente achatada e revestimento da foto.
+  for (let half = 0; half < 2; half++) {
+    const seg = 160, cross = 12, base = mb.nv;
+    mb.mat(half ? CM.INTERIOR : 25,0).color(.023,.024,.026);
+    if (!half) mb.color(1,1,1);
+    for (let i=0;i<=seg;i++) {
+      const a=i/seg*TAU, co=Math.cos(a),si=Math.sin(a);
+      const ou=510+500*co,ov=Math.min(510+497*si,998),iu=510+423*co,iv=Math.min(510+421*si,925);
+      const cu=(ou+iu)/2,cv=(ov+iv)/2,du=(ou-iu)/2,dv=(ov-iv)/2;
+      const len=Math.hypot(du,dv), radius=len/1024*diameter;
+      for(let j=0;j<=cross;j++) {
+        const t=(half+j/cross)*PI, c=Math.cos(t),sn=Math.sin(t);
+        vtx(cu+du*c,cv+dv*c,-.003-radius*sn,-sn,-dv/len*c,du/len*c);
+      }
+    }
+    for(let i=0;i<seg;i++)for(let j=0;j<cross;j++){const a=base+i*(cross+1)+j;mb.quadI(a,a+1,a+cross+2,a+cross+1);}
+  }
+  // Formas do miolo, teclas e raio inferior seguem os contornos da imagem retificada.
+  const patch = (outline,x,bulge,gloss) => {
+    mb.mat(25,gloss?1:0).color(1,1,1);
+    const cx=outline.reduce((sum,p)=>sum+p[0],0)/outline.length,cy=outline.reduce((sum,p)=>sum+p[1],0)/outline.length;
+    const center=vtx(cx,cy,x-bulge,-1,0,0), ids=outline.map(p=>vtx(p[0],p[1],x,-1,0,0));
+    for(let i=0;i<ids.length;i++)mb.tri(center,ids[(i+1)%ids.length],ids[i]);
+    // Espessura do componente; sem imagens do painel nos espaços vazados.
+    mb.mat(CM.INTERIOR).color(.012,.013,.015);
+    for(let i=0;i<outline.length;i++){
+      const a=outline[i],b=outline[(i+1)%outline.length];
+      const ay=(.5-a[1]/1024)*diameter,az=(a[0]/1024-.5)*diameter,by=(.5-b[1]/1024)*diameter,bz=(b[0]/1024-.5)*diameter;
+      mb.quad(x,ay,az,x,by,bz,.022,by,bz,.022,ay,az);
+    }
+  };
+  patch([[99,575],[133,477],[299,417],[279,513],[313,624],[171,598]],-.014,.002,true);
+  patch([[712,421],[827,459],[900,562],[906,597],[708,626],[713,586],[742,511]],-.014,.002,true);
+  // Raio inferior com janela trapezoidal, modelada como abertura real.
+  const outer=[[376,740],[640,747],[631,806],[611,952],[585,979],[450,982],[421,961],[395,827]];
+  const inner=[[444,803],[585,801],[581,830],[566,917],[558,924],[474,927],[465,920],[450,830]];
+  mb.mat(25,1).color(1,1,1);
+  for(let i=0;i<outer.length;i++){
+    const j=(i+1)%outer.length,a=outer[i],b=outer[j],c=inner[j],d=inner[i];
+    const A=vtx(...a,-.010,-1,0,0),B=vtx(...b,-.010,-1,0,0),C=vtx(...c,-.010,-1,0,0),D=vtx(...d,-.010,-1,0,0);
+    mb.quadI(D,C,B,A);
+  }
+  // Airbag arredondado, contorno prateado, emblema e inscrição são os da foto real.
+  patch([[477,373],[593,384],[675,412],[721,451],[737,504],[720,574],[686,645],[643,714],[600,765],[538,783],[453,782],[391,767],[350,728],[315,665],[284,594],[267,524],[270,467],[294,431],[354,400],[416,381]],-.036,.012,false);
+  m4translate(CAR._t,.285,.855-(GOL_META.bodyDrop||0),-.36);
+  m4rotZ(CAR._t2,-18*PI/180);m4mul(CAR.steerMat,CAR._t,CAR._t2);
 }
