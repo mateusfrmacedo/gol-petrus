@@ -122,9 +122,9 @@ function hudStatsFrame() {
   a[0] = 0; a[1] = 0;
   s.clearRect(0, 0, L[27], L[28]); s.drawImage(H.bgS, 0, 0); hudInt(s, C, fps > 999 ? 999 : fps, 3, L[20], y, 1); hudDec(s, C, ms, L[21], y); hudDec(s, C, gpu, L[22], y);
 }
-// A cabine já tem velocímetro e conta-giros próprios: o HUD grande é só para as câmeras externas.
+// O Gol tem mostradores dinâmicos na cabine; as imagens do painel importado do Civic são estáticas.
 function hudGaugeVisibility() {
-  const display = HUD.vis && !(GS.cam === 1 && !GS.freeCam) ? 'block' : 'none';
+  const display = HUD.vis && !(GS.cam === 1 && !GS.freeCam && VEHICLES.current === 'gol') ? 'block' : 'none';
   if (HUD.cg.style.display !== display) HUD.cg.style.display = display;
 }
 function hudShow(on) { $('transmission').style.display = on ? 'block' : 'none'; HUD.vis = on; HUD.ct.style.display = on ? 'block' : 'none'; hudGaugeVisibility(); HUD.K.fill(-9); }

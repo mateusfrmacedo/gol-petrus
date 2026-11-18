@@ -1,0 +1,42 @@
+{
+  "model": "Honda Civic 2019",
+  "surfaceMeshes": 227,
+  "triangles": 1088317,
+  "materials": 24,
+  "textures": 7,
+  "wheel": {
+    "name": "Honda Civic G10 grafite ampliada para aro 19",
+    "referenceDiameterInches": 17,
+    "diameterInches": 19,
+    "nominalDiameter": 0.4826,
+    "beadRadius": 0.2413,
+    "width": 0.17779999999999999,
+    "outerLipRadius": 0.2520294117647059,
+    "spokes": 10,
+    "spokePairs": 5,
+    "lugHoles": 5,
+    "openings": 10,
+    "reference": "reference.webp",
+    "faceTexture": "face.png",
+    "trianglesPerWheel": 30886
+  },
+  "glbErrors": 0,
+  "glbWarnings": 0,
+  "preview": "tests/civic-chrome-preview.jpg",
+  "browser": "WebGPU: grades cromadas e aro 19 conferidos, sem erros gráficos",
+  "chromeGrilleMeshes": [
+    "black_m_06_black_m_0",
+    "body_11_body_0",
+    "chrome_15_chrome_0",
+    "chrome_27_chrome_0",
+    "gum_01_gum_0",
+    "gum_20_gum_0",
+    "gum_29_gum_0",
+    "gum_30_gum_0",
+    "gum_31_gum_0",
+    "gum_32_gum_0",
+    "gum_34_gum_0",
+    "gum_35_gum_0",
+    "gum_36_gum_0"
+  ]
+}

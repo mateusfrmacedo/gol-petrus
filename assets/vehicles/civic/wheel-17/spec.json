@@ -1,0 +1,16 @@
+{
+  "name": "Honda Civic G10 grafite ampliada para aro 19",
+  "referenceDiameterInches": 17,
+  "diameterInches": 19,
+  "nominalDiameter": 0.4826,
+  "beadRadius": 0.2413,
+  "width": 0.17779999999999999,
+  "outerLipRadius": 0.2520294117647059,
+  "spokes": 10,
+  "spokePairs": 5,
+  "lugHoles": 5,
+  "openings": 10,
+  "reference": "reference.webp",
+  "faceTexture": "face.png",
+  "trianglesPerWheel": 30886
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "uid": "021b1691e4d342e8af0eacaf328de879",
+    "name": "Tire_01_NM.png",
+    "width": 2048,
+    "height": 2048,
+    "source": "https://media.sketchfab.com/models/598a9665b5214a01b3379502899e5823/189ea392c0b34ef3aef97ff9f302537d/textures/021b1691e4d342e8af0eacaf328de879/ab5b6601fd124b449be44ee0b01d7f1c.jpeg",
+    "viewerPermutation": 167486
+  },
+  {
+    "uid": "4e618743b6a245c7a1e6a64c14ea6800",
+    "name": "console_center.png",
+    "width": 512,
+    "height": 256,
+    "source": "https://media.sketchfab.com/models/598a9665b5214a01b3379502899e5823/189ea392c0b34ef3aef97ff9f302537d/textures/4e618743b6a245c7a1e6a64c14ea6800/31dabbc001e94ab5aeac30ba91d81e2a.jpeg",
+    "viewerPermutation": 136424
+  },
+  {
+    "uid": "cd613351d7ba4f7cbd1b3e18c787e88f",
+    "name": "Brakes_01_DM.png",
+    "width": 1024,
+    "height": 1024,
+    "source": "https://media.sketchfab.com/models/598a9665b5214a01b3379502899e5823/189ea392c0b34ef3aef97ff9f302537d/textures/cd613351d7ba4f7cbd1b3e18c787e88f/d8c339e1f0fa49cab4640091b6e7d780.jpeg",
+    "viewerPermutation": 814
+  },
+  {
+    "uid": "d7112211890b49808cb9ffe0485f26bb",
+    "name": "console.png",
+    "width": 1024,
+    "height": 1024,
+    "source": "https://media.sketchfab.com/models/598a9665b5214a01b3379502899e5823/189ea392c0b34ef3aef97ff9f302537d/textures/d7112211890b49808cb9ffe0485f26bb/eb33afe7800e4babadf16778a3977e35.jpeg",
+    "viewerPermutation": 208022
+  },
+  {
+    "uid": "dda9cfc25a5548cdafd4d0789c3bff3f",
+    "name": "Tire_01_DM.png",
+    "width": 2048,
+    "height": 2048,
+    "source": "https://media.sketchfab.com/models/598a9665b5214a01b3379502899e5823/189ea392c0b34ef3aef97ff9f302537d/textures/dda9cfc25a5548cdafd4d0789c3bff3f/91f2aae84c7f4c379f35ed7d0dcdc6f0.jpeg",
+    "viewerPermutation": 50231
+  },
+  {
+    "uid": "e5817465616941a49f3a0983d7a67853",
+    "name": "plate0.png",
+    "width": 512,
+    "height": 256,
+    "source": "https://media.sketchfab.com/models/598a9665b5214a01b3379502899e5823/189ea392c0b34ef3aef97ff9f302537d/textures/e5817465616941a49f3a0983d7a67853/277bd59c537e449f8525166e311c087e.jpeg",
+    "viewerPermutation": 101442
+  }
+]

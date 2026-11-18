@@ -12,6 +12,7 @@ function uiInit() {
   UI.b1.onclick = () => benchStart();
   $('gear-mode').value = VEH.manual ? 'manual' : 'auto';
   $('gear-mode').onchange = e => { VEH.manual = e.target.value === 'manual'; };
+  $('vehicle-choice').onchange = e => vehicleChoice(e.target.value, true);
   addEventListener('keydown', uiKey);
   document.addEventListener('visibilitychange', () => { if (document.hidden && (UI.st === ST.JOGO || UI.st === ST.FITA || UI.st === ST.BENCH)) uiPause(); });
   addEventListener('gamepadconnected', padCount); addEventListener('gamepaddisconnected', padCount);

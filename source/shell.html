@@ -31,7 +31,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 #ui button+button{background:rgba(255,255,255,.16)}
 #ui button:focus-visible{outline:2px solid #fff;outline-offset:2px}
 #transmission{display:none;position:absolute;right:1.6vh;top:1.6vh;padding:.55em .9em;border-radius:.6em;background:rgba(9,11,14,.72);color:#fff;font-variant-numeric:tabular-nums;pointer-events:none}
-#gear-mode{font:inherit;color:#fff;background:#25282d;border:1px solid #777;border-radius:.4em;padding:.4em .7em}
+#gear-mode,#vehicle-choice{font:inherit;color:#fff;background:#25282d;border:1px solid #777;border-radius:.4em;padding:.4em .7em}
 .gear-setting{margin:1.2em 0 0}
 </style>
 </head>
@@ -43,7 +43,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 <div id="transmission" role="status" aria-live="polite"></div>
 <div id="ui"><div>
 <h1>Gol Petrus</h1>
-<p class="sub">VW Gol G6 1.0 MSI branco · circuito</p>
+<p class="sub" id="vehicle-name">VW Gol G6 1.0 MSI branco · circuito</p>
 <div id="res"></div>
 <div class="cols">
 <div><h2>Teclado</h2><table>
@@ -80,6 +80,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 <tr><td colspan="2" style="font-weight:400;color:#ddd;opacity:.75;padding-top:.5em">5 marchas · embreagem automática<br>S freia e engata ré ao parar<br>A volta conta ao cruzar a largada</td></tr>
 </table></div>
 </div>
+<p class="gear-setting"><label for="vehicle-choice">Veículo </label><select id="vehicle-choice"><option value="gol">VW Gol Petrus</option><option value="civic">Honda Civic 2019</option></select></p>
 <p class="gear-setting"><label for="gear-mode">Câmbio </label><select id="gear-mode"><option value="manual">Manual · E/Q ou B/LB</option><option value="auto">Automático</option></select></p>
 <div class="bt"><button id="b0">Começar</button><button id="b1">Benchmark</button></div>
 </div></div>

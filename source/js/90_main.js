@@ -49,6 +49,9 @@ async function main() {
     if (GAME.mode === 'test') buildTestScene();
     if (GAME.mode === 'placeholder') { buildPlaceholderWorld(); GAME.init = () => { const p = trackPos(40, 0, new Float64Array(5)); setCamera(p[0] - 12, p[1] + 3, p[2] + 4, p[0] + 30, p[1] + 1, p[2], 0.9); R.cube.pos.set([p[0], p[1] + 1.2, p[2]]); }; }
     for (const b of BUILD) await b();
+    let chosen = Q.get('vehicle');
+    if (!chosen && !GAME.capture && GAME.mode === 'game') { try { chosen = localStorage.getItem('gol-veiculo'); } catch (e) {} }
+    vehicleChoice(chosen === 'civic' ? 'civic' : 'gol', true);
     await Promise.all(R.pending);
     if (G.lastErr) throw new Error(G.lastErr);
     perfInit();
@@ -88,6 +91,8 @@ function rafLoop(t) {
 // --- API de captura (usada pelos scripts em trabalho/) ---
 let _cap2d = null;
 window.__cap = {
+  vehicles: () => ({ selected: VEHICLES.current, triangles: carObj().tris, hubs: carObj().hubs }),
+  vehicle: id => vehicleChoice(id, true),
   music: () => ({tracks: MUSIC.tracks.slice(), index: MUSIC.index, paused: MUSIC.audio?.paused, wanted: MUSIC.wanted, currentTime: MUSIC.audio?.currentTime, error: MUSIC.audio?.error?.code || null}),
   ready: () => GAME.ready, error: () => GAME.error || G.lastErr || null,
   cam(ex, ey, ez, tx, ty, tz, fov) { if (typeof GS !== 'undefined') { GS.freeCam = true; GS.cut = true; } setCamera(ex, ey, ez, tx, ty, tz, fov); },

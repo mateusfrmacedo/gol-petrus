@@ -42,7 +42,7 @@ const CARP = {
     }
   },
 };
-const carObj = () => (typeof CAR !== 'undefined' ? CAR : CARP);
+const carObj = () => (typeof VEHICLES !== 'undefined' && VEHICLES.current === 'civic' ? CIVIC : typeof CAR !== 'undefined' ? CAR : CARP);
 
 function gameInit() {
   addEventListener('keydown', onKeyDown); addEventListener('keyup', onKeyUp); addEventListener('blur', onBlur);
@@ -235,7 +235,7 @@ function gameCamera() {
     q[0] = ex; q[1] = ey; q[2] = ez; q[3] = GS.cx + c * 1.6 * lb; q[4] = GS.cy + 0.95 + V.gPitch * 1.6; q[5] = GS.cz + s * 1.6 * lb; q[6] = 0.93 + (GS.speed < 50 ? GS.speed : 50) * 0.0042; q[7] = rl;
   } else if (GS.cam === 1) {
     // Interna: olhos do motorista, à esquerda, atrás do volante. Acompanha a carroceria.
-    const B = GS.body, eyeX = -0.22, eyeY = 1.18 - (GOL_META.bodyDrop || 0), eyeZ = -0.36;
+    const B = GS.body, eyeX = -0.22, eyeY = VEHICLES.current === 'civic' ? 1.14 : 1.18 - (GOL_META.bodyDrop || 0), eyeZ = -0.36;
     q[0] = B[0] * eyeX + B[4] * eyeY + B[8] * eyeZ + B[12]; q[1] = B[1] * eyeX + B[5] * eyeY + B[9] * eyeZ + B[13]; q[2] = B[2] * eyeX + B[6] * eyeY + B[10] * eyeZ + B[14];
     q[3] = B[0] * 6.0 + B[4] * (eyeY - 0.70) + B[8] * eyeZ + B[12]; q[4] = B[1] * 6.0 + B[5] * (eyeY - 0.70) + B[9] * eyeZ + B[13]; q[5] = B[2] * 6.0 + B[6] * (eyeY - 0.70) + B[10] * eyeZ + B[14];
     q[6] = 1.20; q[7] = -(V.gRoll + V.roll) * 0.8;

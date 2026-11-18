@@ -1,0 +1,1797 @@
+{
+  "name": "Honda Civic 2019",
+  "author": "SQUIR3D",
+  "source": "https://sketchfab.com/3d-models/honda-civic-2019-598a9665b5214a01b3379502899e5823",
+  "meshes": 227,
+  "originalSourceMeshes": 237,
+  "originalSourceTriangles": 1157481,
+  "wheelStyle": {
+    "name": "Honda Civic G10 grafite ampliada para aro 19",
+    "referenceDiameterInches": 17,
+    "diameterInches": 19,
+    "nominalDiameter": 0.4826,
+    "beadRadius": 0.2413,
+    "width": 0.17779999999999999,
+    "outerLipRadius": 0.2520294117647059,
+    "spokes": 10,
+    "spokePairs": 5,
+    "lugHoles": 5,
+    "openings": 10,
+    "reference": "reference.webp",
+    "faceTexture": "face.png",
+    "trianglesPerWheel": 30886
+  },
+  "replacedRimMeshes": [
+    "silver_01_silver_0",
+    "silver_02_silver_0",
+    "silver_03_silver_0",
+    "silver_04_silver_0",
+    "black_m_19_black_m_0",
+    "gum_27_gum_0",
+    "chrome_26_chrome_0",
+    "chrome_34_chrome_0",
+    "silver_13_silver_0",
+    "silver_12_silver_0",
+    "chrome_36_chrome_0",
+    "chrome_35_chrome_0",
+    "black_m_20_black_m_0",
+    "gum_03_gum_0",
+    "chrome_02_chrome_0",
+    "chrome_03_chrome_0",
+    "silver_06_silver_0",
+    "silver_05_silver_0",
+    "chrome_05_chrome_0",
+    "chrome_04_chrome_0",
+    "black_m_02_black_m_0",
+    "black_m_03_black_m_0"
+  ],
+  "chromeGrilleMeshes": [
+    "black_m_06_black_m_0",
+    "body_11_body_0",
+    "chrome_15_chrome_0",
+    "chrome_27_chrome_0",
+    "gum_01_gum_0",
+    "gum_20_gum_0",
+    "gum_29_gum_0",
+    "gum_30_gum_0",
+    "gum_31_gum_0",
+    "gum_32_gum_0",
+    "gum_34_gum_0",
+    "gum_35_gum_0",
+    "gum_36_gum_0"
+  ],
+  "triangles": 1088317,
+  "vertices": 800465,
+  "hubs": [
+    [
+      1.346055,
+      0.32867246627807617,
+      -0.7795654598464966
+    ],
+    [
+      1.346055,
+      0.32867246627807617,
+      0.7795655402145385
+    ],
+    [
+      -1.346055,
+      0.32867246627807617,
+      -0.7795654598464966
+    ],
+    [
+      -1.346055,
+      0.32867246627807617,
+      0.7795655402145385
+    ]
+  ],
+  "wheelR": 0.32867246627807617,
+  "wheelbase": 2.69211,
+  "track": 1.559131000061035,
+  "bounds": [
+    [
+      -2.387708054329956,
+      -0.0,
+      -1.0582329559326171
+    ],
+    [
+      2.249795074918054,
+      1.4334063329399414,
+      1.0735561472545165
+    ]
+  ],
+  "parts": [
+    {
+      "dest": 0,
+      "mat": 0,
+      "nv": 5640,
+      "ni": 28848,
+      "offset": 0
+    },
+    {
+      "dest": 0,
+      "mat": 1,
+      "nv": 56296,
+      "ni": 120252,
+      "offset": 295872
+    },
+    {
+      "dest": 0,
+      "mat": 2,
+      "nv": 249,
+      "ni": 1344,
+      "offset": 2578352
+    },
+    {
+      "dest": 0,
+      "mat": 3,
+      "nv": 1866,
+      "ni": 9024,
+      "offset": 2591696
+    },
+    {
+      "dest": 0,
+      "mat": 4,
+      "nv": 3978,
+      "ni": 20352,
+      "offset": 2687504
+    },
+    {
+      "dest": 0,
+      "mat": 6,
+      "nv": 2613,
+      "ni": 15120,
+      "offset": 2896208
+    },
+    {
+      "dest": 0,
+      "mat": 8,
+      "nv": 39462,
+      "ni": 214908,
+      "offset": 3040304
+    },
+    {
+      "dest": 0,
+      "mat": 9,
+      "nv": 224587,
+      "ni": 647016,
+      "offset": 5162720
+    },
+    {
+      "dest": 0,
+      "mat": 10,
+      "nv": 270,
+      "ni": 1152,
+      "offset": 14937568
+    },
+    {
+      "dest": 0,
+      "mat": 11,
+      "nv": 47856,
+      "ni": 222315,
+      "offset": 14950816
+    },
+    {
+      "dest": 0,
+      "mat": 12,
+      "nv": 89810,
+      "ni": 466116,
+      "offset": 17371468
+    },
+    {
+      "dest": 0,
+      "mat": 13,
+      "nv": 12318,
+      "ni": 47394,
+      "offset": 22109852
+    },
+    {
+      "dest": 0,
+      "mat": 14,
+      "nv": 10263,
+      "ni": 45912,
+      "offset": 22693604
+    },
+    {
+      "dest": 0,
+      "mat": 15,
+      "nv": 8519,
+      "ni": 30366,
+      "offset": 23205668
+    },
+    {
+      "dest": 0,
+      "mat": 16,
+      "nv": 20356,
+      "ni": 101754,
+      "offset": 23599740
+    },
+    {
+      "dest": 0,
+      "mat": 18,
+      "nv": 4234,
+      "ni": 18504,
+      "offset": 24658148
+    },
+    {
+      "dest": 0,
+      "mat": 19,
+      "nv": 12300,
+      "ni": 60216,
+      "offset": 24867652
+    },
+    {
+      "dest": 0,
+      "mat": 20,
+      "nv": 70304,
+      "ni": 322842,
+      "offset": 25502116
+    },
+    {
+      "dest": 0,
+      "mat": 23,
+      "nv": 37410,
+      "ni": 199824,
+      "offset": 29043212
+    },
+    {
+      "dest": 1,
+      "mat": 5,
+      "nv": 4020,
+      "ni": 21600,
+      "offset": 31039628
+    },
+    {
+      "dest": 1,
+      "mat": 7,
+      "nv": 2772,
+      "ni": 14688,
+      "offset": 31254668
+    },
+    {
+      "dest": 1,
+      "mat": 11,
+      "nv": 1211,
+      "ni": 3510,
+      "offset": 31402124
+    },
+    {
+      "dest": 1,
+      "mat": 21,
+      "nv": 6279,
+      "ni": 35886,
+      "offset": 31454916
+    },
+    {
+      "dest": 1,
+      "mat": 22,
+      "nv": 13883,
+      "ni": 53262,
+      "offset": 31799388
+    },
+    {
+      "dest": 2,
+      "mat": 5,
+      "nv": 4020,
+      "ni": 21600,
+      "offset": 32456692
+    },
+    {
+      "dest": 2,
+      "mat": 7,
+      "nv": 2772,
+      "ni": 14688,
+      "offset": 32671732
+    },
+    {
+      "dest": 2,
+      "mat": 11,
+      "nv": 1211,
+      "ni": 3510,
+      "offset": 32819188
+    },
+    {
+      "dest": 2,
+      "mat": 21,
+      "nv": 6279,
+      "ni": 35886,
+      "offset": 32871980
+    },
+    {
+      "dest": 2,
+      "mat": 22,
+      "nv": 13883,
+      "ni": 53262,
+      "offset": 33216452
+    },
+    {
+      "dest": 3,
+      "mat": 5,
+      "nv": 4020,
+      "ni": 21600,
+      "offset": 33873756
+    },
+    {
+      "dest": 3,
+      "mat": 7,
+      "nv": 2772,
+      "ni": 14688,
+      "offset": 34088796
+    },
+    {
+      "dest": 3,
+      "mat": 11,
+      "nv": 1211,
+      "ni": 3510,
+      "offset": 34236252
+    },
+    {
+      "dest": 3,
+      "mat": 21,
+      "nv": 6279,
+      "ni": 35886,
+      "offset": 34289044
+    },
+    {
+      "dest": 3,
+      "mat": 22,
+      "nv": 13883,
+      "ni": 53262,
+      "offset": 34633516
+    },
+    {
+      "dest": 4,
+      "mat": 5,
+      "nv": 4020,
+      "ni": 21600,
+      "offset": 35290820
+    },
+    {
+      "dest": 4,
+      "mat": 7,
+      "nv": 2772,
+      "ni": 14688,
+      "offset": 35505860
+    },
+    {
+      "dest": 4,
+      "mat": 11,
+      "nv": 1211,
+      "ni": 3510,
+      "offset": 35653316
+    },
+    {
+      "dest": 4,
+      "mat": 21,
+      "nv": 6279,
+      "ni": 35886,
+      "offset": 35706108
+    },
+    {
+      "dest": 4,
+      "mat": 22,
+      "nv": 13883,
+      "ni": 53262,
+      "offset": 36050580
+    },
+    {
+      "dest": 5,
+      "mat": 17,
+      "nv": 3235,
+      "ni": 12468,
+      "offset": 36707884
+    },
+    {
+      "dest": 5,
+      "mat": 20,
+      "nv": 1060,
+      "ni": 2790,
+      "offset": 36861276
+    },
+    {
+      "dest": 6,
+      "mat": 17,
+      "nv": 10733,
+      "ni": 50760,
+      "offset": 36906356
+    },
+    {
+      "dest": 6,
+      "mat": 20,
+      "nv": 1060,
+      "ni": 2790,
+      "offset": 37452852
+    },
+    {
+      "dest": 7,
+      "mat": 17,
+      "nv": 10633,
+      "ni": 50760,
+      "offset": 37497932
+    },
+    {
+      "dest": 7,
+      "mat": 20,
+      "nv": 1060,
+      "ni": 2790,
+      "offset": 38041228
+    },
+    {
+      "dest": 8,
+      "mat": 17,
+      "nv": 10633,
+      "ni": 50760,
+      "offset": 38086308
+    },
+    {
+      "dest": 8,
+      "mat": 20,
+      "nv": 1060,
+      "ni": 2790,
+      "offset": 38629604
+    }
+  ],
+  "sourceMeshes": [
+    {
+      "name": "glass_01_glass_0",
+      "material": "glass",
+      "destination": 0,
+      "triangles": 23040
+    },
+    {
+      "name": "red_02_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 25380
+    },
+    {
+      "name": "interior_01_interior_0",
+      "material": "interior",
+      "destination": 0,
+      "triangles": 23488
+    },
+    {
+      "name": "interior_02_interior_0",
+      "material": "interior",
+      "destination": 0,
+      "triangles": 24832
+    },
+    {
+      "name": "body_01_body_0",
+      "material": "body",
+      "destination": 0,
+      "triangles": 20192
+    },
+    {
+      "name": "gum_01_gum_0",
+      "material": "Grades frontais cromadas",
+      "destination": 0,
+      "triangles": 42064
+    },
+    {
+      "name": "red_01_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 65529
+    },
+    {
+      "name": "red_01_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 65527
+    },
+    {
+      "name": "red_01_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 4112
+    },
+    {
+      "name": "body_02_body_0",
+      "material": "body",
+      "destination": 0,
+      "triangles": 32208
+    },
+    {
+      "name": "brakes1_03_brakes1_0",
+      "material": "brakes1",
+      "destination": 2,
+      "triangles": 4896
+    },
+    {
+      "name": "tire_mat1_03_tire_mat1_0",
+      "material": "tire_mat1",
+      "destination": 1,
+      "triangles": 7200
+    },
+    {
+      "name": "tire_mat1_04_tire_mat1_0",
+      "material": "tire_mat1",
+      "destination": 2,
+      "triangles": 7200
+    },
+    {
+      "name": "brakes1_04_brakes1_0",
+      "material": "brakes1",
+      "destination": 1,
+      "triangles": 4896
+    },
+    {
+      "name": "black_m_04_black_m_0",
+      "material": "black_m",
+      "destination": 0,
+      "triangles": 256
+    },
+    {
+      "name": "chrome_15_chrome_0",
+      "material": "Grades frontais cromadas",
+      "destination": 0,
+      "triangles": 3044
+    },
+    {
+      "name": "black_m_05_black_m_0",
+      "material": "black_m",
+      "destination": 0,
+      "triangles": 1024
+    },
+    {
+      "name": "gum_19_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 120
+    },
+    {
+      "name": "gum_20_gum_0",
+      "material": "Grades frontais cromadas",
+      "destination": 0,
+      "triangles": 1472
+    },
+    {
+      "name": "black_m_06_black_m_0",
+      "material": "Grades frontais cromadas",
+      "destination": 0,
+      "triangles": 3360
+    },
+    {
+      "name": "gum_28_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 288
+    },
+    {
+      "name": "gum_29_gum_0",
+      "material": "Grades frontais cromadas",
+      "destination": 0,
+      "triangles": 5820
+    },
+    {
+      "name": "gum_30_gum_0",
+      "material": "Grades frontais cromadas",
+      "destination": 0,
+      "triangles": 2016
+    },
+    {
+      "name": "gum_31_gum_0",
+      "material": "Grades frontais cromadas",
+      "destination": 0,
+      "triangles": 2048
+    },
+    {
+      "name": "gum_32_gum_0",
+      "material": "Grades frontais cromadas",
+      "destination": 0,
+      "triangles": 448
+    },
+    {
+      "name": "gum_33_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 1104
+    },
+    {
+      "name": "gum_34_gum_0",
+      "material": "Grades frontais cromadas",
+      "destination": 0,
+      "triangles": 1648
+    },
+    {
+      "name": "body_11_body_0",
+      "material": "Grades frontais cromadas",
+      "destination": 0,
+      "triangles": 1744
+    },
+    {
+      "name": "gum_35_gum_0",
+      "material": "Grades frontais cromadas",
+      "destination": 0,
+      "triangles": 896
+    },
+    {
+      "name": "chrome_27_chrome_0",
+      "material": "Grades frontais cromadas",
+      "destination": 0,
+      "triangles": 1904
+    },
+    {
+      "name": "gum_36_gum_0",
+      "material": "Grades frontais cromadas",
+      "destination": 0,
+      "triangles": 144
+    },
+    {
+      "name": "black_06_black_0",
+      "material": "black",
+      "destination": 0,
+      "triangles": 224
+    },
+    {
+      "name": "gum_21_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 862
+    },
+    {
+      "name": "black_07_black_0",
+      "material": "black",
+      "destination": 0,
+      "triangles": 256
+    },
+    {
+      "name": "glass_05_glass_0",
+      "material": "glass",
+      "destination": 0,
+      "triangles": 440
+    },
+    {
+      "name": "chrome_19_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 6614
+    },
+    {
+      "name": "chrome_20_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 1680
+    },
+    {
+      "name": "chrome_21_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 480
+    },
+    {
+      "name": "glass_06_glass_0",
+      "material": "glass",
+      "destination": 0,
+      "triangles": 1080
+    },
+    {
+      "name": "glass_07_glass_0",
+      "material": "glass",
+      "destination": 0,
+      "triangles": 1080
+    },
+    {
+      "name": "silver_09_silver_0",
+      "material": "silver",
+      "destination": 0,
+      "triangles": 3480
+    },
+    {
+      "name": "black_08_black_0",
+      "material": "black",
+      "destination": 0,
+      "triangles": 80
+    },
+    {
+      "name": "d_glass_02_d_glass_0",
+      "material": "d_glass",
+      "destination": 0,
+      "triangles": 832
+    },
+    {
+      "name": "silver_10_silver_0",
+      "material": "silver",
+      "destination": 0,
+      "triangles": 1024
+    },
+    {
+      "name": "black_m_07_black_m_0",
+      "material": "black_m",
+      "destination": 0,
+      "triangles": 1040
+    },
+    {
+      "name": "black_m_08_black_m_0",
+      "material": "black_m",
+      "destination": 0,
+      "triangles": 3288
+    },
+    {
+      "name": "black_09_black_0",
+      "material": "black",
+      "destination": 0,
+      "triangles": 96
+    },
+    {
+      "name": "black_m_09_black_m_0",
+      "material": "black_m",
+      "destination": 0,
+      "triangles": 548
+    },
+    {
+      "name": "glass_08_glass_0",
+      "material": "glass",
+      "destination": 0,
+      "triangles": 2160
+    },
+    {
+      "name": "black_m_10_black_m_0",
+      "material": "black_m",
+      "destination": 0,
+      "triangles": 3392
+    },
+    {
+      "name": "chrome_22_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 6960
+    },
+    {
+      "name": "black_m_11_black_m_0",
+      "material": "black_m",
+      "destination": 0,
+      "triangles": 4368
+    },
+    {
+      "name": "glass_09_glass_0",
+      "material": "glass",
+      "destination": 0,
+      "triangles": 288
+    },
+    {
+      "name": "glass_10_glass_0",
+      "material": "glass",
+      "destination": 0,
+      "triangles": 3456
+    },
+    {
+      "name": "glass_11_glass_0",
+      "material": "glass",
+      "destination": 0,
+      "triangles": 2304
+    },
+    {
+      "name": "chrome_23_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 480
+    },
+    {
+      "name": "black_m_12_black_m_0",
+      "material": "black_m",
+      "destination": 0,
+      "triangles": 2848
+    },
+    {
+      "name": "chrome_24_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 288
+    },
+    {
+      "name": "black_m_13_black_m_0",
+      "material": "black_m",
+      "destination": 0,
+      "triangles": 256
+    },
+    {
+      "name": "chrome_25_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 240
+    },
+    {
+      "name": "gum_22_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 2208
+    },
+    {
+      "name": "o_glass_02_o_glass_0",
+      "material": "o_glass",
+      "destination": 0,
+      "triangles": 1080
+    },
+    {
+      "name": "black_m_14_black_m_0",
+      "material": "black_m",
+      "destination": 0,
+      "triangles": 6688
+    },
+    {
+      "name": "black_m_15_black_m_0",
+      "material": "black_m",
+      "destination": 0,
+      "triangles": 256
+    },
+    {
+      "name": "black_m_16_black_m_0",
+      "material": "black_m",
+      "destination": 0,
+      "triangles": 2320
+    },
+    {
+      "name": "silver_11_silver_0",
+      "material": "silver",
+      "destination": 0,
+      "triangles": 400
+    },
+    {
+      "name": "o_glass_03_o_glass_0",
+      "material": "o_glass",
+      "destination": 0,
+      "triangles": 1080
+    },
+    {
+      "name": "orange_01_orange_0",
+      "material": "orange",
+      "destination": 0,
+      "triangles": 3480
+    },
+    {
+      "name": "o_glass_04_o_glass_0",
+      "material": "o_glass",
+      "destination": 0,
+      "triangles": 2974
+    },
+    {
+      "name": "o_glass_05_o_glass_0",
+      "material": "o_glass",
+      "destination": 0,
+      "triangles": 3140
+    },
+    {
+      "name": "orange_02_orange_0",
+      "material": "orange",
+      "destination": 0,
+      "triangles": 1920
+    },
+    {
+      "name": "black_10_black_0",
+      "material": "black",
+      "destination": 0,
+      "triangles": 288
+    },
+    {
+      "name": "black_11_black_0",
+      "material": "black",
+      "destination": 0,
+      "triangles": 672
+    },
+    {
+      "name": "o_glass_06_o_glass_0",
+      "material": "o_glass",
+      "destination": 0,
+      "triangles": 768
+    },
+    {
+      "name": "orange_03_orange_0",
+      "material": "orange",
+      "destination": 0,
+      "triangles": 768
+    },
+    {
+      "name": "body_10_body_0",
+      "material": "body",
+      "destination": 0,
+      "triangles": 7804
+    },
+    {
+      "name": "gum_23_gum_0",
+      "material": "gum",
+      "destination": 5,
+      "triangles": 144
+    },
+    {
+      "name": "gum_24_gum_0",
+      "material": "gum",
+      "destination": 6,
+      "triangles": 144
+    },
+    {
+      "name": "silver_d_03_silver_d_0",
+      "material": "silver_d",
+      "destination": 6,
+      "triangles": 16920
+    },
+    {
+      "name": "silver_d_04_silver_d_0",
+      "material": "silver_d",
+      "destination": 5,
+      "triangles": 4156
+    },
+    {
+      "name": "gum_26_gum_0",
+      "material": "gum",
+      "destination": 5,
+      "triangles": 120
+    },
+    {
+      "name": "gum_25_gum_0",
+      "material": "gum",
+      "destination": 6,
+      "triangles": 120
+    },
+    {
+      "name": "plate_02_plate_0",
+      "material": "plate",
+      "destination": 0,
+      "triangles": 1504
+    },
+    {
+      "name": "gum_46_gum_0",
+      "material": "gum",
+      "destination": 5,
+      "triangles": 666
+    },
+    {
+      "name": "gum_47_gum_0",
+      "material": "gum",
+      "destination": 6,
+      "triangles": 666
+    },
+    {
+      "name": "body_15_body_0",
+      "material": "body",
+      "destination": 0,
+      "triangles": 8152
+    },
+    {
+      "name": "black_15_black_0",
+      "material": "black",
+      "destination": 0,
+      "triangles": 1600
+    },
+    {
+      "name": "gum_48_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 4176
+    },
+    {
+      "name": "gum_49_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 744
+    },
+    {
+      "name": "interior_09_interior_0",
+      "material": "interior",
+      "destination": 0,
+      "triangles": 1280
+    },
+    {
+      "name": "interior_10_interior_0",
+      "material": "interior",
+      "destination": 0,
+      "triangles": 1120
+    },
+    {
+      "name": "interior_11_interior_0",
+      "material": "interior",
+      "destination": 0,
+      "triangles": 1120
+    },
+    {
+      "name": "silver_14_silver_0",
+      "material": "silver",
+      "destination": 0,
+      "triangles": 2112
+    },
+    {
+      "name": "gum_50_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 3680
+    },
+    {
+      "name": "d_glass_04_d_glass_0",
+      "material": "d_glass",
+      "destination": 0,
+      "triangles": 2784
+    },
+    {
+      "name": "black_16_black_0",
+      "material": "black",
+      "destination": 0,
+      "triangles": 1512
+    },
+    {
+      "name": "silver_15_silver_0",
+      "material": "silver",
+      "destination": 0,
+      "triangles": 960
+    },
+    {
+      "name": "chrome_01_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 12800
+    },
+    {
+      "name": "gum_37_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 3028
+    },
+    {
+      "name": "interior_08_interior_0",
+      "material": "interior",
+      "destination": 0,
+      "triangles": 3920
+    },
+    {
+      "name": "black_12_black_0",
+      "material": "black",
+      "destination": 0,
+      "triangles": 672
+    },
+    {
+      "name": "d_glass_01_d_glass_0",
+      "material": "d_glass",
+      "destination": 0,
+      "triangles": 3232
+    },
+    {
+      "name": "gum_10_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 4608
+    },
+    {
+      "name": "gum_11_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 896
+    },
+    {
+      "name": "silver_07_silver_0",
+      "material": "silver",
+      "destination": 0,
+      "triangles": 11328
+    },
+    {
+      "name": "chrome_16_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 6960
+    },
+    {
+      "name": "black_m_17_black_m_0",
+      "material": "black_m",
+      "destination": 0,
+      "triangles": 384
+    },
+    {
+      "name": "gum_38_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 5386
+    },
+    {
+      "name": "body_12_body_0",
+      "material": "body",
+      "destination": 0,
+      "triangles": 4704
+    },
+    {
+      "name": "gum_39_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 8072
+    },
+    {
+      "name": "chrome_28_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 640
+    },
+    {
+      "name": "glass_12_glass_0",
+      "material": "glass",
+      "destination": 0,
+      "triangles": 416
+    },
+    {
+      "name": "glass_13_glass_0",
+      "material": "glass",
+      "destination": 0,
+      "triangles": 1148
+    },
+    {
+      "name": "chrome_29_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 2912
+    },
+    {
+      "name": "interior_04_interior_0",
+      "material": "interior",
+      "destination": 0,
+      "triangles": 4544
+    },
+    {
+      "name": "chrome_30_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 34
+    },
+    {
+      "name": "gum_40_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 14200
+    },
+    {
+      "name": "black_m_18_black_m_0",
+      "material": "black_m",
+      "destination": 0,
+      "triangles": 18
+    },
+    {
+      "name": "gum_41_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 4336
+    },
+    {
+      "name": "chrome_31_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 448
+    },
+    {
+      "name": "chrome_32_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 124
+    },
+    {
+      "name": "interior_05_interior_0",
+      "material": "interior",
+      "destination": 0,
+      "triangles": 1032
+    },
+    {
+      "name": "body_13_body_0",
+      "material": "body",
+      "destination": 0,
+      "triangles": 9776
+    },
+    {
+      "name": "vd_glass_01_vd_glass_0",
+      "material": "vd_glass",
+      "destination": 0,
+      "triangles": 5040
+    },
+    {
+      "name": "black_13_black_0",
+      "material": "black",
+      "destination": 0,
+      "triangles": 3768
+    },
+    {
+      "name": "gum_42_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 3384
+    },
+    {
+      "name": "black_14_black_0",
+      "material": "black",
+      "destination": 0,
+      "triangles": 2240
+    },
+    {
+      "name": "body_14_body_0",
+      "material": "body",
+      "destination": 0,
+      "triangles": 19692
+    },
+    {
+      "name": "interior_06_interior_0",
+      "material": "interior",
+      "destination": 0,
+      "triangles": 9372
+    },
+    {
+      "name": "interior_07_interior_0",
+      "material": "interior",
+      "destination": 0,
+      "triangles": 800
+    },
+    {
+      "name": "d_glass_03_d_glass_0",
+      "material": "d_glass",
+      "destination": 0,
+      "triangles": 2768
+    },
+    {
+      "name": "gum_43_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 10144
+    },
+    {
+      "name": "chrome_33_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 5888
+    },
+    {
+      "name": "gum_44_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 7552
+    },
+    {
+      "name": "gum_45_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 3520
+    },
+    {
+      "name": "console_01_console_0",
+      "material": "console",
+      "destination": 0,
+      "triangles": 448
+    },
+    {
+      "name": "console_center_01_console_center_0",
+      "material": "console_center",
+      "destination": 0,
+      "triangles": 384
+    },
+    {
+      "name": "body_03_body_0",
+      "material": "body",
+      "destination": 0,
+      "triangles": 16016
+    },
+    {
+      "name": "black_m_01_black_m_0",
+      "material": "black_m",
+      "destination": 0,
+      "triangles": 7232
+    },
+    {
+      "name": "gum_02_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 4176
+    },
+    {
+      "name": "body_04_body_0",
+      "material": "body",
+      "destination": 0,
+      "triangles": 780
+    },
+    {
+      "name": "black_01_black_0",
+      "material": "black",
+      "destination": 0,
+      "triangles": 272
+    },
+    {
+      "name": "red_04_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 4880
+    },
+    {
+      "name": "red_05_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 1536
+    },
+    {
+      "name": "r_glass_07_r_glass_0",
+      "material": "r_glass",
+      "destination": 0,
+      "triangles": 8244
+    },
+    {
+      "name": "red_03_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 6960
+    },
+    {
+      "name": "interior_03_interior_0",
+      "material": "interior",
+      "destination": 0,
+      "triangles": 128
+    },
+    {
+      "name": "gum_05_gum_0",
+      "material": "gum",
+      "destination": 8,
+      "triangles": 666
+    },
+    {
+      "name": "gum_04_gum_0",
+      "material": "gum",
+      "destination": 7,
+      "triangles": 666
+    },
+    {
+      "name": "black_02_black_0",
+      "material": "black",
+      "destination": 0,
+      "triangles": 176
+    },
+    {
+      "name": "gum_06_gum_0",
+      "material": "gum",
+      "destination": 7,
+      "triangles": 120
+    },
+    {
+      "name": "gum_07_gum_0",
+      "material": "gum",
+      "destination": 8,
+      "triangles": 120
+    },
+    {
+      "name": "silver_d_01_silver_d_0",
+      "material": "silver_d",
+      "destination": 8,
+      "triangles": 16920
+    },
+    {
+      "name": "silver_d_02_silver_d_0",
+      "material": "silver_d",
+      "destination": 7,
+      "triangles": 16920
+    },
+    {
+      "name": "gum_08_gum_0",
+      "material": "gum",
+      "destination": 7,
+      "triangles": 144
+    },
+    {
+      "name": "gum_09_gum_0",
+      "material": "gum",
+      "destination": 8,
+      "triangles": 144
+    },
+    {
+      "name": "black_03_black_0",
+      "material": "black",
+      "destination": 0,
+      "triangles": 2232
+    },
+    {
+      "name": "gum_18_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 2732
+    },
+    {
+      "name": "plate_01_plate_0",
+      "material": "plate",
+      "destination": 0,
+      "triangles": 1504
+    },
+    {
+      "name": "r_glass_06_r_glass_0",
+      "material": "r_glass",
+      "destination": 0,
+      "triangles": 2160
+    },
+    {
+      "name": "body_09_body_0",
+      "material": "body",
+      "destination": 0,
+      "triangles": 18152
+    },
+    {
+      "name": "chrome_17_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 260
+    },
+    {
+      "name": "chrome_18_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 512
+    },
+    {
+      "name": "r_glass_01_r_glass_0",
+      "material": "r_glass",
+      "destination": 0,
+      "triangles": 640
+    },
+    {
+      "name": "r_glass_02_r_glass_0",
+      "material": "r_glass",
+      "destination": 0,
+      "triangles": 520
+    },
+    {
+      "name": "brakes1_01_brakes1_0",
+      "material": "brakes1",
+      "destination": 4,
+      "triangles": 4896
+    },
+    {
+      "name": "tire_mat1_01_tire_mat1_0",
+      "material": "tire_mat1",
+      "destination": 4,
+      "triangles": 7200
+    },
+    {
+      "name": "brakes1_02_brakes1_0",
+      "material": "brakes1",
+      "destination": 3,
+      "triangles": 4896
+    },
+    {
+      "name": "tire_mat1_02_tire_mat1_0",
+      "material": "tire_mat1",
+      "destination": 3,
+      "triangles": 7200
+    },
+    {
+      "name": "r_glass_03_r_glass_0",
+      "material": "r_glass",
+      "destination": 0,
+      "triangles": 2160
+    },
+    {
+      "name": "d_red_01_d_red_0",
+      "material": "d_red",
+      "destination": 0,
+      "triangles": 6560
+    },
+    {
+      "name": "chrome_06_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 6960
+    },
+    {
+      "name": "silver_08_silver_0",
+      "material": "silver",
+      "destination": 0,
+      "triangles": 768
+    },
+    {
+      "name": "black_04_black_0",
+      "material": "black",
+      "destination": 0,
+      "triangles": 960
+    },
+    {
+      "name": "o_glass_01_o_glass_0",
+      "material": "o_glass",
+      "destination": 0,
+      "triangles": 1080
+    },
+    {
+      "name": "red_06_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 448
+    },
+    {
+      "name": "glass_02_glass_0",
+      "material": "glass",
+      "destination": 0,
+      "triangles": 1080
+    },
+    {
+      "name": "r_glass_04_r_glass_0",
+      "material": "r_glass",
+      "destination": 0,
+      "triangles": 960
+    },
+    {
+      "name": "gum_12_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 608
+    },
+    {
+      "name": "chrome_07_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 784
+    },
+    {
+      "name": "body_05_body_0",
+      "material": "body",
+      "destination": 0,
+      "triangles": 7416
+    },
+    {
+      "name": "red_07_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 8780
+    },
+    {
+      "name": "red_08_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 4332
+    },
+    {
+      "name": "chrome_08_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 704
+    },
+    {
+      "name": "chrome_09_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 5440
+    },
+    {
+      "name": "red_09_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 192
+    },
+    {
+      "name": "red_10_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 944
+    },
+    {
+      "name": "gum_13_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 9840
+    },
+    {
+      "name": "red_11_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 224
+    },
+    {
+      "name": "d_red_02_d_red_0",
+      "material": "d_red",
+      "destination": 0,
+      "triangles": 224
+    },
+    {
+      "name": "red_12_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 480
+    },
+    {
+      "name": "r_glass_05_r_glass_0",
+      "material": "r_glass",
+      "destination": 0,
+      "triangles": 1114
+    },
+    {
+      "name": "red_13_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 4368
+    },
+    {
+      "name": "gum_14_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 7826
+    },
+    {
+      "name": "glass_03_glass_0",
+      "material": "glass",
+      "destination": 0,
+      "triangles": 2432
+    },
+    {
+      "name": "red_14_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 1872
+    },
+    {
+      "name": "gum_15_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 800
+    },
+    {
+      "name": "glass_04_glass_0",
+      "material": "glass",
+      "destination": 0,
+      "triangles": 1160
+    },
+    {
+      "name": "red_15_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 844
+    },
+    {
+      "name": "red_20_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 18048
+    },
+    {
+      "name": "red_16_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 464
+    },
+    {
+      "name": "red_17_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 464
+    },
+    {
+      "name": "body_06_body_0",
+      "material": "body",
+      "destination": 0,
+      "triangles": 4672
+    },
+    {
+      "name": "red_18_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 144
+    },
+    {
+      "name": "red_19_red_0",
+      "material": "red",
+      "destination": 0,
+      "triangles": 144
+    },
+    {
+      "name": "chrome_10_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 6972
+    },
+    {
+      "name": "black_05_black_0",
+      "material": "black",
+      "destination": 0,
+      "triangles": 256
+    },
+    {
+      "name": "chrome_11_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 1193
+    },
+    {
+      "name": "gum_16_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 768
+    },
+    {
+      "name": "chrome_12_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 352
+    },
+    {
+      "name": "body_07_body_0",
+      "material": "body",
+      "destination": 0,
+      "triangles": 640
+    },
+    {
+      "name": "chrome_13_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 3044
+    },
+    {
+      "name": "body_08_body_0",
+      "material": "body",
+      "destination": 0,
+      "triangles": 5168
+    },
+    {
+      "name": "chrome_14_chrome_0",
+      "material": "chrome",
+      "destination": 0,
+      "triangles": 1336
+    },
+    {
+      "name": "gum_17_gum_0",
+      "material": "gum",
+      "destination": 0,
+      "triangles": 2556
+    },
+    {
+      "name": "Honda G10 aro17 face 0",
+      "material": "Civic G10 aro17 grafite face",
+      "destination": 1,
+      "triangles": 11962
+    },
+    {
+      "name": "Honda G10 aro17 side 0",
+      "material": "Civic G10 aro17 grafite laterais",
+      "destination": 1,
+      "triangles": 17754
+    },
+    {
+      "name": "Honda G10 aro17 chrome 0",
+      "material": "chrome",
+      "destination": 1,
+      "triangles": 1170
+    },
+    {
+      "name": "Honda G10 aro17 face 1",
+      "material": "Civic G10 aro17 grafite face",
+      "destination": 2,
+      "triangles": 11962
+    },
+    {
+      "name": "Honda G10 aro17 side 1",
+      "material": "Civic G10 aro17 grafite laterais",
+      "destination": 2,
+      "triangles": 17754
+    },
+    {
+      "name": "Honda G10 aro17 chrome 1",
+      "material": "chrome",
+      "destination": 2,
+      "triangles": 1170
+    },
+    {
+      "name": "Honda G10 aro17 face 2",
+      "material": "Civic G10 aro17 grafite face",
+      "destination": 3,
+      "triangles": 11962
+    },
+    {
+      "name": "Honda G10 aro17 side 2",
+      "material": "Civic G10 aro17 grafite laterais",
+      "destination": 3,
+      "triangles": 17754
+    },
+    {
+      "name": "Honda G10 aro17 chrome 2",
+      "material": "chrome",
+      "destination": 3,
+      "triangles": 1170
+    },
+    {
+      "name": "Honda G10 aro17 face 3",
+      "material": "Civic G10 aro17 grafite face",
+      "destination": 4,
+      "triangles": 11962
+    },
+    {
+      "name": "Honda G10 aro17 side 3",
+      "material": "Civic G10 aro17 grafite laterais",
+      "destination": 4,
+      "triangles": 17754
+    },
+    {
+      "name": "Honda G10 aro17 chrome 3",
+      "material": "chrome",
+      "destination": 4,
+      "triangles": 1170
+    }
+  ]
+}

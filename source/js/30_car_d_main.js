@@ -23,12 +23,13 @@ const CAR = {
     const tex = typeof carAtlas === 'function' ? carAtlas() : mkTex(4, 4, 'rgba8unorm-srgb');
     // desenhável: liga o atlas (grupo 3) e não entra no mapa de sombras estático do mundo
     R.drawables.push({ draw(pass, ctx) {
+      if (VEHICLES.current !== 'gol') return;
       if (ctx.kind === KIND.SHADOW && ctx.cascade === 3) return;
       if (!CAR.atlasBG) { if (!fam.bgl3) return; CAR.atlasBG = G.dev.createBindGroup({ layout: fam.bgl3, entries: [{ binding: 0, resource: tex.createView() }, { binding: 1, resource: GOL.foto.createView() }, { binding: 2, resource: CABIN_IMAGES.texture.createView() }] }); }
       CAR.driver.flags = objParams(CAR.slotBody)[3] > .5 ? 2 : 3;
       pass.setBindGroup(3, CAR.atlasBG); set.draw(pass, ctx);
     } });
-    R.transparents.push(glass);
+    R.transparents.push({ draw(pass) { if (VEHICLES.current === 'gol') glass.draw(pass); } });
     m4ident(CAR._t); CAR.place(CAR._t, CAR._z4, CAR._z4); CAR.place(CAR._t, CAR._z4, CAR._z4);
   },
   _z4: new Float32Array(4),
