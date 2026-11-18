@@ -2,8 +2,6 @@
 
 **Um VW Gol branco, rebaixado e com rodas 17, para pilotar num circuito de corrida, direto no navegador.**
 
-É o [Uno com escada](https://github.com/viktorkav/uno-com-escada) (versão do Fable 5.2), do canal [ViktorKav](https://www.youtube.com/@vkav), com o Uno trocado por um Gol de verdade, sem a escada no teto: o carro foi modelado a partir de fotos de um Gol G6 branco de 4 portas com teto solar, aerofólio preto, lanternas fumê, rodas aro 17 grafite diamantadas e pinças de freio vermelhas. Pista, mata, céu, câmeras, física, painel e menus são os do jogo original.
-
 ## Jogar
 
 Pelo navegador: **https://mateusfrmacedo.github.io/gol-petrus/**
@@ -77,8 +75,6 @@ Para reconstruir o atlas dessas superfícies, execute `python scripts/build-cabi
 O [Gol branco com teto solar e rodas aro 17](modelo/blender/README.md) está disponível em `.blend`, com texturas incorporadas e prévias da carroceria e da roda. A versão inclui os ajustes da traseira a partir das fotos do carro real. A origem da geometria e a licença informada pelo autor estão registradas junto ao arquivo.
 
 ## Créditos e licença
-
-Jogo original: [Uno com escada](https://github.com/viktorkav/uno-com-escada), de ViktorKav. As habilidades de Blender usadas no modelo seguem o [blender-skills](https://github.com/EL4CTEO/blender-skills).
 
 [PolyForm Noncommercial 1.0.0](LICENSE.md): livre para usar, estudar, mudar e compartilhar sem fim comercial.
 
