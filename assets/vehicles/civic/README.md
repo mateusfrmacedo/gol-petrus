@@ -1,4 +1,4 @@
-# Honda Civic 2019
+# Honda Civic
 
 Modelo original de **SQUIR3D**: https://sketchfab.com/3d-models/honda-civic-2019-598a9665b5214a01b3379502899e5823
 

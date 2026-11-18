@@ -16,7 +16,7 @@ function vehicleChoice(id, reset) {
   WLX[0] = WLX[1] = VP.a; WLX[2] = WLX[3] = -VP.b;
   WLZ[0] = WLZ[2] = -VP.tw / 2; WLZ[1] = WLZ[3] = VP.tw / 2;
   const select = document.getElementById('vehicle-choice'); if (select) select.value = id;
-  const subtitle = document.getElementById('vehicle-name'); if (subtitle) subtitle.textContent = id === 'civic' ? 'Honda Civic 2019 · circuito' : 'VW Gol G6 1.0 MSI branco · circuito';
+  const subtitle = document.getElementById('vehicle-name'); if (subtitle) subtitle.textContent = id === 'civic' ? 'Honda Civic · circuito' : 'VW Gol G6 1.0 MSI branco · circuito';
   try { localStorage.setItem('gol-veiculo', id); } catch (e) { /* escolha válida nesta sessão */ }
   if (reset && GAME.mode === 'game') {
     GS.replayOn = false; GS.freeCam = false; GS.frozen = false;

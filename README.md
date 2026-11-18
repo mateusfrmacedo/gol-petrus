@@ -8,7 +8,7 @@ Pelo navegador: **https://mateusfrmacedo.github.io/gol-petrus/**
 
 Ou no computador: baixe o [`index.html`](index.html) e abra no **Chrome** ou no **Edge**. Precisa de um navegador com **WebGPU** e funciona sem rede. Espere alguns segundos enquanto o circuito é montado e aperte **Começar**.
 
-O menu inicial e o menu de pausa têm um seletor **Veículo**, com **VW Gol Petrus** e **Honda Civic 2019**. A troca reinicia o carro no grid e a escolha fica salva no navegador. O Civic usa a carroceria, o interior e as seis texturas do modelo de SQUIR3D; o arquivo portátil em GLB e os créditos estão em [`assets/vehicles/civic/`](assets/vehicles/civic/README.md). Para abrir diretamente o Civic, use `?vehicle=civic`; para vê-lo isolado, `?scene=car&vehicle=civic`.
+O menu inicial e o menu de pausa têm um seletor **Veículo**, com **VW Gol Petrus** e **Honda Civic**. A troca reinicia o carro no grid e a escolha fica salva no navegador. O Civic usa a carroceria, o interior e as seis texturas do modelo de SQUIR3D; o arquivo portátil em GLB e os créditos estão em [`assets/vehicles/civic/`](assets/vehicles/civic/README.md). Para abrir diretamente o Civic, use `?vehicle=civic`; para vê-lo isolado, `?scene=car&vehicle=civic`.
 
 O Civic usa o desenho das rodas grafite da fotografia fornecida, ampliado para **aro 19 × 7**, com pneu de perfil mais baixo. As grades frontais têm acabamento cromado. São cinco pares de raios, aberturas e profundidade em 3D e emblema Honda. O diâmetro externo dos pneus é preservado. A referência original de aro 17, a textura e as medidas ficam em `assets/vehicles/civic/wheel-17/`; o GLB também inclui as rodas maiores.
 
