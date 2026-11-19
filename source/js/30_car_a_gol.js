@@ -15,7 +15,8 @@ async function golDecode() {
     o += 15;
   }
   const u16 = () => { const v = dv.getUint16(o, true); o += 2; return v; };
-  for (const p of hdr) {
+  for (const [partIndex,p] of hdr.entries()) {
+    p.sourceIndex=partIndex;
     const P = p.pos = new Float32Array(p.nV * 3), N = p.nrm = new Float32Array(p.nV * 3), I = p.idx = new Uint32Array(p.nI);
     let ax = 0, ay = 0, az = 0;
     for (let i = 0; i < p.nV; i++) {
@@ -105,8 +106,9 @@ function carEmitCabinReplacement(mb, p, driver) {
     }
   }
 }
-function carBuildBody(mb, gl, driver) {
+function carBuildBody(mb, gl, driver, separateRoof = false) {
   for (const p of GOL.parts) {
+    if (separateRoof && golRoofPart(p)) continue;
     if (p.dest !== 0 && p.dest !== 1) continue;
     if (p.cls) {
       const c = p.cls;

@@ -1,0 +1,12 @@
+{
+  "glb_bytes": 13717308,
+  "animations": 1,
+  "animated_nodes": [
+    "Volante · animacao de revisao"
+  ],
+  "bounds_error_mm": 0.0,
+  "meshes": 41,
+  "materials": 69,
+  "blend_sha256": "a2f6d1917a4be03af04c912df43d637e6ce97a4b3cc69c4885164f60b3eb9029",
+  "glb_sha256": "9a7432ef12d4dc17abcafb549b19740a8149327e2d910126297403110814f8cc"
+}

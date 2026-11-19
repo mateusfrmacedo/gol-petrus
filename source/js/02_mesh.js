@@ -21,6 +21,14 @@ class MeshBuilder {
     this.m = [0, 0, 0, 0]; this.c = [255, 255, 255, 255]; this.w = 0;
     this.xf = null; this.xfStack = []; this.flipW = false;
   }
+  // Seções semânticas usadas pela exportação do Gol; não alteram os lotes da GPU.
+  part(name) {
+    if (!this.sections) this.sections = [];
+    const last = this.sections[this.sections.length - 1];
+    if (last && last.end === null) last.end = this.ni;
+    if (name) this.sections.push({ name, start: this.ni, end: null });
+    return this;
+  }
   _growV() { this.cap *= 2; const nb = new ArrayBuffer(this.cap * VSTRIDE); new Uint8Array(nb).set(this.u8); this.buf = nb; this.f32 = new Float32Array(nb); this.i16 = new Int16Array(nb); this.u8 = new Uint8Array(nb); }
   _growI() { this.icap *= 2; const ni = new Uint32Array(this.icap); ni.set(this.idx); this.idx = ni; }
   mat(id, a, b, c) { this.m[0] = id; this.m[1] = a || 0; this.m[2] = b || 0; this.m[3] = c || 0; return this; }

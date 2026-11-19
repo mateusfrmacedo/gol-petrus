@@ -1,0 +1,51 @@
+{
+ "input": "/Users/mateus/Documentos/Projetos/Gol de corrida/modelo/gol-refinado/danos/capo-limpo.blend",
+ "severity": 0.22,
+ "seed": 7,
+ "mode": "auto",
+ "material": "sheet",
+ "size_m": [
+  1.24,
+  0.92,
+  0.1946
+ ],
+ "tris_in": 9600,
+ "braced_fraction": 0.191,
+ "wear": {
+  "amount": 0.0,
+  "rust_cover": 0.0,
+  "edge_wear_cover": 0.0
+ },
+ "hits": [
+  {
+   "type": "dent",
+   "point": [
+    0.16707006360779916,
+    -0.025703086708892202,
+    0.1250336730113428
+   ],
+   "dir": [
+    0,
+    0,
+    -1
+   ],
+   "radius": 0.17992160696224527,
+   "depth": 0.015421852025335307,
+   "shape": "ball",
+   "depth_m": 0.012
+  }
+ ],
+ "sheet_verts": 19028,
+ "sim_frames": 6,
+ "area_ratio": 1.0007,
+ "volume_ratio": 0.9906,
+ "max_displacement_m": 0.0164,
+ "tris_full": 33114,
+ "tris_out": 33114,
+ "output_area_ratio": 1.0007,
+ "seconds": 4.4,
+ "outputs": [
+  "/Users/mateus/Documentos/Projetos/Gol de corrida/modelo/gol-refinado/danos/capo-amassado.blend",
+  "/Users/mateus/Documentos/Projetos/Gol de corrida/modelo/gol-refinado/danos/capo-amassado.glb"
+ ]
+}

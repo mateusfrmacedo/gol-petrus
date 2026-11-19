@@ -1,0 +1,20 @@
+{
+  "roof_opening_m": [
+    0.666,
+    0.78
+  ],
+  "roof_glass_m": [
+    0.69,
+    0.806
+  ],
+  "roof_sheet_removed": true,
+  "wheel_face_plane_m": 0.095,
+  "wheel_fit_power": 1.6,
+  "wheel_fit_coefficients": [
+    0.06788558373494447,
+    0.27723930385267154
+  ],
+  "wheel_planarity_rms_mm": 0.1492017826819602,
+  "front_badge": "black on white",
+  "front_bumper": "recessed fog lamps and tapered solid white fins"
+}

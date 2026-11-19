@@ -25,6 +25,15 @@ Pneus 8% mais largos (aproximadamente 195 mm no modelo), carroceria 20 mm mais b
 
 O exportador lê os centros das rodas diretamente das instâncias do Blender. O interior e o volante do jogo acompanham o rebaixamento. A faixa cristal inferior das lanternas acende em branco quando a ré está engatada; os segmentos de freio permanecem vermelhos.
 
+## Revisão de 19/11/2026
+
+- Abertura real do teto solar na chapa e no forro originais, vidro curvo separado, moldura móvel e vedação fixa.
+- Face usinada das rodas aplanada, mantendo as aberturas, chanfros, pneu e bitola.
+- Emblema frontal preto sobre fundo branco, sem material metálico que altere as cores.
+- Neblinas com refletor e lente curva, aletas brancas com espessura e grade inferior preta acetinada.
+
+O controle articulado correspondente está no [Gol modular](../gol-refinado/gol-modular.blend). Veja a [revisão e a validação](../gol-refinado/REVISAO-EXTERIOR.md). Os ajustes ainda são uma reconstrução por referência visual, sem levantamento dimensional do veículo real.
+
 ## Prévias
 
 ![Vista traseira](traseira.png)

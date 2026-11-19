@@ -12,6 +12,8 @@ function uiInit() {
   UI.b1.onclick = () => benchStart();
   $('gear-mode').value = VEH.manual ? 'manual' : 'auto';
   $('gear-mode').onchange = e => { VEH.manual = e.target.value === 'manual'; };
+  $('orbit-reset').onclick = e => { if(CAM_ORBIT.active)CAM_ORBIT.reset();else CAM_ORBIT.activate();CAM_ORBIT.ui();e.currentTarget.blur(); };
+  $('sunroof').onclick = e => { SUNROOF.toggle(); e.currentTarget.blur(); };
   $('vehicle-choice').onchange = e => vehicleChoice(e.target.value, true);
   addEventListener('keydown', uiKey);
   document.addEventListener('visibilitychange', () => { if (document.hidden && (UI.st === ST.JOGO || UI.st === ST.FITA || UI.st === ST.BENCH)) uiPause(); });
@@ -31,6 +33,8 @@ function uiSet(st) {
   hudShow(st === ST.JOGO || st === ST.FITA || (st === ST.PAUSA && UI.back !== ST.BENCH));
   sndRun(st === ST.JOGO || st === ST.FITA || st === ST.BENCH);
   if (menu) UI.b0.focus(); else UI.b0.blur();
+  if (typeof SUNROOF !== "undefined") SUNROOF.ui();
+  if (typeof CAM_ORBIT !== "undefined") CAM_ORBIT.ui();
   _lastT = 0;
 }
 function uiPause() { if (UI.st === ST.BENCH) benchStop(); UI.back = UI.st === ST.FITA ? ST.FITA : ST.JOGO; uiSet(ST.PAUSA); }
@@ -48,6 +52,7 @@ function uiKey(e) {
   if (c === 'Digit0' || c === 'Numpad0') { e.preventDefault(); void musicNext(); return; }
   if (c === 'KeyM') { sndMute(!SND.mute); return; }
   if (c === 'KeyH') { UI.stats = !UI.stats; hudStats(UI.stats); if (st !== ST.BENCH) perfAttach(UI.stats, 12); return; }
+  if (c === 'KeyO' && st === ST.JOGO) { SUNROOF.toggle(); e.preventDefault(); return; }
   if (c === 'KeyT' && (st === ST.JOGO || st === ST.PAUSA || st === ST.INICIO)) { VEH.manual = !VEH.manual; $('gear-mode').value = VEH.manual ? 'manual' : 'auto'; e.preventDefault(); return; }
   if (st === ST.INICIO) return;                                   // na tela de início só o botão começa o jogo (e o som)
   if (c === 'Escape') { if (st === ST.JOGO || st === ST.FITA || st === ST.BENCH) uiPause(); else uiResume(); e.preventDefault(); }
@@ -130,6 +135,7 @@ function uiFrame() {
 }
 // chamado depois de simular e renderizar o quadro
 function uiAfter() {
+  SUNROOF.ui();CAM_ORBIT.ui();
   const st = UI.st;
   if (st === ST.BENCH) { if (GS.tick60 >= 3600) benchEnd(); }
   else {

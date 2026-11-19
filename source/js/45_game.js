@@ -45,6 +45,7 @@ const CARP = {
 const carObj = () => (typeof VEHICLES !== 'undefined' && VEHICLES.current === 'civic' ? CIVIC : typeof CAR !== 'undefined' ? CAR : CARP);
 
 function gameInit() {
+  CAM_ORBIT.init();
   addEventListener('keydown', onKeyDown); addEventListener('keyup', onKeyUp); addEventListener('blur', onBlur);
   if (typeof REPLAY_B64 !== 'undefined') {
     const bin = atob(REPLAY_B64); let n = 0; for (let i = 1; i < bin.length; i += 2) n += bin.charCodeAt(i);
@@ -121,6 +122,7 @@ async function gamePrewarm() {
   GS.frozen = false; gameRestart(); return worst;
 }
 function gameRestart() {
+  if(typeof CAM_ORBIT!=="undefined")CAM_ORBIT.reset();
   const V = VEH; V.lapS = 0; V.offCount = 0; V.hits = 0; V.laps = 0; V.time = 0; V.steps = 0; V.spin.fill(0); V.susp.fill(0);
   vehicleReset(TRK.L + TRK.startS, TRK.startD, 0); GS.held = 0; GS.tick60 = 0; GS.acc = 0; GS.sub = 0; GS.keys = GS.prevKeys = 0; GS.cam = +(Q.get('cam') || 0); GS.chaseInit = false; GS.tvCur = -1; GS.cut = true;
   if (typeof fxReset === 'function') fxReset();
@@ -175,6 +177,7 @@ function gameTick(fixed) {
     else { GS.acc += dt; let n = 0; while (GS.acc >= PHYS_DT && n < 8) { gameStep(); GS.acc -= PHYS_DT; n++; } if (n === 8) GS.acc = 0; GS.alpha = GS.acc / PHYS_DT; }
   }
   RT[1] = dt; RT[0] += dt;
+  if (typeof SUNROOF !== "undefined") SUNROOF.advance(dt);
   gamePose();
   if (!GS.freeCam) gameCamera();
   if (GS.cut) { R.cam.first = true; R.debug = 1; GS.cut = false; } else R.debug = 0;
@@ -221,7 +224,9 @@ function rotXQ(o) { const a = ROTQ[0], c = Math.cos(a), s = Math.sin(a); o.fill(
 function camCut() { GS.cut = true; }
 function gameCamera() {
   const V = VEH, c = Math.cos(GS.yaw), s = Math.sin(GS.yaw), dt = RT[1], q = CAMQ, lb = (GS.keys & K_V) ? -1 : 1;   // lb = -1: olhando para trás
-  if (GS.cam === 0) {
+  if (GS.cam === 0 && VEHICLES.current === "gol" && typeof CAM_ORBIT !== "undefined" && CAM_ORBIT.active) {
+    CAM_ORBIT.pose(q);
+  } else if (GS.cam === 0) {
     // perseguição: segue a direção do movimento com atraso
     let tgt = GS.yaw; if (GS.speed > 4) { let sa = Math.atan2(V.vy, V.vx > 1 ? V.vx : 1); sa = sa < -0.5 ? -0.5 : sa > 0.5 ? 0.5 : sa; tgt = GS.yaw + sa * 0.55; }
     if (!GS.chaseInit) { GS.chaseYaw = tgt; GS.chaseY = GS.cy; GS.chaseInit = true; }

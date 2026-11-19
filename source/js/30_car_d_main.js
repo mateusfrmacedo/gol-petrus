@@ -2,17 +2,21 @@
 const CAR = {
   wheelbase: GOL_META.axf * 2, trackF: GOL_META.track, trackR: GOL_META.track, wheelR: GOL_META.wheelR,
   hubs: GOL_META.hubs || [[1.2335, 0.298, -0.728], [1.2335, 0.298, 0.728], [-1.2335, 0.298, -0.728], [-1.2335, 0.298, 0.728]],
-  slotBody: 0, slotWheel: [0, 0, 0, 0], slotSteer: 0,
+  slotBody: 0, slotWheel: [0, 0, 0, 0], slotSteer: 0, slotRoof: null, slotDeflector: null,
   steerMat: m4(), tris: 0, _t: m4(), _t2: m4(), _t3: m4(), set: null, glass: null, atlasBG: null, fam: null, driver: null,
   build() {
     const fam = CAR.fam = mkFamily('car', { src: 'mat_car', noCube: true });
-    CAR.slotBody = objSlot(); for (let i = 0; i < 4; i++) CAR.slotWheel[i] = objSlot(); CAR.slotSteer = objSlot();
+    CAR.slotBody = objSlot(); for (let i = 0; i < 4; i++) CAR.slotWheel[i] = objSlot(); CAR.slotSteer = objSlot(); CAR.slotRoof = objSlot(); CAR.slotDeflector = objSlot();
     const set = CAR.set = new MeshSet(fam), glass = CAR.glass = new GlassSet();
     const mb = new MeshBuilder(1 << 18), gl = new MeshBuilder(1 << 14);
     const driver = new MeshBuilder(1 << 14);
-    carBuildBody(mb, gl, driver);
+    carBuildBody(mb, gl, driver, true);
+    const roof=new MeshBuilder(), roofGlass=new MeshBuilder(), deflector=new MeshBuilder();
+    carBuildSunroof(roof,roofGlass,deflector);
+    set.add(roof.upload(),CAR.slotRoof,3);glass.add_(roofGlass.upload(),CAR.slotRoof);
+    set.add(deflector.upload(),CAR.slotDeflector,3);
     if (typeof carBuildParts === 'function') carBuildParts(mb, gl);
-    CAR.tris = mb.ni / 3 + gl.ni / 3;
+    CAR.tris = (mb.ni + gl.ni + roof.ni + roofGlass.ni + deflector.ni) / 3;
     set.add(mb.upload(), CAR.slotBody, 3); glass.add_(gl.upload(), CAR.slotBody);
     if (typeof carBuildWheel === 'function') {
       const w = new MeshBuilder(1 << 15), wb = new MeshBuilder(1 << 11); carBuildWheel(w, wb); const wm = w.upload(), wbm = wb.upload(); CAR.tris += 4 * (w.ni + wb.ni) / 3;
@@ -40,6 +44,10 @@ const CAR = {
   place(body, spin, susp) {
     const steer = CAR.inp[0], steerWheelAngle = CAR.inp[1];
     const t = CAR._t2, t2 = CAR._t3;
+    if (CAR.slotRoof !== null) {
+      objPrev(CAR.slotRoof).set(objModel(CAR.slotRoof));SUNROOF.matrix(t);m4mul(objModel(CAR.slotRoof),body,t);
+      objPrev(CAR.slotDeflector).set(objModel(CAR.slotDeflector));SUNROOF.matrix(t,true);m4mul(objModel(CAR.slotDeflector),body,t);
+    }
     objPrev(CAR.slotBody).set(objModel(CAR.slotBody)); objModel(CAR.slotBody).set(body);
     for (let i = 0; i < 4; i++) {
       const s = CAR.slotWheel[i], h = CAR.hubs[i], left = (i & 1) === 0;

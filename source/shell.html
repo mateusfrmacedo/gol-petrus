@@ -32,6 +32,11 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 #ui button:focus-visible{outline:2px solid #fff;outline-offset:2px}
 #transmission{display:none;position:absolute;right:1.6vh;top:1.6vh;padding:.55em .9em;border-radius:.6em;background:rgba(9,11,14,.72);color:#fff;font-variant-numeric:tabular-nums;pointer-events:none}
 #gear-mode,#vehicle-choice{font:inherit;color:#fff;background:#25282d;border:1px solid #777;border-radius:.4em;padding:.4em .7em}
+#sunroof{position:absolute;left:1.6vh;bottom:1.6vh;padding:.65em 1em;border:1px solid #777;border-radius:.6em;background:rgba(9,11,14,.82);color:#fff;font:inherit;cursor:pointer;touch-action:manipulation}
+#camera-tools{position:absolute;left:1.6vh;bottom:4.8em;max-width:85vw;padding:.55em .7em;border-radius:.6em;background:rgba(9,11,14,.82);color:#ddd;font-size:12px}
+#camera-tools button{font:inherit;color:#fff;background:transparent;border:1px solid #777;border-radius:.4em;padding:.4em .7em;margin-right:.6em;cursor:pointer}
+#camera-tools button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#sunroof:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .gear-setting{margin:1.2em 0 0}
 </style>
 </head>
@@ -40,6 +45,8 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 <div id="msg">carregando…</div>
 <div id="hint">W acelera · S freia/ré · A/D faz curvas · Espaço freio de mão · C câmera · R volta à pista</div>
 <canvas id="hg"></canvas><canvas id="ht"></canvas><canvas id="hs"></canvas><div id="tag"></div>
+<div id="camera-tools" hidden><button id="orbit-reset" type="button">Girar câmera</button><span>Arraste para girar · roda do mouse: zoom · duplo clique: centralizar</span></div>
+<button id="sunroof" type="button" aria-pressed="false" hidden>Abrir teto solar · O</button>
 <div id="transmission" role="status" aria-live="polite"></div>
 <div id="ui"><div>
 <h1>Gol Petrus</h1>
@@ -53,6 +60,8 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 <tr><td>Espaço</td><td>freio de mão</td></tr>
 <tr><td>E / Q</td><td>sobe / reduz marcha</td></tr>
 <tr><td>T</td><td>câmbio manual / automático</td></tr>
+<tr><td>Mouse</td><td>arraste na câmera externa do Gol · roda: zoom · duplo clique: centralizar</td></tr>
+<tr><td>O</td><td>abre / fecha o teto solar do Gol</td></tr>
 <tr><td>C</td><td>câmera externa / interna / pista</td></tr>
 <tr><td>V (segurar)</td><td>olha para trás</td></tr>
 <tr><td>R</td><td>devolve o carro à pista</td></tr>

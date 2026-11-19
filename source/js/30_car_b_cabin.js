@@ -22,11 +22,12 @@ function cabinFace(mb,x,y,z,w,h,uv) {
   mb.quad(x,y-h/2,z-w/2,x,y-h/2,z+w/2,x,y+h/2,z+w/2,x,y+h/2,z-w/2,uv[0],uv[3],uv[2],uv[1]);
 }
 function carBuildCabin(mb) {
+  mb.part("painel.casca");
   // Corpo contínuo do painel: topo curvo, testa arredondada e capela elevada do motorista.
   const profile=[[.91,.95],[.79,.966],[.62,.95],[.50,.91],[.455,.845],[.475,.735],[.63,.685],[.91,.73]];
   const n=80, np=profile.length, base=mb.nv;
   const point=(i,j)=>{
-    const z=-.724+1.448*i/n,p=profile[(j+np)%np];
+    const p=profile[(j+np)%np],halfWidth=.69-.10*Math.max(0,Math.min(1,(p[0]-.50)/.41)),z=(-1+2*i/n)*halfWidth;
     const hump=.092*Math.exp(-Math.pow((z+.36)/.202,4));
     const h=[.15,.55,1,1,.45,0,0,0][(j+np)%np];
     return [p[0]+.025*Math.pow(z/.724,4),p[1]+hump*h,z];
@@ -40,6 +41,9 @@ function carBuildCabin(mb) {
   for(let i=0;i<n;i++)for(let j=0;j<np;j++){const a=base+i*np+j,b=base+i*np+(j+1)%np;mb.quadI(a,b,b+np,a+np);}
   // Quatro difusores circulares com aro acetinado, lâminas e lingueta central.
   for(const z of [-.655,-.085,.095,.655]){
+    mb.part("difusor." + (z < -.5 ? "motorista" : z > .5 ? "passageiro" : z < 0 ? "central.esquerdo" : "central.direito"));
+    const centerX=.455+(.847-.845)/.065*.045+.025*Math.pow(z/.724,4)-.006;
+    mb.push(m4translate(m4(),centerX,.847,z));mb.push(m4rotZ(m4(),-.31));mb.push(m4translate(m4(),-.414,-.847,-z));
     mb.mat(CM.INTERIOR).color(.013,.014,.016); cabinDisc(mb,.424,.847,z,.055,.055);
     cabinRing(mb,.421,.847,z,.058,.058,.006);
     mb.mat(CM.STEEL).color(.31,.33,.35); cabinRing(mb,.414,.847,z,.053,.053,.0045);
@@ -48,7 +52,9 @@ function carBuildCabin(mb) {
     for(let k=-1;k<=1;k++){const y=k*.023, width=2*Math.sqrt(Math.max(0,.048**2-y*y));mb.rbox(.410,y,0,.012,.012,width,.003,3);}
     mb.mat(CM.STEEL).color(.19,.20,.21); mb.rbox(.401,0,0,.010,.010,.029,.003,3);
     mb.pop(); mb.pop();
+    mb.pop();mb.pop();mb.pop();
   }
+  mb.part("painel.instrumentos");
   // Capela e instrumentos, rebaixados sob a borda do painel.
   mb.mat(CM.INTERIOR).color(.007,.008,.010); cabinDisc(mb,.418,.921,-.36,.088,.172);
   mb.mat(CM.INTERIOR).color(.016,.017,.019); cabinRing(mb,.409,.921,-.36,.088,.172,.008);
@@ -57,6 +63,7 @@ function carBuildCabin(mb) {
   mb.mat(CM.STEEL).color(.23,.24,.25);
   cabinRing(mb,.394,.925,-.427,.049,.049,.0015); cabinRing(mb,.394,.925,-.293,.049,.049,.0015);
   mb.mat(24,3).color(1,1,1); mb.quad(.391,.880,-.378,.391,.880,-.342,.391,.954,-.342,.391,.954,-.378,.25,1,.375,.75);
+  mb.part("painel.tampa-superior");
   // Tampa superior integrada à superfície curva: apenas a junta, sem caixa saliente.
   const lidX=(y,z)=>{
     let x=y>.91 ? .50+(y-.91)/.04*.12 : y>.845 ? .455+(y-.845)/.065*.045 : .475-(y-.735)/.110*.020;
@@ -67,9 +74,11 @@ function carBuildCabin(mb) {
     for(let i=0;i<=8;i++){const a=start+i/8*PI/2,y=cy+Math.cos(a)*.009,z=cz+Math.sin(a)*.009;lid.push([lidX(y,z),y,z]);}
   }
   mb.mat(CM.INTERIOR).color(.009,.010,.011);mb.tube(lid,.0009,6,{closed:true,up:[1,0,0]});
+  mb.part("painel.porta-luvas");
   // Porta-luvas inferior, com face recuada e puxador discreto.
   mb.mat(26,0).color(.026,.028,.031);mb.rbox(.59,.585,.425,.12,.29,.47,.022,5);
   mb.mat(CM.INTERIOR).color(.009,.010,.012);mb.rbox(.525,.695,.425,.010,.022,.105,.005,3);
+  mb.part("console.moldura");
   // Moldura vertical do rádio e dos três comandos do ar.
   mb.mat(26,0).color(.019,.020,.022);
   mb.rbox(.447,.655,.006,.080,.277,.266,.026,5);
@@ -82,14 +91,19 @@ function carBuildCabin(mb) {
   };
   mb.mat(26,1).color(.23,.25,.26); mb.rbox(.395,.711,.006,.011,.170,.247,.005,3);
   mb.mat(CM.INTERIOR).color(.009,.010,.011);mb.rbox(.387,.711,.006,.006,.156,.230,.003,3);
+  mb.part("console.botoes");
   photoFace(.751,.222,.025,[0,.625,.5,.6875]);
+  mb.part("console.radio");
   photoFace(.702,.222,.064,[0,.5,.5,.625]);
   mb.mat(26,1).color(.23,.25,.26);mb.rbox(.395,.602,.006,.011,.092,.247,.006,3);
+  mb.part("console.ar-condicionado");
   photoFace(.602,.222,.080,[.5,.5,1,.625]);
+  mb.part("console.pisca-alerta");
   // Botão do pisca-alerta entre os dois difusores.
   mb.mat(CM.INTERIOR).color(.018,.019,.021); mb.rbox(.417,.774,.006,.012,.029,.044,.005,3);
   mb.mat(CM.LENS).color(.32,.018,.014);
   mb.tri(mb.v(.409,.782,.006,-1,0,0),mb.v(.409,.767,-.005,-1,0,0),mb.v(.409,.767,.017,-1,0,0));
+  mb.part("console.tunel");
   // Túnel, dois porta-copos, coifa sanfonada e pomo do câmbio manual.
   mb.mat(CM.INTERIOR).color(.025,.026,.028); mb.rbox(-.005,.365,.012,.76,.17,.196,.044,5);
   for(const x of [-.12,.02]){
@@ -100,6 +114,7 @@ function carBuildCabin(mb) {
   mb.mat(CM.INTERIOR).color(.10,.105,.11);
   mb.push(m4translate(m4(),.20,.448,.012)); mb.push(m4rotZ(m4(),PI/2));
   cabinRing(mb,0,0,0,.073,.073,.005); mb.pop(); mb.pop();
+  mb.part("cambio.coifa-e-pomo");
   mb.mat(CM.INTERIOR).color(.012,.013,.015);
   mb.cyl(.20,.448,.012,.066,.545,.020,40,true,true);
   for(let k=0;k<4;k++){
@@ -110,10 +125,12 @@ function carBuildCabin(mb) {
   mb.mat(CM.INTERIOR).color(.020,.021,.024); mb.rbox(.20,.573,.012,.045,.052,.046,.018,5);
   mb.mat(CM.STEEL).color(.16,.17,.18);mb.rbox(.20,.595,.012,.031,.004,.033,.002,3);
   mb.mat(CM.INTERIOR).color(.014,.015,.016);mb.rbox(-.17,.455,-.103,.29,.041,.033,.013,4);
+  mb.part("volante.coluna");
   // Coluna de direção, alavancas de seta/limpador e forros de porta.
   mb.mat(CM.INTERIOR).color(.018,.019,.021);
   mb.tube([[.305,.845,-.36],[.53,.79,-.36]],.031,16);
   for(const sg of [-1,1]){
+    mb.part(sg < 0 ? "porta.motorista" : "porta.passageiro");
     // Forro completo e opaco: fecha a lateral sob o vidro, sem depender da malha externa.
     mb.mat(26,0).color(.022,.024,.027);
     mb.rbox(-.02,.625,sg*.711,1.45,.56,.028,.013,4);
@@ -127,9 +144,26 @@ function carBuildCabin(mb) {
     mb.tube([[.36,.854,-.36+sg*.045],[.32,.863,-.36+sg*.12]],.009,8);
     mb.rbox(.315,.867,-.36+sg*.13,.041,.021,.038,.008,3);
     mb.rbox(-.15,.724,sg*.706,.65,.050,.032,.014,4);
-    mb.mat(CM.STEEL).color(.12,.13,.14); mb.rbox(.075,.809,sg*.690,.056,.025,.012,.006,3);
+    mb.part(sg < 0 ? "porta.motorista.macaneta" : "porta.passageiro.macaneta");
+    mb.mat(26,0).color(.008,.009,.010);mb.rbox(.04,.808,sg*.679,.145,.069,.018,.019,5);
+    mb.mat(27,0).color(.42,.003,.002);mb.rbox(.085,.810,sg*.667,.044,.038,.006,.005,3);
+    mb.mat(CM.STEEL).color(.27,.29,.31);
+    mb.tube([[.095,.796,sg*.663],[.06,.788,sg*.656],[-.005,.793,sg*.655],[-.025,.817,sg*.665]],.010,12);
+    mb.part(sg < 0 ? "porta.motorista.comandos" : "porta.passageiro.comandos");
+    mb.mat(CM.INTERIOR).color(.008,.009,.011);mb.rbox(-.12,.749,sg*.671,.15,.016,.041,.008,3);
+    for(let k=0;k<(sg<0?4:1);k++)mb.rbox(-.168+k*.032,.760,sg*.668,.021,.007,.026,.002,2);
     mb.mat(CM.INTERIOR).color(.018,.019,.021);
   }
+  // O forro original já acompanha a curvatura da carroceria e o vão do teto.
+  // Não acrescentar blocos planos: atravessavam o teto e formavam pontas por fora.
+  for(const sg of [-1,1]){
+    // As colunas A já pertencem à carroceria importada: não duplicar com tubos ou barras.
+    mb.part(sg < 0 ? "teto.quebra-sol.motorista" : "teto.quebra-sol.passageiro");
+    mb.mat(26,0).color(.24,.245,.25);
+    mb.rbox(.22,1.305,sg*.31,.12,.012,.275,.005,4);
+    mb.mat(CM.INTERIOR).color(.025,.027,.03);mb.rbox(.254,1.307,sg*.31,.027,.012,.03,.004,3);
+  }
+  mb.part(null);
 }
 // Detalhes gráficos pertencem às superfícies 3D; não cobrem a imagem da pista.
 function cabinDrawAtlas(g) {

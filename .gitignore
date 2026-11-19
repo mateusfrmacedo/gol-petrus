@@ -16,3 +16,7 @@ __pycache__/
 assets/interior/painel-real.jpeg
 assets/interior/volante-real.jpeg
 assets/interior/painel-detalhes.png
+
+# Arquivos de trabalho e ferramentas locais; não publicar referências originais.
+.local-backups/
+.tools/

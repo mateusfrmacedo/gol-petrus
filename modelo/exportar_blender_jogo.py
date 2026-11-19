@@ -46,16 +46,18 @@ def tile_for(mat):
     if probe.inputs['Vector'].is_linked:
         n=probe.inputs['Vector'].links[0].from_node
         flip=n.type=='VECT_MATH' and n.operation=='MULTIPLY_ADD'
-    invert=mat.name.startswith('VW traseiro')
-    key=(color.image.name if color else '',normal.image.name if normal else '',flip,invert)
+    invert=mat.name.startswith(('VW traseiro','VW frontal'))
+    front_badge=mat.name.startswith('VW frontal')
+    key=(color.image.name if color else '',normal.image.name if normal else '',flip,invert,front_badge)
     if key in tile_keys:return tile_keys[key],flip
     if color:
         c=Image.open(BytesIO(image_bytes(color.image))).convert('RGBA').resize((TILE,TILE),Image.Resampling.LANCZOS)
-        if invert:
+        if invert or front_badge:
             a=np.asarray(c).copy()
             grey=(a[:,:,:3]/255).mean(2)
             t=np.clip((grey-.08)/(.56-.08),0,1)
-            a[:,:,:3]=np.round((.89*(1-t)+.004*t)[:,:,None]*255).astype('uint8')
+            value=.89*(1-t)+.004*t
+            a[:,:,:3]=np.round(value[:,:,None]*255).astype('uint8')
             c=Image.fromarray(a)
     else:
         rgba=b.inputs['Base Color'].default_value
@@ -110,6 +112,8 @@ def emit_object(ob,dest):
         if dest==0 and alpha<.999:
             target=1;material=0;param=0
             color=tuple(min(.45,max(.025,c)) for c in color)
+        if mat.name.startswith('Lente neblina'):
+            material=28
         if mat.name.startswith(('Desenho vermelho','Refletores')):
             material=22
         if mat.name.startswith('Faixa cristal inferior da lanterna'):
@@ -194,11 +198,16 @@ hubs=sorted([[origin_y-o.matrix_world.translation.y,o.matrix_world.translation.z
 track=(hubs[1][2]-hubs[0][2]+hubs[3][2]-hubs[2][2])/2
 body_drop=float(bpy.context.scene.get('body_drop_m',0))
 tyre=bpy.data.objects['Pneu de perfil baixo']
-meta={'version':'blender-2026-11-17','blender':True,'sourceSha256':hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
+meta={'version':'blender-2026-11-19','blender':True,'sourceSha256':hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
       'barY':1.42-body_drop,'bodyDrop':body_drop,'axf':(hubs[0][0]-hubs[2][0])/2,
       'wheelR':float(tyre.dimensions.x/2),'tyreWidth':float(tyre.dimensions.z),'track':track,
       'hubs':hubs,'decals':[],'parts':len(parts),'trianglesBody':sum(len(p['f']) for p in parts if p['dest']!=2),
-      'trianglesWheel':sum(len(p['f']) for p in parts if p['dest']==2)}
+      'trianglesWheel':sum(len(p['f']) for p in parts if p['dest']==2),
+      'roofPartIndices':[i for i,p in enumerate(parts)if p['name']in['Teto solar · vidro móvel','Moldura móvel do teto solar']],
+      'fixedRoofPartIndices':[i for i,p in enumerate(parts)if p['name']=='Vedação fixa do teto solar'],
+      'frontDetailParts':[i for i,p in enumerate(parts)if p['name'].startswith('Frente ·')],
+      'frontDetailsBaked':bool(bpy.context.scene.get('exterior_reference_revision',0)),
+      'sunroof':{'normalization':0,'frontX':.145,'hingeY':float(bpy.context.scene.get('sunroof_hinge_y',1.36)),'lift':.038,'travel':.47,'angle':.04}}
 target=ROOT/'source/js/30_car_a0_data.js'
 target.write_text('// Gerado por modelo/exportar_blender_jogo.py.\nconst GOL_META = '+json.dumps(meta,separators=(',',':'))+
                   ";\nconst GOL_B64 = '"+base64.b64encode(compressed).decode()+"';\nconst GOL_FOTO_WEBP = '"+

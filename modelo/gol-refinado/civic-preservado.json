@@ -1,0 +1,22 @@
+{
+  "source/js/30_car_e0_civic_data.js": "dce268606a1f66601e3e4106831f898b8e7503d4b136223d7ae38374922b0fa7",
+  "source/js/30_car_e_civic.js": "dda8d9e8abfa297d7c713df60557e8f1b2c38bb2114bb6e9f816b2ee78b42aa0",
+  "source/wgsl/mat_civic.wgsl": "e74b57d58bc4e0d4d4f4b9279cdd10c0c52e5b034388931d4e1051ba59823604",
+  "source/wgsl/civic_materials.wgsl": "63e621e865f2dfac415878ed02014f921075527142ad3796c93c1e85dcaf815d",
+  "source/wgsl/civic_glass.wgsl": "2b95186debf709e1a60f8b7fbfb7c1173d2c945894df08e6a0a4e0b855d422e1",
+  "assets/vehicles/civic/Tire_01_DM.png": "e36836cb38ec13eaf64cd0623d696ad4704f86962f417865c14bfc10fc89c569",
+  "assets/vehicles/civic/source.json": "9c7316bfe5e49cb746e0eff569ab5c09ff2aebcc8536268d5bdcb17792ad2f3c",
+  "assets/vehicles/civic/plate0.png": "04c3d57975aab98db342b5ea04e5d94db0a4026d0fa0214e292c2251e021544d",
+  "assets/vehicles/civic/Brakes_01_DM.png": "ca1878fddf14ff6b541eb6e5c5b91230f146700c4f86002d543d2e29e883a54c",
+  "assets/vehicles/civic/Tire_01_NM.png": "10704d3e575c375846c1297585745a3c6632730e677a3558b4eab1adf99e4531",
+  "assets/vehicles/civic/README.md": "af6ef4d7e57c60a2bd16bd31205a487544486510171609be610360409ee81e94",
+  "assets/vehicles/civic/console.png": "b0edcb192ae86eb99db85fa66542c95e0cbb2d2047dcb2d1e4985701b8509cc4",
+  "assets/vehicles/civic/console_center.png": "be57a760edd840e4ce2a7c563c0b46d5a098e6f9888a5d25420c6832694d084c",
+  "assets/vehicles/civic/materials.json": "bee1d8617191cd88ff1746c6b6a8fc19cb7f00600a595ee3b7b0d1fad593e2ef",
+  "assets/vehicles/civic/manifest.json": "9ca7b3a64df5b29951f01d060ae3bd5e6091e2e4a02359392b74523bfdc9a5cc",
+  "assets/vehicles/civic/texture-sources.json": "b5c4250913586dcf3314b9c14e3bdd12f68e81f6d3d1693468f4860c41f9d06b",
+  "assets/vehicles/civic/honda-civic-2019.glb": "befa9bade5750fe78b03ff94106cd4e9016844893088498d219e05bc3c382a8a",
+  "assets/vehicles/civic/wheel-17/spec.json": "510582f0983fc93e220f9e592e14cfdad37a4729e38e1c3879a3599eb9978b69",
+  "assets/vehicles/civic/wheel-17/reference.webp": "6110e9cc7a6ac4bf0645f76d34efed7b553568db264f210d4f72e777bdf86082",
+  "assets/vehicles/civic/wheel-17/face.png": "8e4072140a07707f1785d86c306f2367abb72f0014f174bdb7d4f2548ef26ed4"
+}

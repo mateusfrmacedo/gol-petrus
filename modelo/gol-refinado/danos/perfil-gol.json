@@ -1,0 +1,23 @@
+{
+  "object": "Capô de ensaio de VW Gol G6 branco, superfície amostrada no modelo original",
+  "understanding": [
+    "A chapa do capô recebe uma depressão leve e localizada. Rodas, vidros, interior e rig ficam fora da simulação.",
+    "O contorno do ensaio é simplificado e fechado; não representa uma simulação estrutural de acidente automotivo.",
+    "Pintura branca conservada: não adicionar ferrugem, sujeira ou peças soltas."
+  ],
+  "proxy_thickness_m": 0.03,
+  "material": "sheet",
+  "hits": {
+    "dent": 1,
+    "crush": 0,
+    "axial": 0,
+    "bend": 0
+  },
+  "depth": 0.25,
+  "wear": {
+    "rust": 0,
+    "grime": 0,
+    "edge_wear": 0
+  },
+  "source_sha256": "9b67aa7e827031ed5a07cefce4c832f19cfb7e857fda798dfa6c46efbc555e53"
+}

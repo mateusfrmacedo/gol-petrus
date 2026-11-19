@@ -1,16 +1,18 @@
 // Peças do carro que não vêm da malha do Gol: interior, piloto, escapamento, volante, placas e emblemas.
 const CRK = { x0: 0.0, x1: -0.98, barY: GOL_META.barY, railZ: 0.205, lx0: -1.98, lx1: 1.22 };
 function carBuildParts(mb, gl) {
+  if (typeof GOL_REFINED !== "undefined" && GOL_REFINED.ready) { golRefinedEmit(mb, "body"); return; }
   const v0 = mb.nv, i0 = mb.ni, gv0 = gl.nv, gi0 = gl.ni;
   // Interior e piloto acompanham a altura da carroceria aprovada no Blender.
   const drop = GOL_META.bodyDrop || 0;
   mb.push(m4translate(m4(), 0, -drop, 0)); gl.push(m4translate(m4(), 0, -drop, 0));
+  mb.part("interior.assoalho-e-bancos");
   // ================= interior (metade direita; espelhado) =================
   mb.mat(CM.INTERIOR).color(0.05, 0.05, 0.055);
   mb.quad(-0.86, 0.235, 0.72, 0.85, 0.235, 0.72, 0.85, 0.235, 0, -0.86, 0.235, 0);
   mb.quad(-1.33, 0.235, 0.5, -0.86, 0.235, 0.5, -0.86, 0.235, 0, -1.33, 0.235, 0);   // ao lado das rodas traseiras o carpete é estreito (o plano inteiro atravessava a calota: risco fino horizontal)
   mb.quad(-1.63, 0.45, 0.72, -1.33, 0.45, 0.72, -1.33, 0.45, 0, -1.63, 0.45, 0);                         // assoalho do porta-malas (acima do fundo elevado)                       // assoalho (carpete)
-  mb.quad(0.82, 0.2, 0, 0.82, 0.2, 0.72, 0.82, 0.93, 0.72, 0.82, 0.93, 0);                               // parede corta-fogo
+  mb.quad(0.82, 0.2, 0, 0.82, 0.2, 0.70, 0.82, 0.93, 0.60, 0.82, 0.93, 0);                               // parede corta-fogo
   // banco dianteiro
   const seat = (x, z, w, color) => {
     mb.mat(CM.INTERIOR, 4).color(color[0], color[1], color[2]);
@@ -34,11 +36,12 @@ function carBuildParts(mb, gl) {
   // (sem rack nem escada: o Gol real não tem; carLadder fica no arquivo, sem uso)
   // Escapamento já incluído no modelo exportado do Blender.
   carBuildCabin(mb);
+  mb.part("interior.retrovisor");
   // Retrovisor interno.
   mb.mat(CM.INTERIOR).color(0.018, 0.019, 0.022);
   mb.rbox(0.23, 1.29, 0, 0.025, 0.055, 0.2, 0.012, 3);
   mb.tube([[0.24, 1.29, 0], [0.2, 1.35, 0]], 0.008, 8);
-  mb.pop(); gl.pop();
+  mb.pop(); gl.pop(); mb.part(null);
 }
 // O piloto permanece visível por fora; na cabine não encobre a câmera nem o volante.
 function carBuildDriver(mb) {
@@ -143,6 +146,8 @@ function carAtlas() {
 }
 // ---------- volante real: contornos traçados na foto e textura do próprio carro ----------
 function carBuildSteer(mb) {
+  if (typeof GOL_REFINED !== "undefined" && GOL_REFINED.ready) { golRefinedEmit(mb, "steer"); CAR.steerMat.set(GOL_REFINED_META.steerMatrix); return; }
+  mb.part("volante.aro");
   const diameter = .372;
   const vtx = (u,v,x,nx,ny,nz) => mb.v(x,(.5-v/1024)*diameter,(u/1024-.5)*diameter,nx,ny,nz,u/1024,v/2048);
   // Aro de seção arredondada, base levemente achatada e revestimento da foto.
@@ -168,16 +173,22 @@ function carBuildSteer(mb) {
     const cx=outline.reduce((sum,p)=>sum+p[0],0)/outline.length,cy=outline.reduce((sum,p)=>sum+p[1],0)/outline.length;
     const center=vtx(cx,cy,x-bulge,-1,0,0), ids=outline.map(p=>vtx(p[0],p[1],x,-1,0,0));
     for(let i=0;i<ids.length;i++)mb.tri(center,ids[(i+1)%ids.length],ids[i]);
+    // Braços chegam ao interior do aro com sobreposição física, sem frestas.
     // Espessura do componente; sem imagens do painel nos espaços vazados.
     mb.mat(CM.INTERIOR).color(.012,.013,.015);
+    const backCenter=vtx(cx,cy,.022,1,0,0),back=outline.map(p=>vtx(p[0],p[1],.022,1,0,0));
+    for(let i=0;i<back.length;i++)mb.tri(backCenter,back[i],back[(i+1)%back.length]);
     for(let i=0;i<outline.length;i++){
       const a=outline[i],b=outline[(i+1)%outline.length];
       const ay=(.5-a[1]/1024)*diameter,az=(a[0]/1024-.5)*diameter,by=(.5-b[1]/1024)*diameter,bz=(b[0]/1024-.5)*diameter;
       mb.quad(x,ay,az,x,by,bz,.022,by,bz,.022,ay,az);
     }
   };
-  patch([[99,575],[133,477],[299,417],[279,513],[313,624],[171,598]],-.014,.002,true);
-  patch([[712,421],[827,459],[900,562],[906,597],[708,626],[713,586],[742,511]],-.014,.002,true);
+  mb.part("volante.comandos.esquerdos");
+  patch([[66,579],[78,477],[299,417],[279,513],[313,624],[171,608]],-.014,.002,true);
+  mb.part("volante.comandos.direitos");
+  patch([[712,421],[827,459],[948,562],[946,607],[708,626],[713,586],[742,511]],-.014,.002,true);
+  mb.part("volante.raio-inferior");
   // Raio inferior com janela trapezoidal, modelada como abertura real.
   const outer=[[376,740],[640,747],[631,806],[611,952],[585,979],[450,982],[421,961],[395,827]];
   const inner=[[444,803],[585,801],[581,830],[566,917],[558,924],[474,927],[465,920],[450,830]];
@@ -186,9 +197,18 @@ function carBuildSteer(mb) {
     const j=(i+1)%outer.length,a=outer[i],b=outer[j],c=inner[j],d=inner[i];
     const A=vtx(...a,-.010,-1,0,0),B=vtx(...b,-.010,-1,0,0),C=vtx(...c,-.010,-1,0,0),D=vtx(...d,-.010,-1,0,0);
     mb.quadI(D,C,B,A);
+    mb.mat(CM.INTERIOR).color(.012,.013,.015);
+    const rear=[a,b,c,d].map(p=>vtx(...p,.022,1,0,0));mb.quadI(...rear);
+    for(const [p,q] of [[a,b],[c,d]]){
+      const ay=(.5-p[1]/1024)*diameter,az=(p[0]/1024-.5)*diameter,by=(.5-q[1]/1024)*diameter,bz=(q[0]/1024-.5)*diameter;
+      mb.quad(-.010,ay,az,-.010,by,bz,.022,by,bz,.022,ay,az);
+    }
+    mb.mat(25,1).color(1,1,1);
   }
+  mb.part("volante.airbag");
   // Airbag arredondado, contorno prateado, emblema e inscrição são os da foto real.
   patch([[477,373],[593,384],[675,412],[721,451],[737,504],[720,574],[686,645],[643,714],[600,765],[538,783],[453,782],[391,767],[350,728],[315,665],[284,594],[267,524],[270,467],[294,431],[354,400],[416,381]],-.036,.012,false);
+  mb.part(null);
   m4translate(CAR._t,.285,.855-(GOL_META.bodyDrop||0),-.36);
   m4rotZ(CAR._t2,-18*PI/180);m4mul(CAR.steerMat,CAR._t,CAR._t2);
 }

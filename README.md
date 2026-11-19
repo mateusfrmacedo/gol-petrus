@@ -74,6 +74,16 @@ A cabine utiliza as fotos do proprietário em `assets/interior/painel-real.jpeg`
 
 Para reconstruir o atlas dessas superfícies, execute `python scripts/build-cabin-textures.py` (Pillow, numpy e OpenCV) e depois `node source/build.mjs`. As fotos originais e `painel-detalhes.png` permanecem locais para regenerar o atlas; o jogo publicado incorpora apenas as texturas recortadas. A geometria está em `source/js/30_car_b_cabin.js` e `source/js/30_car_c_parts.js`.
 
+## Gol modular e ensaio de dano
+
+A etapa atual organiza o interior do Gol em peças editáveis no [Blender](modelo/gol-refinado/gol-modular.blend), com referências das novas fotos reais, maçanetas, comandos das portas, colunas e forro do teto. O jogo carrega o interior exportado desse arquivo e mantém o esterço do volante. O [guia de peças e exportação](modelo/gol-refinado/PARTS.md) explica como editar e regenerar o jogo.
+
+O [ensaio AnyWreck](modelo/gol-refinado/danos/README.md) produz uma variante separada de capô amassado. É uma avaliação visual offline; danos por colisão não foram ativados na simulação. Os arquivos do Civic permanecem idênticos, verificados por hashes em `tests/gol-modular.cjs`.
+
+Na câmera externa do Gol, arraste o mouse sobre a cena para girar ao redor do carro e use a roda do mouse para aproximar/afastar. O botão **Girar câmera** também ativa esse modo; **Centralizar câmera** ou duplo clique retorna à perseguição normal. A câmera continua acompanhando o carro em movimento.
+
+O Gol tem botão **Abrir/Fechar teto solar**, no canto inferior esquerdo durante a condução, e atalho **O**. O vidro sobe e corre para trás com defletor frontal. O para-choque recebeu detalhes dos neblinas e aletas a partir das fotos reais. A [revisão do interior](modelo/gol-refinado/REVISAO-INTERIOR.md) registra correções de encaixe e divergências que ainda precisam de modelagem.
+
 ## Modelo editável no Blender
 
 O [Gol branco com teto solar e rodas aro 17](modelo/blender/README.md) está disponível em `.blend`, com texturas incorporadas e prévias da carroceria e da roda. A versão inclui os ajustes da traseira a partir das fotos do carro real. A origem da geometria e a licença informada pelo autor estão registradas junto ao arquivo.

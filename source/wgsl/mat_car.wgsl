@@ -404,6 +404,11 @@ fn surf(in: V2F, ff: bool) -> Surface {
           s.emissive = s.emissive + c * (led * (0.06 + 0.8 * br) + rev * sat(O.p0.y) * 0.6);
         } }
     }
+    case 28u: { // lente clara do neblina, com refletor e estrias discretas
+      let stripe=0.96+0.04*sin(in.ext.y*1800.0);
+      s.albedo=in.col.rgb*stripe;s.rough=0.13;s.metal=0.25;s.coat=0.65;s.emissive=0.45;return s;
+    }
+    case 27u: { s.albedo=in.col.rgb; s.rough=0.8; s.emissive=0.18; return s; }
     case 26u: { // plástico granulado real, com cor, microrrelevo e rugosidade
       let localN = normalize((vec4f(s.normal,0.0) * O.model).xyz);
       var w = pow(abs(localN),vec3f(4.0)); w /= max(w.x+w.y+w.z,0.0001);
@@ -487,6 +492,10 @@ fn surf(in: V2F, ff: bool) -> Surface {
       // Forro do teto fosco na cabine, sem o reflexo da pintura externa.
       if (O.p0.w > 0.5 && lp.y > 1.15 && lp.x < 0.75 && abs(lp.z) < 0.72) {
         s.rough = 0.95; s.metal = 0.0; s.coat = 0.0; s.albedo = min(s.albedo, vec3f(0.04));
+      }
+      // Revestimento das colunas originais visto por dentro; nenhuma barra adicional.
+      if (O.p0.w > 0.5 && lp.x > 0.23 && lp.x < 1.02 && lp.y > 0.96 && abs(lp.z) > 0.52 && abs(lp.z) < 0.73) {
+        s.albedo=vec3f(0.19,0.20,0.21);s.rough=0.94;s.metal=0.0;s.coat=0.0;
       }
       return s;
     }
