@@ -51,6 +51,7 @@ function marcosLayout(reserved) {
     const ox = r.x + nx * (off + D / 2) + tx * 1.0, oz = r.z + nz * (off + D / 2) + tz * 1.0;
     MARCOS.petrus = Object.assign(marcoFrame(ox, oz, nx, nz), { D, W, flipZ: (-nz) * tx + nx * tz });
     reserved.push([ox, oz, 12]);
+    if (typeof petrusNeighborhoodLayout === 'function') petrusNeighborhoodLayout(reserved);
   }
   // Praça Matriz: a quadra inteira (Rua Guilhermite, Rua Rui Barbosa, Rua Gotardi e Rua do Comércio)
   {
@@ -562,6 +563,7 @@ function marcoPetrus(mb, REG) {
   mb.pop();
   { const c = M.at(-X + 9.6, (-Z + 4.4) * zs); CITY.addBox({ x: c[0], z: c[1], ux: M.ux, uz: M.uz, hd: 4.2, hw: 4.2 }); const c2 = M.at(-X + 10.8, (Z - 2.55) * zs); CITY.addBox({ x: c2[0], z: c2[1], ux: M.ux, uz: M.uz, hd: 5.2, hw: 2.45 }); }
   const f = M.at(xw, 0); CITY.addBox({ x: f[0], z: f[1], ux: M.ux, uz: M.uz, hd: 0.15, hw: Z });
+  if (typeof petrusNeighborhoodBuild === 'function') petrusNeighborhoodBuild(mb);
 }
 
 // placas da cidade: nomes de rua nas esquinas e PARE nos pontos marcados no mapa

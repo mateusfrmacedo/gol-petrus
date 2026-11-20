@@ -33,7 +33,7 @@ ruas, calçadas e casas, e `12_city4_marcos.js` os lugares modelados pelas fotos
 
 ## Estado e verificações em 20/11/2026
 
-No recorte jogável: 608 trechos de vias, 370 cruzamentos, 97 nomes de vias, 58,7 km de ruas e 3.444 casas. O cenário inclui Borghi Veículos, Sacoi, casa do Petrus, Praça Matriz com igreja e entrada da cidade (portal e letreiro), além das fachadas genéricas, calçadas, sinalização e rede de postes. As construções são aproximações visuais.
+No recorte jogável: 608 trechos de vias, 370 cruzamentos, 97 nomes de vias, 58,7 km de ruas e 3.449 casas. O cenário inclui Borghi Veículos, Sacoi, casa do Petrus, Praça Matriz com igreja e entrada da cidade (portal e letreiro), além das fachadas genéricas, calçadas, sinalização e rede de postes. As construções são aproximações visuais.
 
 Execute, a partir da raiz:
 
@@ -66,3 +66,5 @@ Fontes: `source/js/12_city5_borghi.js` (lotes, fachadas e pintura) e `12_city4_m
 O Gol começa na Rua do Comércio, em frente à saída da Borghi Veículos, na faixa do lado da loja e alinhado em direção ao centro. O ponto fica no asfalto para permitir sair imediatamente, sem atravessar grades ou construções. A seleção explícita de circuito pelo menu ou endereço continua disponível.
 
 ![Gol no ponto inicial junto à saída da Borghi](revisao/partida-borghi.jpg)
+
+A [região da casa do Petrus](PETRUS.md) tem lotes reservados, fachadas opostas próprias, terreno aberto e detalhes conferidos pelo Street View de setembro de 2024.
