@@ -40,10 +40,13 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 #clock{position:fixed;left:1.6vh;bottom:calc(1.6vh + 138px);width:132px;text-align:center;z-index:6;pointer-events:none;color:#fff;font:600 15px/1.2 system-ui,sans-serif;letter-spacing:.06em;text-shadow:0 1px 3px #000;display:none}
 #hora{width:12em;vertical-align:middle;accent-color:#ccc}
 .gear-setting{margin:1.2em 0 0}
-#gol-controls{position:absolute;left:calc(1.6vh + 142px);bottom:8.2em;display:flex;flex-wrap:wrap;gap:.35em;max-width:min(620px,85vw);padding:.4em;border-radius:.7em;background:rgba(9,11,14,.82);font-size:12px}
+#gol-controls{position:absolute;right:1.6vh;bottom:calc(1.6vh + 180px);transform:translateX(50%);display:flex;flex-wrap:nowrap;gap:3px;padding:3px;border-radius:6px;background:rgba(9,11,14,.82);font-size:11px}
 #gol-controls[hidden]{display:none}
 .ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;display:block}
 #gol-controls button,#music-bar button{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:.3em;min-width:40px;height:38px;font:inherit;color:#e8e8e8;background:#20252a;border:1px solid #4a5058;border-radius:.55em;padding:0 .55em;cursor:pointer;touch-action:none;transition:transform .12s ease-out,background-color .15s ease-out,border-color .15s ease-out,color .15s ease-out}
+#gol-controls button{width:28px;min-width:28px;height:28px;padding:0;border-radius:4px}
+#gol-controls .ic{width:15px;height:15px}
+#gol-controls kbd{display:none}
 #gol-controls button:active,#music-bar button:active{transform:scale(.97)}
 @media (hover:hover){#gol-controls button:hover,#music-bar button:hover{border-color:#8a929c}}
 #gol-controls kbd{font:600 10px/1 system-ui,sans-serif;color:#9aa3ad;border:1px solid #4a5058;border-radius:3px;padding:2px 3px;font-variant-numeric:tabular-nums}
@@ -12039,6 +12042,9 @@ function hudLayout() {
   const A = H.A = hudAtlas(Math.round(r * 0.33)), B = H.B = hudAtlas(Math.round(r * 0.23)), C = H.C = hudAtlas(Math.round(r * 0.17));
   const c = H.cg; c.width = W; c.height = Hh; c.style.width = W / dpr + 'px'; c.style.height = Hh / dpr + 'px';
   const cx1 = Math.round(r * 1.12), cy = Math.round(r * 1.12), cx2 = W - cx1; L[0] = cx1; L[1] = cy; L[2] = cx2; L[3] = r; L[4] = W; L[5] = Hh;
+  // Faixa compacta de luzes e setas centralizada acima do velocímetro; acompanha o resize do HUD.
+  const controls = document.getElementById('gol-controls');
+  if (controls) { controls.style.right = 'calc(1.6vh + ' + (W - cx1) / dpr + 'px)'; controls.style.bottom = 'calc(1.6vh + ' + (Hh / dpr + 7) + 'px)'; }
   const fc = H.face = document.createElement('canvas'); fc.width = W; fc.height = Hh; const f = fc.getContext('2d');
   f.textAlign = 'center'; f.textBaseline = 'middle';
   const dial = (cx, max, step, minor, red0, unit) => {
