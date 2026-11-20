@@ -11,6 +11,7 @@ function vegPlace() {
   const rnd = mkRng(4711), V = VEG, half = V.NC * V.CELL / 2; V.x0 = TRK.cx - half; V.z0 = TRK.cz - half;
   let cap = 1 << 17, data = new Float32Array(cap * 8), keys = new Uint32Array(cap), n = 0;
   const push = (x, y, z, s, rot, seed, arch) => {
+    if (CITY.on && CITY.addCircle) CITY.addCircle(x, z, arch === 3 ? 0.22 + 0.1 * s : 0.16 + 0.22 * s);   // tronco sólido (palmeira mais fina)
     const cx = Math.floor((x - V.x0) / V.CELL), cz = Math.floor((z - V.z0) / V.CELL); if (cx < 0 || cz < 0 || cx >= V.NC || cz >= V.NC) return;
     if (n >= cap) { cap *= 2; const d2 = new Float32Array(cap * 8); d2.set(data); data = d2; const k2 = new Uint32Array(cap); k2.set(keys); keys = k2; }
     const o = n * 8; data[o] = x; data[o + 1] = y; data[o + 2] = z; data[o + 3] = s; data[o + 4] = Math.cos(rot); data[o + 5] = Math.sin(rot); data[o + 6] = seed; data[o + 7] = arch;
@@ -53,6 +54,7 @@ function vegPlace() {
     const y = (inHF(x, z) ? hfAt(x, z) : terrainH(x, z)) - lerp(0.25, 1.6, far);
     push(x, y, z, lerp(0.68, 1.38, r4 * r4 * (3 - 2 * r4)) * (1 + far * 0.3), r5 * TAU, rnd(), arch);
   }
+  if (CITY.on) cityTrees(push, rnd);
   // arbustos grandes e mudas (arquétipo 5, com impostor): enchem o sub-bosque, a borda da mata e as encostas/clareiras,
   // para os morros vistos da pista (e pelas lentes longas das câmeras de TV) não ficarem como um gramado liso
   const gb = 3.3, nb = Math.floor(2 * half / gb);
@@ -68,6 +70,7 @@ function vegPlace() {
       const sr = loc0[0] > TRK.L / 2 ? loc0[0] - TRK.L : loc0[0];
       if ((d > 0 && sr > TRK.pit.s0 - 30 && sr < TRK.pit.s1 + 30 && ad < TRK.pit.padD1 + 8) || (d < 0 && sr > TRK.stand.s0 - 25 && sr < TRK.stand.s1 + 25 && ad < -TRK.stand.d1 + 12)) continue;
     }
+    if (CITY.on && cityVegBlocked(x, z)) continue;
     const f = forestAt(x, z), pn = vnoise(x * 0.045 + 9.1, z * 0.045 + 4.4);
     // encostas e clareiras abertas: moitas e mudas em manchas (o morro visto pela lente longa não fica um gramado liso)
     p = 0.46 * smooth(0.18, 0.62, pn) * (1 - smooth(0.05, 0.3, f)) + 0.5 * smooth(0.02, 0.3, f) * (1 - 0.3 * smooth(0.5, 1, f)) + 0.16 * f;

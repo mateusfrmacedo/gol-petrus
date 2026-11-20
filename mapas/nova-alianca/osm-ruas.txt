@@ -1,0 +1,355 @@
+n|am=telephone|-9242,551
+n|am=telephone|-3841,-389
+n|am=telephone|-318,-355
+n|nm=Kí-Delícia^am=fast_food|-74,-470
+n|nm=Bar do Gustavo^am=bar|840,-652
+n|nm=Auto Posto Larangeiras^am=fuel|-1131,1425
+n|am=library|-155,548
+n|am=school|-6234,-383
+n|hw=stop|-3778,1678
+n|hw=stop|-11300,-2332
+n|hw=stop|-11093,-2212
+n|hw=stop|-11391,-2193
+n|hw=stop|-14887,-3009
+n|hw=stop|-14998,-3336
+n|hw=stop|-14738,-3164
+n|hw=stop|-15134,-3153
+n|nm=Polícia Militar^lu=military^am=police|1177,450
+n|nm=Polícia Civil^am=police|-1192,795
+w|hw=secondary^nm=Estrada Vicinal Antônio Molina^rf=NVA-010^sf=asphalt|2824,1071 1346,289 1548,305
+w|hw=unclassified|9764,33728 239,-3576 261,-3638 86,-1252 72,-1238 251,-3850 160,-2661 93,-1437 80,-1096 95,-1157 299,-4350 69,-610 38,-507 265,-4381 118,-1431 190,-967 133,-578 120,-519 178,-625 127,-388 417,-1107 230,-534 327,-666 748,-1377 582,-1007 811,-1445 46,-71 677,-1267 2291,-4243 1296,-2319 1872,-3293 6873,-12395 1319,-2355
+w|hw=secondary^nm=Rua Francisco Coco^sf=asphalt|-4798,-462 257,9 539,-92 158,-38 995,-246 1011,-224 991,-239 992,-229 976,-236
+w|hw=residential^nm=Rua Jorge Galvão^sf=asphalt|-3245,2350 559,-97 559,-103 983,-253 996,-229 994,-211 979,-239
+w|hw=secondary^nm=Rua Quintino de Socaiuva^sf=asphalt|-4384,1560 -78,-350 -125,-543 -291,-1113
+w|hw=residential^nm=Rua Potirendaba|2971,2030 -147,-959 -227,-1063 -247,-951 -15,-58 -242,-921
+w|hw=unclassified|-3547,9512 122,-55 107,-56 77,-28 79,-14 338,-27 157,-5 538,7 223,11 401,51 2035,373 465,94 481,125 516,155 1512,472 291,34 804,42 204,0 211,-19 589,-103 1069,-296 44,-8
+w|hw=unclassified^sf=unpaved|2859,-14968 -3909,283 -4369,490
+w|hw=secondary^nm=Rodovia Maurício Goulart^rf=SP-355^sf=asphalt|-27523,32776 807,-1157 542,-732 771,-957 482,-549 773,-785 858,-727 92,-78 921,-684 789,-531 597,-385 634,-398 688,-466 1226,-794 747,-440 1675,-1183 1272,-1033 481,-417 2306,-2128 271,-256 1482,-1412 2097,-1962 1170,-1074 817,-795 413,-382 242,-254 414,-485 153,-210 126,-171 251,-409 190,-325 230,-466 132,-324 92,-246
+w|hw=residential^nm=Rua Gotardi^sf=asphalt|2597,8 -1004,221 -983,245 -984,225 -996,244 -978,257 -472,106 -520,121 -448,105
+w|hw=secondary^nm=Avenida Francisco Pereira dos Santos^rf=SP-355^ow=yes^sf=asphalt|-3406,5943 -4,-50 -22,-269 -14,-138 -36,-329 -55,-605 -70,-894 -53,-509 -56,-559 -19,-232 -12,-169 -41,-657
+w|hw=residential^nm=Rua Guilhemite^sf=asphalt|-5959,1158 747,-313 223,-86 402,-92 986,-245 989,-244 1004,-246 988,-215 1000,-236 979,-240 976,-242
+w|hw=residential^nm=Rua do Comércio^sf=asphalt|2675,4891 -130,-594 -242,-1090 -229,-961 -249,-1028
+w|hw=residential^nm=Rua 25 de Março|420,4998 64,-594 3,-110 -9,-102 -143,-570 -149,-636 -72,-311 -262,-1007 -226,-969 -246,-982 -227,-1009 -246,-990
+w|hw=unclassified^nm=Estrada Vicinal NVA-030^rf=NVA-030^ow=no|-701,33201 1127,-1411 356,-529 1139,-1902 758,-1224 257,-464 101,-226 325,-785 125,-384 139,-553 592,-2941 222,-1251 216,-1077 29,-246 8,-274 -28,-404 -141,-1362 -282,-2050 -303,-2294 -205,-1710 -99,-607 -131,-892 -128,-965 -233,-1715 -248,-1555 -49,-339 -66,-597 -41,-255 -64,-298
+w|hw=unclassified|-18343,24533 -4008,-2270 -6210,-3539 -902,-513
+w|hw=unclassified|-14649,21877 -627,-290 -180,-107 -382,-268 -220,-184 -271,-206 -257,-158 -319,-162 -1357,-822
+w|hw=unclassified|-24148,28596 -5822,72
+w|hw=residential^nm=Rua Rio Preto|-2971,3271 284,1112 268,1195
+w|hw=residential^nm=Rua Eugênio Traldi|-3219,2738 589,-129 29,1 26,17 17,31 25,210 28,172 61,252 263,977 293,1257
+w|hw=residential^nm=Rua José Teodoro de Mello^sf=asphalt|-1401,3031 241,991 311,1359
+w|hw=residential^nm=Rua Sete de Setembro|-2687,4383 506,-114 517,-123 504,-124 506,-115 492,-132 497,-153 983,-193 985,-222
+w|hw=residential^nm=Rua Rio Preto^sf=asphalt|-3844,-583 243,1005 261,1005 95,923 26,388 37,451
+w|hw=residential^nm=Rua Jorge Tibiriça|-1838,-1053 230,985 238,1011 226,954 233,998 257,1012 337,1406
+w|hw=residential^nm=Rua Rio Preto^sf=asphalt|-4002,-545 -122,-1057
+w|hw=residential^nm=Rua São Paulo|-3107,-1842 258,1013 237,1007 264,1022 221,950 207,1003 256,993 284,1324
+w|hw=residential^nm=Rua 13 de Maio|-3660,3149 478,40 211,82 176,53 102,7 93,-8 156,-31 524,-139 519,-122 490,-136 481,-101 544,-119 968,-224 992,-205 897,-216
+w|hw=residential^nm=Rua José Camarotto|-430,2794 268,981 328,1463
+w|hw=residential^nm=Rua Hene Ayruth|-3191,5690 -4,-55 -129,-1355 -60,-533 -15,-49 -31,-30 -47,-19 -130,9
+w|hw=residential^nm=Rua Antônio Birelli^sf=asphalt|-8144,590 1023,24
+w|hw=residential^nm=Rua Paulo Donega|-4608,4640 -96,-936
+w|hw=residential^nm=Rua Antônio Benjamin|-5822,2623 43,542 32,541 68,655 25,361 27,655
+w|hw=residential^nm=Rua José Bonifácio^sf=asphalt|-4462,1210 -1497,-52 -516,82
+w|hw=residential^nm=Rua Ibira^sf=asphalt|-8173,1875 18,-638 4,-85 7,-562 19,-551 8,-200
+w|hw=residential^nm=Rua Rubens Gonçalves da Costa^sf=asphalt|-8125,39 949,43
+w|hw=residential^nm=Rua José Bonifácio^ow=yes^sf=asphalt|-8921,1115 16,56 14,17 22,9 714,40 997,29 581,36
+w|hw=residential^nm=Rua Felicio Helu|-6655,3157 876,8 1017,-18 508,-3 492,-5 102,10
+w|hw=residential^nm=Rua Jorge Piton|-6669,3710 922,-4 537,-9 506,7 522,-4 469,-32 106,-10
+w|hw=residential^nm=Rua Egilio Darim^ow=yes|-3133,5649 -62,-14 -120,-16 -58,-52 -73,-81
+w|hw=residential^nm=Rua Professora Benedicta Jacir dos Santos^ow=yes|-8743,3245 428,20 608,32
+w|hw=residential^nm=Rua Nadir Borrega^sf=asphalt|-7176,82 38,27 7,27 10,478 5,445 -10,73 -15,50
+w|hw=residential^nm=Rua Sebastião Rosa Vitoriano|-5114,4684 -96,-987
+w|hw=residential^nm=Rua Humberto Melão^ow=yes|-8705,2554 1047,53
+w|hw=residential^nm=Rua Egilio Darim^ow=yes|-3410,5893 219,-203 58,-41
+w|hw=residential^nm=Rua Lourenço Pala|-6700,4265 1021,96
+w|hw=residential^nm=Rua Luiz Mantovani^sf=asphalt|-7141,1182 -17,84 -24,77 -71,1265 -57,1454
+w|hw=residential^nm=Rua Guilherme Tameline|-5654,4722 540,-38 506,-44 543,-44 435,-40 93,-4
+w|hw=residential^nm=Rua Rui Barbosa|-94,-2505 239,984 235,1002 230,993 236,983 236,994 236,978 274,1212
+w|hw=residential^nm=Rua Egilio Darim|-3133,5649 714,-71 531,-52 508,-56 531,-89 532,-68 483,-75 142,-39 42,-36 55,-98 15,-67
+w|hw=residential^nm=Rua Lindolfo Gonçalves|-4782,2604 20,543
+w|hw=residential^nm=Rua Adolfo^sf=asphalt|-9312,-1640 -40,1103 -20,547 -24,547 -24,532
+w|hw=residential^nm=Rua Bady Bassit^sf=asphalt|-10963,-592 1611,55
+w|hw=residential^nm=Rua Fernando Floriano^sf=asphalt|-7690,1897 -483,-22 -489,-26 -283,-14
+w|hw=residential^nm=Rua Etore Zafalon|-4254,3144 72,556 117,896
+w|hw=residential^nm=Rua Vicente Mendicino|-8787,3846 1040,54 437,162 610,203
+w|hw=residential^nm=Rua Jaci^sf=asphalt|-10968,1026 -2,-528 9,-555 -2,-535 -3,-530 -12,-808 14,-158 9,-89
+w|hw=residential^nm=Rua Pedro Santos Albarelo^sf=asphalt|-6732,4807 32,-542 31,-555 14,-553 27,-533 51,-1322 13,-95
+w|hw=residential^nm=Rua Manoel Pereira dos Santos|-5627,5377 2054,-211 91,-9
+w|hw=residential^nm=Rua João Pereira^sf=asphalt|-14371,-3268 25,-1098 52,-1137
+w|hw=residential^nm=Rua Franco Hermenegildo^sf=asphalt|-12848,-2868 42,-1105 102,-1837
+w|hw=residential^nm=Rua Aperecido Rosa^sf=asphalt|-11180,-3538 -87,-26 -539,-147 -508,-126 -492,-136 -495,-126 -513,-127 -532,-140 -514,-117 -94,-17
+w|hw=residential^nm=Rua Florindo Rosan|-7186,-3747 -102,456 -204,731 -103,412 -77,298 -161,530 -18,81
+w|hw=residential^nm=Rua Nicodemio de Pauli^sf=asphalt|-13741,-6009 18,-51 29,-31 48,-15 22,5 39,6 348,104 533,181 484,171 99,32 390,157 510,182 115,28 456,139 266,95 891,347 875,313 1361,479 88,31 -17,89
+w|hw=residential^nm=Rua Hedelbrando Murja^sf=asphalt|-13369,-3012 68,-1087 64,-1892
+w|hw=residential^nm=Rua Joaquim José da Silva^sf=asphalt|-11821,-2586 15,-1125 75,-1739
+w|hw=residential^nm=Rua Atílio Bigoto|-8618,-4346 -232,812 -90,342 -341,1323 -23,141 -8,88
+w|hw=residential^nm=Rua João Palmeira^sf=asphalt|-12364,-2737 -82,-429 -5,-103 16,-110 45,-148 55,-108 14,-41 7,-161 94,-1802
+w|hw=residential^nm=Rua Alberto Garcia Bonil|-10236,-1985 743,-2674
+w|hw=residential^nm=Rua Sebastião Catelan^sf=asphalt|-13870,-3140 56,-1086 16,-1108 45,-593 12,-82
+w|hw=residential^nm=Rua José Ferreira Guimarães^ow=yes^sf=asphalt|-14802,-5684 -52,-18 -16,2 -16,25
+w|hw=unclassified|7638,4576 -12,-641 -64,-1948
+w|nt=water|7735,5761 0,0
+w|hw=residential^nm=Rua José Bonifácio^sf=asphalt|-8921,1115 -499,-26 -1548,-63 -957,-44
+w|hw=residential^nm=Rua Humberto Melão^ow=yes^sf=asphalt|-7661,2527 -1039,-53
+w|hw=residential^nm=Rua Humberto Melão|-7588,2588 335,20 625,16
+w|hw=residential^nm=Rua Maria Luiza Aantunes Sperandeo^sf=asphalt|-7747,3900 40,-603 3,-108 46,-582 -3,-80 43,-541 -3,-42 -28,-34 -41,-13
+w|hw=residential^nm=Rua Professora Benedicta Jacir dos Santos^ow=yes|-7704,3189 -598,-42 -431,-17
+w|hw=residential^nm=Rua José Bonifácio^ow=yes^sf=asphalt|-6564,1207 -577,-25 -1010,-30 -770,-37
+w|hw=secondary^nm=Rodovia Maurício Goulart^rf=SP-355^ow=yes^sf=asphalt^br=yes^ly=1|1443,-3314 -115,263
+w|hw=secondary^nm=Rodovia Maurício Goulart^rf=SP-355^ow=yes^sf=asphalt|2769,-9960 -17,63 -33,809 -30,1533 -106,842 -73,398 -68,319 -83,306 -182,602 -734,1774
+w|hw=secondary^nm=Rodovia Maurício Goulart^rf=SP-355^ow=yes^sf=asphalt|1525,-3227 758,-1815 212,-630 212,-1021 123,-1053 12,-1087 -20,-565 -31,-502 -22,-60
+w|hw=residential^nm=Rua Affonso Carneiro|-2686,2253 -134,-947
+w|nm=Córrego do Cemitério^ww=stream|-4790,6124 1137,0 513,-67 1504,-34 726,-66 903,-224 936,-145 1137,-356 571,-104
+w|hw=secondary^nm=Rodovia Maurício Goulart^rf=SP-355^ow=yes^sf=asphalt^br=yes^ly=1|1435,-3006 90,-221
+w|nm=Ribeirão da Borboleta^ww=stream|9957,-32083 -28,139 128,133 145,78 83,126 14,193 81,245 98,83 16,198 73,128 -28,310 70,337 134,85 356,493 73,791 175,278 -86,141 53,261 -84,315 -103,165 -33,449 -270,947 -101,533 36,697 -75,551 -150,469 -477,928 -22,145 33,201 -260,557 -66,237 -22,319 86,253 -14,89 -53,58 -315,-128 -38,59 41,134 212,170 95,382 -20,186 -116,337 -162,276 -17,108 46,137 -45,173 -92,172 -125,109 -21,106 262,406 -254,423 99,478 -12,89 -137,196 76,277 113,163 -40,257 -114,340 -200,88 -26,137 62,150 -2,223 -87,194 -74,41 -94,152 137,747 -43,302 -198,277 6,322 -66,157 15,539 64,298 -22,382 83,310 -55,200 114,179 -101,169 62,215 134,9 16,95 -192,102 167,912 53,948 81,624 223,435 109,457 -81,568 -103,335 -195,1698 -168,423 -281,290 -1497,739 -150,259 -304,307 -58,390 -341,530 -112,400 -78,937 218,340 95,362 -134,246 -201,558 140,417 -95,319 -139,116 -90,1650 90,379 33,424 92,231 0,217 377,577 44,151 128,134 184,50 89,78 28,228 -139,189 100,157 56,596 -39,224 56,278 -78,217 -179,39 -139,129 276,423 45,167 41,296 -78,131 -131,98 19,116 330,215 -32,254 -161,182 -156,13 14,306 103,360 154,209 156,83 134,135 10,306 -133,335 0,212 -96,183 -133,56 -8,530 -98,387 53,473 209,375 -73,103 -200,41 -3,115 81,158 147,140 166,621 -26,427 36,103 112,58 14,134 -62,114 -100,78 -70,156 3,504 103,37 134,-28 -22,290 -162,190 -25,629 -66,157 53,601 -88,139 232,586 -122,304 97,289 -111,174 125,389 31,633 -98,203 -16,201 -196,25 67,195 198,293 -97,181 -29,210 322,521 -191,565 -53,569 -66,212 41,523 -49,162 -15,379 -61,337 -95,189 -116,438 61,1204 114,694 -53,482 14,2168 -167,937 -265,780 -218,451
+w|hw=residential^nm=Rua Alfredo Cozetto|1214,-2787 -1308,282 -999,223 -2014,440 -1017,240
+w|hw=residential^nm=Rua José Fagliari|-6628,2624 806,-1 1040,-19 808,-14 161,-1 97,1
+w|hw=secondary^nm=Rodovia Maurício Goulart^rf=SP-355^ow=no^sf=asphalt|2769,-9960 14,-657 -19,-1638 -13,-982 3,-342 11,-565 31,-360 63,-464 255,-1073 256,-875 217,-519 638,-1409 1174,-2572 285,-724 178,-552 162,-575 172,-864 363,-2396 211,-1512 46,-569 0,-373 -35,-1021 -223,-1383 -451,-2084
+w|hw=secondary^nm=Rodovia Maurício Goulart^rf=SP-355^ow=yes^sf=asphalt^br=yes^ly=1|-3384,6227 -22,-284
+w|hw=secondary^nm=Rodovia Maurício Goulart^rf=SP-355^ow=yes^sf=asphalt|1147,-1865 2,-271 15,-124 52,-202 103,-285 116,-259
+w|hw=secondary^nm=Rodovia Maurício Goulart^rf=SP-355^ow=yes^sf=asphalt|1328,-3051 -114,264 -80,243 -46,187 -23,168 -3,176 6,111 9,49
+w|hw=residential|-9460,9945 2317,923 2717,1054
+w|hw=unclassified^nm=Rua Rio Preto^rf=NVA-030|-4536,-5681 156,1671 163,1613 93,795
+w|ls=pitch^sp=soccer|-6646,903 0,0
+w|nm=Cemitério Municipal^lu=cemetery|-2081,11028 0,0
+w|nm=Córrego do Coco^ww=stream|-3931,-5783 1471,646 819,196 787,539 774,330 876,675 267,66 796,463 1657,809 536,534 1464,552 457,212
+w|hw=residential|-9133,9087 1334,543 826,353 1906,723 1061,425
+w|nt=water|7523,5221 0,0
+w|hw=secondary^rf=NVA-352^sf=asphalt|-32641,-8815 895,359 2399,805 1148,366 2078,663 4155,1292 5037,1600 1321,390
+w|hw=residential^nm=Rua Francisco Coco|1121,-1757 911,-202 24,2 21,11 16,24
+w|hw=residential^nm=Rua Anceto Opporini^sf=asphalt|-14912,-3406 541,138 501,128 501,128 521,144 484,131 543,151 497,130
+w|hw=residential^nm=Rua Mirassol^sf=asphalt|-10970,498 1574,59 1252,33
+w|hw=residential^nm=Rua Mendonça^sf=asphalt|-8125,39 -1247,-29 -1589,-67
+w|nm=Prefeitura Municipal^bd=public^am=townhall|1107,-743 0,0
+w|bd=public|-313,646 0,0
+w|nm=Escola Municipal Abdo Ayruth^am=school|-219,1147 0,0
+w|nm=3º Idade^am=nursing_home|-1422,1090 0,0
+w|ls=swimming_pool^sp=swimming|-6460,1600 0,0
+w|nm=Creche^am=kindergarten|-5814,-254 0,0
+w|nm=Poço Bocaiuva^lu=basin|-5684,-460 0,0
+w|nm=Unidade Básica de Saúde de Nova Aliança^am=clinic|-4717,3097 0,0
+w|nm=Praça Américo Marconi^ls=park|-589,4366 0,0
+w|nm=Igreja Nossa Senhora Aparecida^bd=church^am=place_of_worship^rl=christian|547,-155 0,0
+w|nm=Escola Mmunicipal Nicolina Maria de Jesus^am=school|-2889,4766 0,0
+w|bd=yes|-1179,1466 0,0
+w|bd=yes|-118,-429 0,0
+w|bd=yes|897,-696 0,0
+w|nm=José Eduardo Ramos Transportadora^bd=yes|1919,2604 0,0
+w|hw=unclassified^sf=unpaved|-32315,7247 1734,-288 847,-87 679,-51 1908,-162 496,-66 736,-121 2751,-552 414,-72 207,-22 197,55 342,128 2432,956 2387,970 1906,735 460,92
+w|hw=residential^sf=unpaved|12511,-145 783,-505 392,-242 531,-237 335,-172 249,-186 334,-317 548,-693 1075,-1431 408,-510 412,-536 826,-1019 356,-396 174,-149 181,-74 228,-44 210,-23 1095,-169 342,-27 1004,-76 3445,-231 1102,-84 1011,-55 531,-16
+w|hw=residential^sf=unpaved|19343,-6656 -649,-1866
+w|hw=residential^sf=unpaved|17500,-8536 545,1576 359,967
+w|hw=residential^sf=unpaved|17578,-4974 -744,-2076 -358,-957
+w|hw=residential^sf=unpaved|15753,-6669 1005,2741
+w|hw=unclassified|21366,7968 209,82 166,54 257,50 2741,290 1971,221 1033,103 40,-8 35,-21 36,-47 15,-81 -20,-700 -27,-604 -35,-125 -57,-113 -60,-71 -99,-38 -3862,-548 -1401,-195 -286,-33 -175,-11 -139,5 -390,89
+w|hw=unclassified^br=yes^ly=1|6716,10265 247,-59
+w|nm=Córrego do Cemitério^ww=stream^tn=yes|2637,5128 157,-53
+w|hw=secondary^nm=Estrada Vicinal Antônio Molina^rf=NVA-010^sf=asphalt^br=yes^ly=1|5718,1665 326,67
+w|hw=unclassified^nm=Estrada Municipal Nva 253|-8012,15702 -1255,-894 -210,-121 -256,-116 -1424,-510 -121,-53 -116,-140 -3334,-4967 -91,-139 -157,-267 -43,-139 -21,-170 -21,-2266 3,-1343 2,-861 -8,-1020 8,-1862
+w|hw=unclassified|-10220,-21549 2091,1193 2043,1232 175,131 115,170 377,4628 89,1141 74,726 110,1144 124,1200 203,1631 101,959 80,743 102,970
+w|hw=residential^nm=Rua Lair Camargo Vessechi^sf=asphalt|-6271,-4395 49,6 54,22 42,44 184,310 255,453 255,456 244,450 193,326 24,69 10,108 32,596 45,1054
+w|hw=residential^nm=Rua Natalino Marcato|-5942,-4013 -1346,722
+w|hw=residential^nm=Rua Itamar Amador Fernandes|-5687,-3560 -1805,1000
+w|hw=residential^nm=Rua Celestino Patini|-5432,-3104 -1679,961 -561,293
+w|hw=residential^nm=Rua Nayde Nogueira Ayruth|-5188,-2654 -2385,1394
+w|hw=residential^nm=Rua Sebastião Alves Nicolau|-4961,-2151 -765,422 -413,238 -706,422
+w|hw=residential^nm=Rua Devanir Ferreira|-4929,-1555 -519,282 -667,401
+w|hw=secondary^nm=Rodovia Nva 353^rf=NVA-352^ow=yes^sf=asphalt|-4884,-501 -843,-248 -388,-123 -730,-197 -728,-191 -260,-60 -1471,-408 -932,-257 -459,-126 -128,-35 -132,-31 -189,-46
+w|hw=secondary^nm=Rodovia Nva 352^rf=NVA-352^ow=yes^sf=asphalt|-11168,-2121 204,33 1652,448 1461,401 939,253 955,279 370,98 408,98 301,65
+w|hw=secondary^rf=NVA-352^ow=yes^sf=asphalt|-11306,-2256 -943,-251 -1955,-506 -668,-192
+w|hw=secondary^sf=asphalt|-4878,-446 -6,-55
+w|hw=residential^nm=Avenida João Brentam^ow=yes^sf=asphalt|-14886,-5675 -68,1175 -43,1026 -1,138 14,112
+w|hw=residential^nm=Avenida João Brentam^ow=yes^sf=asphalt|-14914,-3234 2,-172 52,-1077 58,-1201
+w|hw=secondary^sf=asphalt^jn=roundabout|-14893,-3082 10,-9 20,-25 8,-30 -3,-31 -14,-28 -23,-21 -19,-8 -36,-2 -34,12 -9,7 -25,35 -3,44 7,20 7,12 15,17 39,18 35,-1 25,-10
+w|hw=secondary^rf=NVA-352^ow=yes^sf=asphalt|-14883,-3091 2734,693 818,223
+w|hw=secondary^ow=yes^sf=asphalt|-14993,-3217 -162,-35 -417,-89 -36,1
+w|hw=residential^nm=Avenida Francisco Gabarrão^ow=yes^sf=asphalt|-11207,-2282 27,-1256 74,-1702
+w|hw=secondary^sf=asphalt^jn=roundabout|-11151,-2142 10,-25 -3,-56 -14,-26 -22,-21 -27,-12 -25,-5 -51,13 -23,18 -22,37 -3,44 10,29 41,42 28,9 30,1 29,-9 25,-18 17,-21
+w|hw=residential^nm=Avenida Francisco Gabarrão^ow=yes^sf=asphalt|-11221,-5268 -46,1704 -57,1108 41,182
+w|hw=service^ow=yes^sf=asphalt|-10695,-2111 148,-728 -7,-40 -19,-21 -39,-9 -29,12 -25,33 -157,718
+w|hw=residential^nm=Rua Orlando Rosa Vitoriano^sf=asphalt|-10978,-1930 -523,-108 -528,-141 -502,-130 -960,-250 -516,-130 -744,-189 -147,-47
+w|hw=residential^nm=Rua Manoel Teixeira da Silva^sf=asphalt|-14007,-2689 -39,1547
+w|hw=residential^nm=Rua Antonio Almeida Prado^sf=asphalt|-15057,-1150 1011,8 522,-1 984,-7 511,6 528,3 535,19
+w|hw=residential^nm=Rua Antônio Nery^sf=asphalt|-13491,-2559 -33,1416 -4,533
+w|hw=residential^nm=Rua Antonio Francisco Oliveira Filho^sf=asphalt|-12531,-2309 -9,1159 -7,551
+w|hw=residential^nm=Rua Paulino Monpean^sf=asphalt|-12029,-2179 0,1035
+w|hw=residential^nm=Rua Atilio Perin^sf=asphalt|-11501,-2038 0,897
+w|hw=residential^nm=Rua Bady Bassit^sf=asphalt|-15057,-638 1529,28 981,11 1584,7
+w|hw=residential|-11925,982 -242,-690 5,-84
+w|hw=residential|-12162,208 26,-44 173,-183 31,-46 16,-42 8,-97
+w|bd=yes|-12376,-146 0,0
+w|bd=yes|-12203,-343 0,0
+w|bd=yes|-12173,-500 -5,76 91,7 20,1 7,-75 -113,-9
+w|bd=yes|-12178,-424 -4,63 91,6 4,-62 -91,-7
+w|hw=residential^nm=Rua Iracema Tiggi de Almeida^sf=asphalt|-6336,4953 19,450 -2,423 -30,82
+w|hw=residential^nm=Rua Roberto Fujio Okita^sf=asphalt|-7939,5170 1622,233 232,4 222,-8 236,-22
+w|hw=residential^nm=Rua Romildo Longhin^sf=asphalt|-8372,5431 83,153 36,32 59,19 1706,314 76,-1 63,-40
+w|hw=residential^sf=asphalt|-8989,5506 -29,216
+w|hw=residential^nm=Rua Ivan de Almeida^sf=asphalt|-9887,4805 -1431,-236 -2002,-336
+w|hw=residential^nm=Rua Benedito Rosa da Silva^sf=asphalt|-13396,4769 1995,328 1551,254 69,3 58,-14 57,-33 94,-84
+w|hw=residential^sf=asphalt|-13232,3721 -36,232
+w|hw=residential^nm=Rua Orlando Rosa Vitoriano^sf=asphalt|-6336,4953 -14,-47 -28,-38 -58,-23 -296,-38 -921,-119 -552,-74 -618,-87 -661,-72 -528,-71 -1253,-171 -2003,-260 -1788,-237
+w|hw=residential^nm=Rua Orlando Ramim^sf=asphalt|-8662,1849 -38,625 -5,80 -28,576 -10,115 -44,601 -36,681
+w|hw=residential^nm=Rua Avelino Francisco^sf=asphalt|-9484,4455 69,136 109,161 114,93 116,56 177,52 244,2 183,-58 129,-118 138,-165
+w|hw=residential^nm=Rua Rosa Traboleti Posar^sf=asphalt|-7653,4688 -88,212 -56,100 -142,170 -222,164 -211,97 -209,56 -156,18 -252,1 -198,-72 -175,-76 -210,-135 -228,-248 -87,-170 -125,-421
+w|hw=residential^sf=unpaved|-11918,-6186 -25,-31 -211,-75 -1262,-451 -246,-89 -510,-182 -122,-51
+w|hw=residential^sf=unpaved|-13403,-7771 -473,-183 -339,-119
+w|hw=residential^sf=unpaved|-13230,-8408 -173,637 -259,939
+w|hw=residential^sf=unpaved|-13706,-8576 -170,622 -296,940
+w|hw=unclassified^sf=unpaved|-15279,8670 190,-105 113,-70
+w|hw=residential^nm=Rua José Bonifácio^sf=unpaved|-15056,834 1531,71 951,45 649,32
+w|nt=water|-17082,-28959 0,0
+w|nt=water|-18481,-30704 0,0
+w|hw=service^sf=asphalt|-3844,2197 97,-8
+w|hw=secondary_link^sf=asphalt|-3830,2368 95,-10
+w|hw=residential^ow=yes|-3315,5619 -117,5 -103,11
+w|hw=secondary^nm=Avenida Francisco Pereira dos Santos^rf=SP-355^ow=yes^sf=asphalt|-3899,1554 28,214 27,429 14,171 17,221 51,550 49,529 83,888 57,610 38,469 31,340
+w|hw=secondary^nm=Rua Gotardi^sf=asphalt|-3788,1532 -111,22 -334,77 -59,5 -39,-7 -32,-27 -21,-42
+w|hw=track^sf=unpaved|2971,2030 784,26 103,-14 95,-33 131,-76 31,-37 17,-44 38,-492
+w|hw=secondary^nm=Rodovia Maurício Goulart^rf=SP-355^ow=yes^sf=asphalt^br=yes^ly=1|-3504,5975 25,263
+w|hw=secondary^nm=Rodovia Maurício Goulart^rf=SP-355^ow=yes^sf=asphalt|-3479,6238 90,1010 8,160 7,725 -9,225 -22,241 -142,913 -241,985 6,64
+w|hw=secondary^nm=Rodovia Maurício Goulart^rf=SP-355^ow=yes^sf=asphalt|-3782,10561 38,-50 228,-681 91,-373 129,-959 15,-160 6,-163 -1,-780 -8,-157 -100,-1011
+w|nm=Córrego do Cemitério^ww=stream|2794,5075 1469,-590 434,-135 491,-55 794,203
+w|hw=residential|2822,-9398 668,-128 217,-35 1471,-205 1001,-151 72,-3 47,9 58,27 205,142 40,13 38,4 560,-77 599,-97
+w|hw=unclassified|9828,-19720 91,132 27,172 2,861 26,460 37,183 73,141 115,114 128,72 973,67
+w|hw=unclassified^br=yes^ly=1|9324,-19604 124,-28
+w|hw=unclassified|4225,-18844 1230,-101 3869,-659
+w|hw=unclassified|9448,-19632 380,-88 1047,-89 65,-38 74,-81 612,-882 162,-220
+w|hw=secondary_link^sf=asphalt|2177,-5088 106,46
+w|hw=residential^sf=asphalt|1319,-2747 -105,-40
+w|nm=Praça Padre João Nolte^ls=park|448,-471 0,0
+w|bb=fence|-9202,-1438 0,0
+w|bd=storage_tank|-9178,-1306 0,0
+w|bd=storage_tank|-9179,-1157 0,0
+w|bb=fence|-7589,-1822 0,0
+w|nm=Correios^bd=public^am=post_office|-3433,827 0,0
+w|hw=services|-3899,1227 0,0
+w|nm=Estação Rodoviária^bd=transportation|-4204,2489 0,0
+w|nm=Praça Simão Daud^ls=park|-5547,1061 0,0
+w|nm=Escola Estadual Gabriel Cozzetto^am=school|-5526,1249 0,0
+w|hw=secondary^nm=Rua Francisco Coco^ow=yes^sf=asphalt|-4878,-446 80,-16
+w|hw=secondary^ow=yes^sf=asphalt|-4798,-462 -86,-39
+w|nt=water|16018,-29772 -317,-1016 167,-50 268,23 401,89 39,45 91,88 15,107 -256,535 -179,117 -229,62
+w|ww=stream|23628,-32656 -2442,993 -3272,803 -1338,179 -558,909 -161,-12 -480,-435 -2167,882 -486,-17 -384,128 -240,173 -90,144 -167,17 -106,167 -184,458 -139,167 -100,36
+w|lu=forest|-2093,10663 0,0
+w|ww=stream|-21380,33257 100,-1628 123,-969
+w|ww=stream|-24290,31038 1394,100 1739,-478
+w|hw=unclassified^sf=unpaved^br=yes^ly=1|-10461,24997 -41,107
+w|hw=unclassified^sf=unpaved|-11862,19332 222,350 41,93 73,189 362,1103 50,126 92,177 116,167 466,541 74,115 109,215 224,585 40,141 16,97 9,141 -10,128 -63,220 -207,663 -213,614
+w|hw=unclassified^sf=unpaved|-10502,25104 -37,109 -157,236 -97,176 -11,51 -2,48 371,3506 1054,-53 756,-28 116,7 523,95 595,97 92,21 213,78 319,133 230,78 399,123 772,212 242,74 114,47 107,57 154,102 1044,899 138,90 1140,657 710,479
+w|nm=Córrego do Bagaço^ww=stream|1082,30814 1057,632 897,708
+w|nm=Córrego do Bagaço^ly=-1^ww=stream^tn=culvert|1018,30764 64,50
+w|nm=Córrego do Bagaço^ww=stream|-21157,30660 513,-825 3356,-3211 3456,-1393 1851,-373 624,16 541,95 808,228 825,291 1856,825 2023,975 2532,958 3472,2269 318,249
+w|nt=wood|-10131,24562 0,0
+w|hw=service^sf=paved^sv=parking_aisle|-3516,9830 258,44 -79,355
+w|sf=paved^am=parking|-3194,9897 0,0
+w|nm=Velório Municipal^bd=public^am=funeral_hall|-3184,9986 0,0
+w|hw=secondary^nm=Rua do Comércio^sf=asphalt|1825,1218 -232,-989 -234,-988 -238,-998
+w|hw=secondary^nm=Rua Jorge Galvão^sf=asphalt|1825,1218 603,-152 122,-20 87,-2 187,27
+w|hw=secondary^nm=Estrada Vicinal Antônio Molina^rf=NVA-010^sf=asphalt|6044,1732 365,75 1153,180 746,129 494,74 536,70 1126,141 711,78 715,65 764,73 8584,900 1871,134 4404,262 1996,126 931,100 1259,279 1269,296
+w|hw=unclassified^ow=yes^sf=asphalt|-15034,-2697 112,-171 24,-57 11,-84 -6,-73
+w|hw=secondary^rf=NVA-352^ow=yes^sf=asphalt|-15608,-3340 29,23 445,164 120,35
+w|hw=unclassified^nm=Estrada Municipal Nva 253|-15056,834 0,-424 0,-515 -1,-533 0,-512 6,-620 -20,-520 1,-155 36,-252
+w|nt=water|6496,19950 0,0
+w|nt=water|5876,20149 0,0
+w|hw=unclassified|426,31790 345,505
+w|hw=unclassified|6963,10206 409,-105 248,-47 3780,-581
+w|hw=unclassified|21238,3517 25,417 40,1917 15,416 52,1529 -4,172 -4,208 5,2064 32,960 105,1702 45,966 5,165 -12,253 -18,212 -274,1338 -175,731 -159,760 -242,1090 -232,1009 -273,1543 -145,915 -192,1385 -106,819 -107,1098 -50,310 -209,830 -315,1324 -339,1669 -274,1287 -89,404 -70,271 -106,482 -97,363
+w|hw=unclassified|19619,25186 -165,53 -556,103 -838,113 -249,41 -608,67 -1594,233 -625,79 -2014,277 -981,126 -186,19 -320,69 -351,58 -868,90
+w|hw=unclassified|-10435,29230 43,512 449,3565
+w|hw=unclassified|-19174,33409 -520,-1429 -10,-61 2,-66 22,-66 35,-65 50,-67 63,-66 110,-79 122,-67 101,-39 104,-30 142,-18 79,-20 60,-27 37,-28 19,-48 -13,-55 -96,-144 -103,-188 -33,-85 -20,-81 -10,-77 6,-89 20,-73 46,-83 77,-110 109,-117 81,-101 9,-72 -9,-38 -23,-52 -45,-78 -313,-501 -22,-65 -7,-58 9,-70 22,-51 48,-63 79,-87 731,-682 678,-560 670,-380 457,-209 213,-69 151,-17 182,21 185,56 190,103 77,64 53,94 44,150 236,1433 165,1203 577,3819
+w|hw=unclassified|-11591,19076 -152,-89 -224,-145 -289,-197 -87,-45 -70,-17 -83,-5 -99,17 -493,166 -188,48 -103,15 -114,-3 -97,-14 -120,-33 -170,-69 -241,-106 -271,-154
+w|hw=unclassified|4354,30328 -181,-42 -131,-62 -78,-102 -215,-454 -451,-993 -362,-1004
+w|hw=unclassified|11400,9473 1407,-221 1322,-235 6398,-989 516,-99 170,-54 157,-79
+w|hw=unclassified|20990,-6875 114,-233 58,-195 41,-268 10,-716 42,-141 48,-70 87,-56 130,-42 1197,-78 2440,-184 2774,-232 102,-29 78,-82 53,-118 45,-246 121,-878 54,-126 86,-87 99,-32 245,-32 2113,-100 2333,-97
+w|hw=unclassified|30984,-7620 -2098,183 -355,35 -448,65
+w|hw=unclassified|21542,14286 2408,-266 2277,-221 1605,-163 332,-24 101,11 88,24 612,348 674,367
+w|hw=unclassified|21399,11200 2300,5 3848,33 107,20 70,31 71,59 102,200 38,43 34,22 45,10 85,4
+w|hw=unclassified|21362,8176 272,-3 591,52 2830,313 286,41 56,30 66,51 44,83 26,147 9,194
+w|hw=unclassified|15799,-6740 -212,-78 -143,-21 -404,10 -2817,114 -1165,38 -87,-7 -63,-29 -52,-61 -30,-103 -21,-220 -134,-1135
+w|hw=unclassified|-34208,29044 2278,-190 1499,-151 461,-35
+w|hw=unclassified|-30371,16326 25,165 216,611 86,299 79,146 288,433 97,125 117,106
+w|hw=unclassified|-28561,18724 -135,-10 -86,7 -80,23 -120,61 -170,129 -159,144 -123,156 -130,212 -110,206 -96,201 -54,77 -50,53 -114,88 11,30 12,148 -4,77 -24,142 -239,1014 -141,380 -21,104 19,418 54,461 71,722 16,117 51,111 101,106 205,127 1160,654 1048,608 881,482 2409,1365 1181,654
+w|hw=track|-15064,2696 -306,-100 -873,-305 -903,-344 -5212,-1911 -965,-368 -641,-284
+w|hw=unclassified|-14728,8901 -719,1757 -49,188 -42,641 -72,166 -184,241 -89,129 -81,153 -171,374 -303,786 -157,439 -440,1211 -98,381 -38,199 -35,143 -73,167 -155,227 -111,185 -98,235 -61,219 -100,446 -57,304 -170,772 -259,986 -52,233 2,72 19,63 59,62
+w|hw=unclassified|-21966,-5330 -191,571 -264,852 -74,353 -93,351 -111,320
+w|hw=unclassified|-23290,27869 -604,-302 -2338,-1266 -3214,-1847 -634,-399 -228,-109 -186,-61 -1011,-364 -2016,-737
+w|hw=unclassified|-29988,20071 -258,140 -312,353 -386,502 -543,548 -236,228 -105,79 -107,55 -170,54
+w|hw=unclassified|-26121,-6622 131,-530 58,-153 52,-118 217,-689 52,-128 30,-51 41,-42 73,-39 476,-175 91,-58 80,-71 35,-49 21,-55 7,-61 -6,-50 -107,-333
+w|hw=unclassified|-22543,5826 -102,-89 -64,-35 -308,-116 -67,-36 -48,-41 -40,-55 -51,-143 -147,-322 -19,-79
+w|hw=track|-15061,5920 -540,-190 -1932,-708 -2048,-762 -3586,-1313
+w|hw=secondary^nm=Rua do Comércio^ow=yes^sf=asphalt|1121,-1757 26,-108
+w|hw=secondary^nm=Rua do Comércio^ow=yes^sf=asphalt|1077,-1853 44,96
+w|hw=unclassified|2754,-13579 370,7 789,31 152,8 189,20 41,-6 32,-20 102,-90 46,-19 43,4 39,35 29,124
+w|hw=unclassified|-5256,-12328 598,-65 1859,-152 55,5 107,30 69,8
+w|hw=unclassified|-4380,-4010 -653,-346 -618,-351 -470,-224 -538,-259
+w|hw=residential^nm=Rua Humberto Melão^ow=yes|-7588,2588 -73,-61
+w|hw=residential^nm=Rua Humberto Melão^ow=yes|-7658,2607 70,-19
+w|hw=service|-2240,10615 -55,324
+w|hw=service|-2287,9583 10,222
+w|hw=service|-2277,9805 40,719 -3,91 -453,-94 -21,-8 -14,-14 -26,-212 -40,-449
+w|hw=service|-3258,9874 464,-36 517,-33
+w|hw=residential^nm=Rua José Bonifácio^ow=yes^sf=asphalt|-6577,1302 102,-62
+w|hw=residential^nm=Rua José Bonifácio^ow=yes^sf=asphalt|-6475,1240 -89,-33
+w|hw=service|-7257,-3867 -112,268 -147,439
+w|hw=service|-7516,-3160 -27,42 -37,23 -46,13 -271,4 -173,-26 -137,-39 -212,-99 -41,-37 -88,-180 -15,-51 4,-110 97,-253 35,-35 41,-18 55,2 962,325
+w|hw=service|-7595,-2148 -202,-54 -20,-17 -9,-17 -1,-26 110,-454
+w|hw=residential|-12088,-6638 17,68 -4,30 -79,248
+w|hw=residential|-12121,-5607 201,-500 9,-38 -7,-41
+w|hw=residential^nm=Rua Nelcy Perin Carreta|-11265,4213 -53,356
+w|hw=residential^nm=Rua Nelcy Perin Carreta|-11434,5309 33,-212
+w|hw=residential^nm=Rua Nelcy Perin Carreta|-11318,4569 -83,528
+w|hw=service|186,2986 154,-3 37,8 25,16 20,29 82,448
+w|hw=service|-4803,12502 163,142 52,31 89,29 572,148 260,61 105,12 247,10
+w|hw=service|2350,-943 346,-62 30,-25 11,-40 -9,-35 -28,-29 -89,-65 -34,-32 -104,-124
+w|hw=service|-3974,2590 23,-314 6,-21 14,-22 24,-16 63,-20
+w|hw=service|2545,4297 98,-7 17,8 16,19 105,343
+w|hw=unclassified|-16595,13775 1275,-157 1326,-173 798,-60 164,6 148,34 748,286 858,297
+w|hw=unclassified^ow=yes^sf=asphalt|-15007,-3106 -3,150 -24,259
+w|hw=residential^nm=Rua José Ferreira Guimarães^sf=asphalt|-13798,-5334 -92,-32 -292,-99 -112,-38 -78,-27 -162,-58 -221,-79 -47,-17
+w|hw=unclassified|2764,-12255 -1818,138 -96,12 -81,22 -266,117 -122,27 -133,7 -329,-68 -96,-1 -568,48 -67,-8 -52,-31 -23,-52 -30,-415 -26,-79 -44,-43 -84,-27 -1497,106
+w|hw=residential|-8302,3147 -13,118
+w|hw=unclassified|3376,9650 521,72 2475,440 127,39 173,72
+w|hw=unclassified|6558,-31385 154,-39 83,-5 161,19 788,156 1143,196 644,129 136,45 135,74 157,108 135,58 129,31 285,9
+w|hw=unclassified|2796,-14504 991,-88 88,25 205,152 98,48 102,11 681,-25 1040,-63 714,-59
+w|hw=unclassified|10598,-30604 266,3 402,17 212,3 101,-7 127,-42 1484,-581 691,-292
+w|hw=unclassified^br=yes^ly=1|10508,-30604 90,0
+w|hw=unclassified^sf=unpaved|-8146,-32009 -2275,10187 57,139 144,134
+w|hw=residential^nm=Rua Alberto Pereira^sf=asphalt|-7169,-3836 66,-89 60,-60 88,-59 600,-338 84,-13
+w|hw=residential^nm=Rua Antonio Francisco Oliveira Filho|-12547,-599 -8,504 -10,539 -9,506
+w|hw=residential^nm=Rua Antonio Nery|-13528,-610 0,513 1,526 2,476
+w|hw=residential|-12565,444 -962,-15 -1529,-19
+w|hw=residential|-12555,-95 -973,-2 -1528,-8
+w|hw=track|-15058,4577 -1069,-382 -7117,-2551
+w|hw=track|-16127,4195 -21,-219 49,-191 267,-254 75,-142 45,-171
+w|hw=unclassified|-6121,-4931 206,-341
+w|hw=unclassified|-4718,-7394 -932,-56
+w|hw=footway|-4638,-6651 181,34 144,-48 121,-111 96,-121 32,-102
+w|hw=residential|-13608,-6150 -92,-27 -1257,-428 -11,673 -2,153 116,77
+w|hw=footway|-14957,-6605 128,291 149,170 139,95 170,69 199,41 160,-7 108,-43 204,-188
+w|hw=footway|-13890,-5366 -43,-153 -88,-181 -58,-55 -71,-67 -103,-79 -30,-22 -112,-43 -48,-17 -164,-32 -143,9 -157,38 -61,36
+w|hw=footway|-14607,-6015 -72,170 -76,178
+w|hw=footway|-14395,-5966 -72,194 -67,184
+w|hw=footway|-14253,-5901 -119,371
+w|hw=footway|-14079,-5755 -103,290
+w|hw=footway|-14467,-5772 -212,-73 -289,-87
+w|hw=unclassified|-15155,-3252 27,-666 -48,-340 11,-1103 -21,-1182 -53,-207 -133,-240 -207,-185 -280,-106 -272,-133 -403,-254 -1442,-531 -1755,-599 -2227,-817 -1379,-482 -579,599 -848,718
+w|hw=unclassified|-28199,-7285 370,-2324 981,-48 -74,1639 990,713
+w|hw=unclassified|-26848,-9657 546,0 371,-244 318,-128 244,-52 245,169 121,351 133,337
+w|hw=unclassified|-27829,-9609 133,-668 68,-961 170,-297 297,-392 408,-917 117,-80 796,170 106,175 121,85 255,-112 2110,733 388,487 -477,1289
+w|hw=unclassified|-27739,-11221 -143,1071 -144,138 -716,-133 -132,233 -138,32 -2720,-737 -159,91 -574,1569
+w|hw=unclassified|-34003,-13736 3612,1316 2273,1002 379,197
+w|hw=residential^nm=Rua Antônio Chaes Ferreira^sf=asphalt|-13268,3953 -52,280 -76,536 -35,225
+w|hw=residential^sf=unpaved|-13624,-6101 16,-49 192,-593
+w|hw=residential|-13328,-6793 60,-174 31,-31 36,-12 53,7 1060,365
+w|hw=residential^sf=asphalt|2042,-9028 -71,1288 -569,1287
+w|hw=residential^sf=asphalt|940,-6657 983,-2273 14,-89
+w|hw=residential^sf=asphalt|1366,-8969 -913,2097
+w|hw=residential^sf=asphalt|845,-9090 -862,2011
+w|hw=residential^sf=asphalt|376,-9294 -870,2006
+w|hw=residential^sf=asphalt|-104,-9502 -871,2001
+w|hw=residential^sf=asphalt|-662,-9490 -779,1783
+w|hw=residential^sf=asphalt|1366,-8969 571,-50 105,-9 677,-60
+w|hw=residential^sf=asphalt|-1268,-9404 606,-86 443,-62 115,50 480,208 469,204 306,132 215,-11
+w|hw=residential^sf=asphalt|-1771,-7851 11,-67 -12,-374 504,-1112
+w|hw=residential^sf=asphalt|-1889,-7924 16,28 102,45 330,144 466,206 481,213 477,209 470,207 487,215 462,204 1040,457
+w|hw=residential^sf=asphalt|-4819,-8353 2779,-412 32,1 31,9 49,42 14,31 5,34 20,724

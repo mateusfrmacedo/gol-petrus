@@ -1,0 +1,73 @@
+/Users/mateus/Documentos/Projetos/Gol de corrida/experimentos/roda-anymachine/build.py:192: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  sc.world=bpy.data.worlds.new('Estudio neutro');sc.world.use_nodes=True
+Info: Saved as "roda-gol-anymachine.blend"
+INFO Draco is available, use library at /Users/mateus/Documents/Codex/2026-11-17/me-x20/work/blender-env/lib/python3.13/site-packages/bpy/lib/libbf_intern_draco_bridge.dylib
+INFO MeshOptimizer is available, use library at /Users/mateus/Documents/Codex/2026-11-17/me-x20/work/blender-env/lib/python3.13/site-packages/bpy/lib/libbf_intern_meshopt_bridge.dylib
+08:16:49 | INFO: Starting glTF 2.0 export
+08:16:49 | INFO: Extracting primitive: Alojamento parafuso 1
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Alojamento parafuso 2
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Alojamento parafuso 3
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Alojamento parafuso 4
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Apoio grafite 1.1
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Apoio grafite 1.-1
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Apoio grafite 2.1
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Apoio grafite 2.-1
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Apoio grafite 3.1
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Apoio grafite 3.-1
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Apoio grafite 4.1
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Apoio grafite 4.-1
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Apoio grafite 5.1
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Apoio grafite 5.-1
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Aro emblema
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Calota preta
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Disco UV emblema
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | WARNING: Mesh Face medida nas fotos is not valid, and may be exported wrongly
+08:16:49 | INFO: Extracting primitive: Face medida nas fotos
+08:16:49 | INFO: Primitives created: 2
+08:16:49 | INFO: Extracting primitive: Friso lateral pneu
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Friso lateral pneu.001
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Friso lateral pneu.002
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Friso lateral pneu.003
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Labio frontal polido
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Labio traseiro
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Parafuso sextavado 1
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Parafuso sextavado 2
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Parafuso sextavado 3
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Parafuso sextavado 4
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Pneu · perfil e sulcos
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Extracting primitive: Tambor grafite
+08:16:49 | INFO: Primitives created: 1
+08:16:49 | INFO: Finished glTF 2.0 export in 0.32575273513793945 s
+00:25.881  render           | Saved: '/Users/mateus/Documentos/Projetos/Gol de corrida/experimentos/roda-anymachine/resultado/frente.png'
+00:36.852  render           | Saved: '/Users/mateus/Documentos/Projetos/Gol de corrida/experimentos/roda-anymachine/resultado/tres-quartos.png'
+00:44.176  render           | Saved: '/Users/mateus/Documentos/Projetos/Gol de corrida/experimentos/roda-anymachine/resultado/perfil.png'
+
+{"source": "https://github.com/apekshik/anymachine", "commit": "d5e8889eef0b33e0bbe62ddca6f713f94b154b68", "helper": "hardsurface/dugout_blender/props_hand/_common/hs.py", "meshes": 30, "triangles_before_export": 66235, "windows_measured": 10, "bolt_holes": 4, "rim_diameter_estimate_m": 0.468, "tire_diameter_estimate_m": 0.566, "tire_width_estimate_m": 0.212, "notes": ["Escala e profundidade estimadas; não é projeto de fabricação.", "Somente o emblema usa recorte da fotografia.", "Shaders procedurais de microtextura ficam no Blender; GLB usa PBR simples.", "Verso inferido, sulcos simplificados, sem marcações laterais do pneu."]}

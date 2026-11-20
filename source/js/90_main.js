@@ -42,7 +42,7 @@ async function main() {
     await gpuInit();
     await brandInit();
     setMsg('gerando circuito…'); await new Promise(r => setTimeout(r));
-    trackBuild(); heightFieldBuild(); worldMapBuild(); aiBuild();   // aiBuild define TRK.line (trajetória) antes dos construtores de cena
+    trackBuild(); if (CITY.on) { setMsg('gerando Nova Aliança…'); await new Promise(r => setTimeout(r)); cityInstall(); } heightFieldBuild(); worldMapBuild(); aiBuild();   // aiBuild define TRK.line (trajetória) antes dos construtores de cena
     rendererInit();
     setMsg('gerando céu…'); await skyInit();
     setMsg('gerando cenário…'); await new Promise(r => setTimeout(r));
@@ -51,7 +51,7 @@ async function main() {
     for (const b of BUILD) await b();
     let chosen = Q.get('vehicle');
     if (!chosen && !GAME.capture && GAME.mode === 'game') { try { chosen = localStorage.getItem('gol-veiculo'); } catch (e) {} }
-    vehicleChoice(chosen === 'civic' ? 'civic' : 'gol', true);
+    vehicleChoice(chosen === 'civic' && typeof CIVIC !== 'undefined' ? 'civic' : 'gol', true);
     await Promise.all(R.pending);
     if (G.lastErr) throw new Error(G.lastErr);
     perfInit();
@@ -132,6 +132,8 @@ window.__cap = {
   ui() { return { ligada: GAME.ui, estado: GAME.ui ? Object.keys(ST)[UI.st] : null, menu: GAME.ui && UI.el.style.display !== 'none', painel: HUD.vis, stats: HUD.stats, mudo: SND.mute, som: SND.ctx ? SND.ctx.state : 'nenhum', somOk: SND.ok, somVia: SND.P ? 'AudioWorklet' : SND.node ? 'ScriptProcessor' : null, tempoAudio: SND.ctx ? SND.ctx.currentTime : 0, pose: UI.pose, bench: UI.bench, pad: UI.padN, replay: GS.replayOn, gpuTempo: G.hasTS, perfOn: PERF.on, gpuVivo: PERF.live[0] }; },
   state() { const V = VEH; return { manual: manualGearbox(), shiftTime: V.shiftTime, rpm: V.rpm, thr: V.ctl[0], brk: V.ctl[1], keys: GS.keys, volta: LAP[3] === 1 ? V.time - LAP[0] : 0, ultima: LAP[1], melhor: LAP[2], voltas: V.laps, tempo: V.time, camPos: Array.from(R.cam.pos), camFwd: Array.from(R.cam.fwd), x: V.x, z: V.z, y: V.y, yaw: V.yaw, speed: Math.hypot(V.vx, V.vy), vx: V.vx, steer: V.steer, s: V.s, d: V.d, gear: V.gear, cam: GS.cam, lapS: V.lapS, off: V.offCount, hits: V.hits, tick: GS.tick60, zone: V.zone, brake: objParams(carObj().slotBody)[0], slip: Array.from(V.slip), particles: FX.pAlive, roll: V.roll, pitch: V.pitch, spin: V.spin[0] }; },
   dbg(name, scale, alpha) { setDebugView(name, scale, alpha); },
-  R, G, GAME, TRK, GS, VEH, FX, RT, renderFrame, SND, HUD, UI, PERF, LAP,
+  shaderVariants: () => JSON.stringify(SHADER_VARIANTS),
+  hf: (x, z) => hfAt(x, z),
+  R, G, GAME, TRK, GS, VEH, FX, RT, renderFrame, SND, HUD, UI, PERF, LAP, CITY, MARCOS,
 };
 main();

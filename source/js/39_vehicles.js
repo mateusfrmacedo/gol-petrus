@@ -1,7 +1,7 @@
 // A escolha vale para a carroceria, rodas, dimensões de contato e colisão.
 const VEHICLES = { current: 'gol', baseline: null };
 function vehicleChoice(id, reset) {
-  if (id !== 'gol' && id !== 'civic') return false;
+  if (id !== 'gol' && !(id === 'civic' && typeof CIVIC !== 'undefined')) return false;
   if (!VEHICLES.baseline) VEHICLES.baseline = { ...VP };
   Object.assign(VP, VEHICLES.baseline);
   VEHICLES.current = id;
@@ -16,7 +16,7 @@ function vehicleChoice(id, reset) {
   WLX[0] = WLX[1] = VP.a; WLX[2] = WLX[3] = -VP.b;
   WLZ[0] = WLZ[2] = -VP.tw / 2; WLZ[1] = WLZ[3] = VP.tw / 2;
   const select = document.getElementById('vehicle-choice'); if (select) select.value = id;
-  const subtitle = document.getElementById('vehicle-name'); if (subtitle) subtitle.textContent = id === 'civic' ? 'Honda Civic · circuito' : 'VW Gol G6 1.0 MSI branco · circuito';
+  const subtitle = document.getElementById('vehicle-name'); if (subtitle) subtitle.textContent = id === 'civic' ? 'Honda Civic · ' + (CITY.on ? 'Nova Aliança' : 'circuito') : 'VW Gol G6 1.0 MSI branco · ' + (CITY.on ? 'Nova Aliança' : 'circuito');
   try { localStorage.setItem('gol-veiculo', id); } catch (e) { /* escolha válida nesta sessão */ }
   if (reset && GAME.mode === 'game') {
     GS.replayOn = false; GS.freeCam = false; GS.frozen = false;

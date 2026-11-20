@@ -9,6 +9,8 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const src = path.resolve(opt('--src', here));
 const out = path.resolve(opt('--out', path.join(here, '..', 'index.html')));
 const min = args.includes('--min');
+// Honda Civic fora do jogo por enquanto (modelo 3D em revisão): só entra com --civic. Sem ele o arquivo fica ~31 MB menor.
+const civic = args.includes('--civic');
 const ls = (d, ext) => fs.readdirSync(path.join(src, d)).filter(f => f.endsWith(ext)).sort();
 const stripWgsl = s => s.replace(/\/\/(?! @dyn)[^\n]*/g, '').replace(/[ \t]+/g, ' ').replace(/\n\s*\n+/g, '\n').replace(/^ +/gm, '');
 let wg = 'const WGSL = {};\n';
@@ -25,6 +27,7 @@ const tracks = fs.readdirSync(musicDir, { withFileTypes: true }).filter(f => f.i
 fs.writeFileSync(path.join(musicDir, 'playlist.json'), JSON.stringify(tracks, null, 2) + '\n');
 let js = '';
 for (const f of ls('js', '.js')) {
+  if (!civic && /^30_car_e/.test(f)) continue;
   let s = fs.readFileSync(path.join(src, 'js', f), 'utf8');
   js += `// ---- ${f}\n${s}\n`;
 }

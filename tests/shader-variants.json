@@ -1,0 +1,454 @@
+{
+ "comment": "Variantes de shader compiladas pelo jogo (registradas por __cap.shaderVariants() em 20/11/2026). base = SH_DEFS da cidade; cada variante é testada na cidade e no circuito (sem CITY, WM_ZS 2.0), exceto as marcadas CITYONLY/CIRCUITONLY.",
+ "base": {
+  "SHADOW_RES": "2048.0",
+  "ENV_MIPS": "7.0",
+  "ENV_MIP_K": "217.30",
+  "VOL_DIST": "220.0",
+  "SKY_EL0": "-0.14000",
+  "SKY_ELR": "1.71080",
+  "WM_ZS": "1.0",
+  "CITY": ""
+ },
+ "variants": [
+  {
+   "name": "half",
+   "defs": {}
+  },
+  {
+   "name": "bilat",
+   "defs": {
+    "DIR": "1,0"
+   }
+  },
+  {
+   "name": "bilat",
+   "defs": {
+    "DIR": "0,1"
+   }
+  },
+  {
+   "name": "light",
+   "defs": {
+    "SSR": ""
+   }
+  },
+  {
+   "name": "taa",
+   "defs": {}
+  },
+  {
+   "name": "mbtile",
+   "defs": {
+    "TILE": "20"
+   }
+  },
+  {
+   "name": "mbtile",
+   "defs": {
+    "NEIGH": "",
+    "TILE": "20"
+   }
+  },
+  {
+   "name": "mblur",
+   "defs": {
+    "TILE": "20"
+   }
+  },
+  {
+   "name": "bloom",
+   "defs": {
+    "FIRST": ""
+   }
+  },
+  {
+   "name": "bloom",
+   "defs": {}
+  },
+  {
+   "name": "bloom",
+   "defs": {
+    "UP": "",
+    "UPW": "1.0"
+   }
+  },
+  {
+   "name": "expo",
+   "defs": {}
+  },
+  {
+   "name": "final",
+   "defs": {}
+  },
+  {
+   "name": "cubesky",
+   "defs": {}
+  },
+  {
+   "name": "envblur",
+   "defs": {}
+  },
+  {
+   "name": "dbg",
+   "defs": {}
+  },
+  {
+   "name": "noisebake",
+   "defs": {}
+  },
+  {
+   "name": "skybake",
+   "defs": {}
+  },
+  {
+   "name": "skid",
+   "defs": {}
+  },
+  {
+   "name": "veg_bake",
+   "defs": {}
+  },
+  {
+   "name": "blit",
+   "defs": {},
+   "bare": true
+  },
+  {
+   "name": "__fam_car",
+   "src": "mat_car",
+   "defs": {
+    "PASS_GBUF": "",
+    "NO_WET": ""
+   }
+  },
+  {
+   "name": "__fam_car",
+   "src": "mat_car",
+   "defs": {
+    "PASS_SHADOW": "",
+    "NO_WET": ""
+   }
+  },
+  {
+   "name": "__fam_civic",
+   "src": "mat_civic",
+   "defs": {
+    "PASS_GBUF": "",
+    "NO_WET": ""
+   }
+  },
+  {
+   "name": "__fam_civic",
+   "src": "mat_civic",
+   "defs": {
+    "PASS_SHADOW": "",
+    "NO_WET": ""
+   }
+  },
+  {
+   "name": "__fam_terrain",
+   "src": "mat_terrain",
+   "defs": {
+    "PASS_GBUF": "",
+    "TRK_HW": "5.500",
+    "TRK_LEN": "1587.864",
+    "KERB_WID": "1.300",
+    "PIT_S0": "-100.000",
+    "PIT_S1": "190.000",
+    "PIT_WALL": "7.600",
+    "PIT_L0": "8.600",
+    "PIT_L1": "17.000",
+    "PIT_B0": "-62.000",
+    "PIT_B1": "78.000",
+    "PIT_BD": "17.600",
+    "CANOPY_A": "320.000",
+    "CANOPY_B": "900.000"
+   }
+  },
+  {
+   "name": "__fam_terrain",
+   "src": "mat_terrain",
+   "defs": {
+    "PASS_SHADOW": "",
+    "TRK_HW": "5.500",
+    "TRK_LEN": "1587.864",
+    "KERB_WID": "1.300",
+    "PIT_S0": "-100.000",
+    "PIT_S1": "190.000",
+    "PIT_WALL": "7.600",
+    "PIT_L0": "8.600",
+    "PIT_L1": "17.000",
+    "PIT_B0": "-62.000",
+    "PIT_B1": "78.000",
+    "PIT_BD": "17.600",
+    "CANOPY_A": "320.000",
+    "CANOPY_B": "900.000"
+   }
+  },
+  {
+   "name": "__fam_terrain",
+   "src": "mat_terrain",
+   "defs": {
+    "PASS_CUBE": "",
+    "TRK_HW": "5.500",
+    "TRK_LEN": "1587.864",
+    "KERB_WID": "1.300",
+    "PIT_S0": "-100.000",
+    "PIT_S1": "190.000",
+    "PIT_WALL": "7.600",
+    "PIT_L0": "8.600",
+    "PIT_L1": "17.000",
+    "PIT_B0": "-62.000",
+    "PIT_B1": "78.000",
+    "PIT_BD": "17.600",
+    "CANOPY_A": "320.000",
+    "CANOPY_B": "900.000"
+   }
+  },
+  {
+   "name": "__fam_road",
+   "src": "mat_road",
+   "defs": {
+    "PASS_GBUF": "",
+    "TRK_HW": "5.500",
+    "TRK_LEN": "1587.864",
+    "KERB_WID": "1.300",
+    "PIT_S0": "-100.000",
+    "PIT_S1": "190.000",
+    "PIT_WALL": "7.600",
+    "PIT_L0": "8.600",
+    "PIT_L1": "17.000",
+    "PIT_B0": "-62.000",
+    "PIT_B1": "78.000",
+    "PIT_BD": "17.600",
+    "CANOPY_A": "320.000",
+    "CANOPY_B": "900.000",
+    "CITYONLY": ""
+   }
+  },
+  {
+   "name": "__fam_road",
+   "src": "mat_road",
+   "defs": {
+    "PASS_CUBE": "",
+    "TRK_HW": "5.500",
+    "TRK_LEN": "1587.864",
+    "KERB_WID": "1.300",
+    "PIT_S0": "-100.000",
+    "PIT_S1": "190.000",
+    "PIT_WALL": "7.600",
+    "PIT_L0": "8.600",
+    "PIT_L1": "17.000",
+    "PIT_B0": "-62.000",
+    "PIT_B1": "78.000",
+    "PIT_BD": "17.600",
+    "CANOPY_A": "320.000",
+    "CANOPY_B": "900.000",
+    "CITYONLY": ""
+   }
+  },
+  {
+   "name": "__fam_track",
+   "src": "mat_track",
+   "defs": {
+    "PASS_GBUF": "",
+    "TRK_HW": "5.500",
+    "TRK_LEN": "1587.864",
+    "KERB_WID": "1.300",
+    "PIT_S0": "-100.000",
+    "PIT_S1": "190.000",
+    "PIT_WALL": "7.600",
+    "PIT_L0": "8.600",
+    "PIT_L1": "17.000",
+    "PIT_B0": "-62.000",
+    "PIT_B1": "78.000",
+    "PIT_BD": "17.600",
+    "CANOPY_A": "320.000",
+    "CANOPY_B": "900.000",
+    "CIRCUITONLY": ""
+   }
+  },
+  {
+   "name": "__fam_track",
+   "src": "mat_track",
+   "defs": {
+    "PASS_CUBE": "",
+    "TRK_HW": "5.500",
+    "TRK_LEN": "1587.864",
+    "KERB_WID": "1.300",
+    "PIT_S0": "-100.000",
+    "PIT_S1": "190.000",
+    "PIT_WALL": "7.600",
+    "PIT_L0": "8.600",
+    "PIT_L1": "17.000",
+    "PIT_B0": "-62.000",
+    "PIT_B1": "78.000",
+    "PIT_BD": "17.600",
+    "CANOPY_A": "320.000",
+    "CANOPY_B": "900.000",
+    "CIRCUITONLY": ""
+   }
+  },
+  {
+   "name": "__fam_props",
+   "src": "mat_props",
+   "defs": {
+    "PASS_GBUF": ""
+   }
+  },
+  {
+   "name": "__fam_props",
+   "src": "mat_props",
+   "defs": {
+    "PASS_SHADOW": ""
+   }
+  },
+  {
+   "name": "__fam_props",
+   "src": "mat_props",
+   "defs": {
+    "PASS_CUBE": ""
+   }
+  },
+  {
+   "name": "__fam_vegLeaf",
+   "src": "veg_leaf",
+   "defs": {
+    "PASS_GBUF": "",
+    "ALPHA": ""
+   }
+  },
+  {
+   "name": "__fam_vegTree",
+   "src": "veg_tree",
+   "defs": {
+    "PASS_GBUF": "",
+    "ALPHA": ""
+   }
+  },
+  {
+   "name": "__fam_vegTree",
+   "src": "veg_tree",
+   "defs": {
+    "PASS_SHADOW": "",
+    "ALPHA": ""
+   }
+  },
+  {
+   "name": "__fam_vegImp",
+   "src": "veg_imp",
+   "defs": {
+    "PASS_GBUF": "",
+    "ALPHA": ""
+   }
+  },
+  {
+   "name": "__fam_vegImp",
+   "src": "veg_imp",
+   "defs": {
+    "PASS_SHADOW": "",
+    "ALPHA": ""
+   }
+  },
+  {
+   "name": "__fam_vegImp",
+   "src": "veg_imp",
+   "defs": {
+    "PASS_CUBE": "",
+    "ALPHA": ""
+   }
+  },
+  {
+   "name": "__fam_vegGrass",
+   "src": "veg_grass",
+   "defs": {
+    "PASS_GBUF": ""
+   }
+  },
+  {
+   "name": "__fam_crowd",
+   "src": "world_crowd",
+   "defs": {
+    "PASS_GBUF": "",
+    "CIRCUITONLY": ""
+   }
+  },
+  {
+   "name": "__fam_crowd",
+   "src": "world_crowd",
+   "defs": {
+    "PASS_CUBE": "",
+    "CIRCUITONLY": ""
+   }
+  },
+  {
+   "name": "__fam_test",
+   "src": "mat_test",
+   "defs": {
+    "PASS_GBUF": ""
+   }
+  },
+  {
+   "name": "__fam_test",
+   "src": "mat_test",
+   "defs": {
+    "PASS_SHADOW": ""
+   }
+  },
+  {
+   "name": "__fam_test",
+   "src": "mat_test",
+   "defs": {
+    "PASS_CUBE": ""
+   }
+  },
+  {
+   "name": "__fwd_glassMul",
+   "src": "glass",
+   "defs": {
+    "GLASS_MUL": "",
+    "PASS_FWD": ""
+   }
+  },
+  {
+   "name": "__fwd_glassAdd",
+   "src": "glass",
+   "defs": {
+    "GLASS_ADD": "",
+    "PASS_FWD": ""
+   }
+  },
+  {
+   "name": "__fwd_civicGlassMul",
+   "src": "civic_glass",
+   "defs": {
+    "GLASS_MUL": "",
+    "PASS_FWD": ""
+   }
+  },
+  {
+   "name": "__fwd_civicGlassAdd",
+   "src": "civic_glass",
+   "defs": {
+    "GLASS_ADD": "",
+    "PASS_FWD": ""
+   }
+  },
+  {
+   "name": "__fwd_particles",
+   "src": "particles",
+   "defs": {
+    "PASS_FWD": ""
+   }
+  },
+  {
+   "name": "__fwd_fence",
+   "src": "world_fence",
+   "defs": {
+    "PASS_FWD": "",
+    "CIRCUITONLY": ""
+   }
+  }
+ ]
+}

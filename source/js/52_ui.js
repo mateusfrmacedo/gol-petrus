@@ -6,7 +6,7 @@ const UI = { st: ST.INICIO, back: ST.JOGO, el: null, tag: null, res: null, b0: n
 const $ = id => document.getElementById(id);
 function uiInit() {
   UI.el = $('ui'); UI.tag = $('tag'); UI.res = $('res'); UI.b0 = $('b0'); UI.b1 = $('b1');
-  hudInit(); uiWarmup(); musicInit(); GOL_CONTROLS.init();
+  hudInit(); uiWarmup(); musicInit(); GOL_CONTROLS.init(); miniInit(); todInit(); climaInit();
   try { const b = +localStorage.getItem('gol-melhor'); if (b > 20 && b < 600) LAP[2] = b; } catch (e) { /* sem armazenamento local: a melhor volta vale só nesta sessão */ }
   UI.b0.onclick = () => { if (UI.st === ST.INICIO) { sndStart(); uiSet(ST.JOGO); } else uiResume(); };
   UI.b1.onclick = () => benchStart();
@@ -15,6 +15,14 @@ function uiInit() {
   $('orbit-reset').onclick = e => { if(CAM_ORBIT.active)CAM_ORBIT.reset();else CAM_ORBIT.activate();CAM_ORBIT.ui();e.currentTarget.blur(); };
   $('sunroof').onclick = e => { SUNROOF.toggle(); e.currentTarget.blur(); };
   $('vehicle-choice').onchange = e => vehicleChoice(e.target.value, true);
+  if (typeof CIVIC === 'undefined') { const o = $('vehicle-choice').querySelector('option[value=civic]'); if (o) o.remove(); $('vehicle-choice').closest('p').hidden = true; }
+  // mapa: troca exige recarregar a página (o mundo é montado uma vez, na abertura)
+  $('map-choice').value = CITY.on ? 'nova-alianca' : 'circuito';
+  $('map-choice').onchange = e => {
+    const v = e.target.value; try { localStorage.setItem('gol-mapa', v); } catch (err) { /* sem armazenamento: vale só pelo endereço */ }
+    const u = new URL(location.href); u.searchParams.set('mapa', v); location.href = u.toString();
+  };
+  if (CITY.on) { UI.b1.hidden = true; const h = $('hint'); if (h) h.textContent = h.textContent.replace('volta à pista', 'volta à rua'); }
   addEventListener('keydown', uiKey);
   document.addEventListener('visibilitychange', () => { if (document.hidden && (UI.st === ST.JOGO || UI.st === ST.FITA || UI.st === ST.BENCH)) uiPause(); });
   addEventListener('gamepadconnected', padCount); addEventListener('gamepaddisconnected', padCount);
@@ -26,7 +34,7 @@ function uiSet(st) {
   const menu = st === ST.INICIO || st === ST.PAUSA || st === ST.RESULT;
   UI.st = st; UI.el.style.display = menu ? 'flex' : 'none'; UI.el.className = st === ST.INICIO ? 'ini' : '';
   UI.b0.textContent = st === ST.INICIO ? 'Começar' : st === ST.RESULT ? 'Voltar a dirigir' : 'Continuar';
-  UI.b1.style.display = st === ST.INICIO ? 'none' : ''; UI.b1.textContent = st === ST.RESULT ? 'Repetir benchmark' : 'Benchmark';
+  UI.b1.style.display = st === ST.INICIO || CITY.on ? 'none' : ''; UI.b1.textContent = st === ST.RESULT ? 'Repetir benchmark' : 'Benchmark';
   UI.res.style.display = st === ST.RESULT ? 'block' : 'none';
   UI.tag.textContent = st === ST.BENCH ? 'Benchmark: volta roteirizada de 60 s · Esc cancela' : st === ST.FITA ? 'Volta roteirizada · R assume o volante · Esc menu' : st === ST.POSE ? 'Pose ' + (UI.pose + 1) + ' · ' + POSES[UI.pose].nome + ' · 1 a 6 trocam · Esc volta a dirigir' : '';
   UI.tag.style.display = UI.tag.textContent ? 'block' : 'none';
@@ -45,12 +53,14 @@ function uiResume() {
 // volta ao volante: carro no grid, câmeras e simulação soltas
 function uiDrive() { GS.frozen = false; GS.freeCam = false; GS.replayOn = false; gameRestart(); uiSet(ST.JOGO); }
 function uiReplay() { if (!GS.replay) return; GS.frozen = false; GS.freeCam = false; GS.replayOn = true; gameRestart(); uiSet(ST.FITA); }
-function uiPose(i) { if (UI.st === ST.BENCH) benchStop(); UI.pose = i; poseApply(i); GS.replayOn = false; uiSet(ST.POSE); }
+function uiPose(i) { if (CITY.on) return; if (UI.st === ST.BENCH) benchStop(); UI.pose = i; poseApply(i); GS.replayOn = false; uiSet(ST.POSE); }
 function uiKey(e) {
   if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
   const c = e.code, st = UI.st;
   if (c === 'KeyP') { e.preventDefault(); musicToggle(); return; }
   if (c === 'Digit0' || c === 'Numpad0') { e.preventDefault(); void musicNext(); return; }
+  if (c === 'Digit9' || c === 'Numpad9') { e.preventDefault(); void musicPrev(); return; }
+  if (c === 'Digit8' || c === 'Numpad8') { e.preventDefault(); musicShuffle(); return; }
   if (c === 'KeyM') { sndMute(!SND.mute); return; }
   if (c === 'KeyH') { UI.stats = !UI.stats; hudStats(UI.stats); if (st !== ST.BENCH) perfAttach(UI.stats, 12); return; }
   if (c === 'KeyO' && st === ST.JOGO) { SUNROOF.toggle(); e.preventDefault(); return; }
@@ -63,7 +73,7 @@ function uiKey(e) {
   else if (c.length === 6 && c.startsWith('Digit') && c[5] >= '1' && c[5] <= '6') uiPose(+c[5] - 1);
 }
 // ---- benchmark: a volta roteirizada de 60 s em tempo real, sem painel, medindo tempo de quadro e (se houver) tempo de GPU
-function benchStart() {
+function benchStart() { if (!GS.replay) return;
   if (!GS.replay || UI.st === ST.INICIO) return;
   GS.frozen = false; GS.freeCam = false; GS.replayOn = true; gameRestart(); UI.bench = null; UI.benchN++; UI.res.innerHTML = '<h2>Benchmark · calculando…</h2>';
   perfAttach(true, 1); perfStart(); uiSet(ST.BENCH);

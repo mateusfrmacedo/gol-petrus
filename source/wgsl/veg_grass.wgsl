@@ -31,7 +31,11 @@ fn vert(in: VIn) -> VSOut {
   let dEdge = z.r * 32.0 - 8.0; let tall = smoothstep(0.12, 0.6, z.b + bn * 4.0 * z.b * (1.0 - z.b));
   let forest = textureSampleLevel(tForest, sClamp, (xz - F.wm.xy + 1.0) / (vec2f(textureDimensions(tForest)) * 2.0), 0.0).r;
   let patchN = textureSampleLevel(tNoise, sLin, xz * 0.013, 0.0).rg;
+#ifdef CITY
+  var ok = wmIn(xz) && dEdge > 1.5 && z.a < 0.48 && h2.y > forest * 0.75;
+#else
   var ok = wmIn(xz) && dEdge > 1.5 && z.g < 0.485 && z.a < 0.48 && h2.y > forest * 0.75;
+#endif
   // altura: aparada junto à pista; alta e em tufos no rústico (e mais rala/baixa sob a mata)
   let clump = smoothstep(0.25, 0.7, patchN.x) * 0.8 + 0.35;
   // (a aparada cresce um pouco com a distância: a 40–70 m a lâmina ainda tem 3–5 pixels de altura e dá relevo ao gramado)

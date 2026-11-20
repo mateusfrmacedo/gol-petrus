@@ -7,7 +7,7 @@ const GAME = { ready: false, mode: Q.get('scene') || 'game', capture: Q.has('cap
 // Jogo aberto por uma pessoa (tela de início, painel, som) × ferramenta (captura, poses, teste, medição): as ferramentas de
 // trabalho/ usam ?cap, ?perf, ?replay ou rodam num navegador automatizado, e para elas nada muda — sem menu, sem painel.
 // ?ui=1 força o jogo completo (é como os testes de menu, entrada e som o abrem); ?ui=0 força o modo de ferramenta.
-GAME.ui = Q.has('ui') ? Q.get('ui') !== '0' : !(Q.has('cap') || Q.has('perf') || Q.has('replay') || Q.has('auto') || Q.has('scene') || navigator.webdriver);
+GAME.ui = Q.has('ui') ? Q.get('ui') !== '0' : !(Q.has('cap') || Q.has('fotos') || Q.has('perf') || Q.has('replay') || Q.has('auto') || Q.has('scene') || navigator.webdriver);
 // Tempo em vetor tipado (escrita por quadro sem caixa na heap): RT[0] = tempo acumulado (s), RT[1] = dt do quadro renderizado, RT[2] = dt pedido ao jogo
 const RT = new Float64Array([0, 1 / 60, 1 / 60, 0]);   // RT[3] = intervalo real do último quadro (ms), para as estatísticas
 const G = { dev: null, ctx: null, fmt: 'bgra8unorm', W: 0, H: 0, hasTS: false, canvas: null };
@@ -81,9 +81,12 @@ function wgslPP(name, defs) {
   return code;
 }
 const _modCache = {};
+// variantes realmente compiladas nesta execução (nome, modelo das famílias, defs): base de tests/shader-variants.json
+const SHADER_VARIANTS = [];
 function mkShader(name, defs) {
   const key = name + JSON.stringify(defs || {});
   if (_modCache[key]) return _modCache[key];
+  SHADER_VARIANTS.push({ name, tpl: name.startsWith('__') ? WGSL[name] : undefined, defs: Object.assign({}, defs || {}) });
   const code = wgslPP(name, defs);
   const m = G.dev.createShaderModule({ code, label: name });
   m.getCompilationInfo().then(info => {

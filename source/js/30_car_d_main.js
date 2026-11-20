@@ -5,7 +5,7 @@ const CAR = {
   slotBody: 0, slotWheel: [0, 0, 0, 0], slotSteer: 0, slotRoof: null, slotDeflector: null,
   steerMat: m4(), tris: 0, _t: m4(), _t2: m4(), _t3: m4(), set: null, glass: null, atlasBG: null, fam: null, driver: null,
   build() {
-    const fam = CAR.fam = mkFamily('car', { src: 'mat_car', noCube: true });
+    const fam = CAR.fam = mkFamily('car', { src: 'mat_car', noCube: true, defs: { NO_WET: '' } });
     CAR.slotBody = objSlot(); for (let i = 0; i < 4; i++) CAR.slotWheel[i] = objSlot(); CAR.slotSteer = objSlot(); CAR.slotRoof = objSlot(); CAR.slotDeflector = objSlot();
     const set = CAR.set = new MeshSet(fam), glass = CAR.glass = new GlassSet();
     const mb = new MeshBuilder(1 << 18), gl = new MeshBuilder(1 << 14);

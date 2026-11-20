@@ -193,6 +193,7 @@ const SND = { ctx: null, node: null, P: null, ok: false, run: false, mute: false
 function sndInit() {
   const p = new Float64Array(5), S = TRK.stand, d = (S.d0 + S.d1) / 2;
   trackPos(TRK.L + S.s0, d, p); SND.stand[0] = p[0]; SND.stand[1] = p[2]; trackPos(S.s1, d, p); SND.stand[2] = p[0]; SND.stand[3] = p[2];
+  if (CITY.on) { SND.stand[0] = SND.stand[2] = 1e6; SND.stand[1] = 1e6; SND.stand[3] = 1e6 + 1; }   // cidade: sem público
 }
 // Lê a simulação e a câmera e preenche os 16 controles inteiros (SND.sc). É a única entrada do sintetizador.
 function sndControl() {
@@ -200,7 +201,7 @@ function sndControl() {
   let sl = 0, sr = 0, loose = 0, kerb = 0;
   for (let i = 0; i < 4; i++) {
     const z = V.wzone[i], s = V.slip[i];
-    if (z === ZONE.GRASS || z === ZONE.GRAVEL || z === ZONE.ROUGH) loose += 0.25;
+    if (z === ZONE.GRASS || z === ZONE.GRAVEL || z === ZONE.ROUGH || z === 7) loose += 0.25;
     else { if (z === ZONE.KERB) kerb += 0.25; if (s > 0.03) { if (i & 1) { if (s > sr) sr = s; } else if (s > sl) sl = s; } }   // pneu só canta em piso duro
   }
   const kv = sp < 12 ? sp / 12 : 1, dx = GS.cx - cp[0], dy = GS.cy + 0.6 - cp[1], dz = GS.cz - cp[2], dist = Math.sqrt(dx * dx + dy * dy + dz * dz);

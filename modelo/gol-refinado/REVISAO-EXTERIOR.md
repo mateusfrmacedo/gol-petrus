@@ -21,17 +21,10 @@ Referências principais: `20260416_141206.jpg`, `20260416_141159.jpg`, `20260416
 - `source/js/30_car_b1_refined_data.js`: interior corrigido, incluindo o afunilamento na frente do painel.
 - `validacao-exterior.json`: medidas geométricas da revisão. A planicidade da face tem desvio RMS aproximado de 0,15 mm no modelo; isso não representa medição do carro real.
 
-A ferramenta `scripts/gol/refine-exterior.py` usa a cópia-base local preservada em `.local-backups/exterior-2026-11-19/`, para evitar reaplicar correções sobre uma malha já modificada. A base pode ser recuperada do histórico público, sem incluir cópias de trabalho no repositório:
-
-```sh
-mkdir -p .local-backups/exterior-2026-11-19
-git show f9714b3:modelo/blender/gol-branco.blend > .local-backups/exterior-2026-11-19/gol-branco.blend
-```
-
-Para a reconstrução normal do jogo, use o `.blend` corrigido com `modelo/exportar_blender_jogo.py`, depois capture e exporte o interior conforme `PARTS.md`.
+A ferramenta `scripts/gol/refine-exterior.py` usa a cópia-base local preservada em `.local-backups/exterior-2026-11-19/`, para evitar reaplicar correções sobre uma malha já modificada. Para a reconstrução normal do jogo, use o `.blend` corrigido com `modelo/exportar_blender_jogo.py`, depois capture e exporte o interior conforme `PARTS.md`.
 
 ## Validação
 
 `tests/exterior-model.py` lança raios pelo vão em nove posições para detectar chapas/tampas indevidas, mede a face da roda, exige seis aletas sólidas e compara o movimento do teto no Blender com o cálculo usado no jogo. `tests/sunroof.cjs` exige a vedação fixa fora das peças móveis e verifica as peças frontais efetivamente exportadas. A validação modular confere as normais, orçamento de triângulos, reimportação do GLB e hashes intactos do Civic.
 
-O para-choque continua baseado na carroceria importada, com os detalhes reconstruídos pelas fotos. Dimensões e curvas não foram digitalizadas a partir de um levantamento físico.
+O para-choque continua baseado na carroceria importada, com os detalhes reconstruídos pelas fotos. Dimensões e curvas não foram digitalizadas a partir de um levantamento físico. Esta etapa permanece local e não foi publicada.

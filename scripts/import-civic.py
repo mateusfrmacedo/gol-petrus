@@ -83,6 +83,7 @@ full_bounds = []
 source_tris = 0
 original_tris = 0
 replaced = []
+removed_plate_meshes = {'plate_01_plate_0', 'plate_02_plate_0'}
 names = []
 fixed_wheel_parts = {'gum_23', 'gum_24', 'gum_25', 'gum_26', 'gum_46', 'gum_47', 'gum_04', 'gum_05', 'gum_06', 'gum_07', 'gum_08', 'gum_09'}
 for m in meshes:
@@ -119,6 +120,8 @@ for m in meshes:
     idx = np.concatenate(triangles).reshape(-1)
     assert idx.max() < len(p)
     original_tris += len(idx) // 3
+    if m['name'] in removed_plate_meshes:
+        continue
     state = m['node'].get('stateset', {})
     mat_name = next(a['_object']['_name'] for a in state['_attributeArray'] if a and a.get('_object', {}).get('_name') in mat_ids)
     if m['name'] in chrome_grille_meshes:
@@ -187,7 +190,7 @@ for (dest, material), entries in sorted(groups.items()):
     data.extend(indices.tobytes())
 lo = np.min([b[0] for b in full_bounds], axis=0)
 hi = np.max([b[1] for b in full_bounds], axis=0)
-meta = {'name': 'Honda Civic', 'author': 'SQUIR3D', 'source': model['viewerUrl'], 'meshes': len(names), 'originalSourceMeshes':len(meshes),'originalSourceTriangles':original_tris,'wheelStyle':rim_spec,'replacedRimMeshes':replaced,'chromeGrilleMeshes':sorted(chrome_grille_meshes),'triangles': source_tris, 'vertices': sum(p['nv'] for p, _, _ in parts), 'hubs': hubs.tolist(), 'wheelR': wheel_r, 'wheelbase': float(hubs[0, 0] - hubs[2, 0]), 'track': float(abs(hubs[0, 2] - hubs[1, 2])), 'bounds': [lo.tolist(), hi.tolist()], 'parts': [p for p, _, _ in parts]}
+meta = {'name': 'Honda Civic', 'author': 'SQUIR3D', 'source': model['viewerUrl'], 'meshes': len(names), 'originalSourceMeshes':len(meshes),'originalSourceTriangles':original_tris,'wheelStyle':rim_spec,'replacedRimMeshes':replaced,'chromeGrilleMeshes':sorted(chrome_grille_meshes),'removedPlateMeshes':sorted(removed_plate_meshes),'triangles': source_tris, 'vertices': sum(p['nv'] for p, _, _ in parts), 'hubs': hubs.tolist(), 'wheelR': wheel_r, 'wheelbase': float(hubs[0, 0] - hubs[2, 0]), 'track': float(abs(hubs[0, 2] - hubs[1, 2])), 'bounds': [lo.tolist(), hi.tolist()], 'parts': [p for p, _, _ in parts]}
 (OUT / 'manifest.json').write_text(json.dumps({**meta, 'sourceMeshes': names}, indent=2) + '\n')
 resource = '// Gerado por scripts/import-civic.py; carroceria original e rodas da referência.\n'
 resource += 'const CIVIC_META = ' + json.dumps(meta, separators=(',', ':')) + ';\n'

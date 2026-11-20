@@ -52,24 +52,26 @@ function worldDefs() {
 }
 
 // ---------- terreno ----------
+// a cidade (12_city2_world.js) troca a distância às vias e a folha mínima (2 m de resolução em vez de 1 m)
+let terrainDistBox = null, terrainMinLeaf = 16;
 function terrainBuild() {
-  const NQ = 16, ROOT = 16384, MINS = 16;
+  const NQ = 16, ROOT = 16384, MINS = terrainMinLeaf;
   const rx0 = Math.round(TRK.cx / 16) * 16 - ROOT / 2, rz0 = Math.round(TRK.cz / 16) * 16 - ROOT / 2;
   const X = TRK.x, Z = TRK.z, NT = TRK.N;
   // distância da caixa (centro, meio lado) ao eixo da pista
   const tcx = (TRK.bx0 + TRK.bx1) / 2, tcz = (TRK.bz0 + TRK.bz1) / 2, thx = (TRK.bx1 - TRK.bx0) / 2, thz = (TRK.bz1 - TRK.bz0) / 2;
-  const distBox = (cx, cz, h) => {
+  const distBox = terrainDistBox || ((cx, cz, h) => {
     const bx = Math.max(Math.abs(cx - tcx) - h - thx, 0), bz = Math.max(Math.abs(cz - tcz) - h - thz, 0), lower = Math.hypot(bx, bz);
     if (lower > h * 8) return lower;
     let m = 1e18;
     for (let i = 0; i < NT; i += 3) { const dx = Math.max(Math.abs(X[i] - cx) - h, 0), dz = Math.max(Math.abs(Z[i] - cz) - h, 0), d = dx * dx + dz * dz; if (d < m) m = d; }
     return Math.sqrt(m);
-  };
+  });
   const splitCache = new Map();
   const split = (x, z, size) => {
     if (size <= MINS) return false; if (size > 4096) return true;
     const key = x + ',' + z + ',' + size; let v = splitCache.get(key);
-    if (v === undefined) { v = distBox(x + size / 2, z + size / 2, size / 2) < size * (size >= 256 ? 3.4 : 2.0); /* folhas distantes mais finas: a silhueta das serras não mostra facetas */ splitCache.set(key, v); }
+    if (v === undefined) { const db = distBox(x + size / 2, z + size / 2, size / 2); v = terrainDistBox ? db < (size <= 32 ? 9 : size <= 64 ? 110 : size * 3.4) : db < size * (size >= 256 ? 3.4 : 2.0); /* folhas distantes mais finas: a silhueta das serras não mostra facetas */ splitCache.set(key, v); }
     return v;
   };
   const leaves = [];
@@ -211,7 +213,7 @@ function ribbonBuild() {
 function worldBuild() {
   const defs = worldDefs();
   WORLD.terrain = new RangeSet(mkFamily('terrain', { src: 'mat_terrain', defs, shadowBias: 4, shadowSlope: 3 }));
-  WORLD.ribbon = new RangeSet(mkFamily('track', { src: 'mat_track', defs, noShadow: true }));
+  if (!CITY.on) WORLD.ribbon = new RangeSet(mkFamily('track', { src: 'mat_track', defs, noShadow: true }));
   terrainBuild(); ribbonBuild();
   R.drawables.push(WORLD.terrain, WORLD.ribbon);
   if (GAME.mode === 'world') {

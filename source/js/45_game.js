@@ -53,7 +53,11 @@ function gameInit() {
   }
   GS.replayOn = Q.has('replay') && !!GS.replay; GS.ai = Q.has('auto');
   // câmeras de TV: as torres do cenário (WORLD.tvCams), ou posições calculadas do lado de fora das curvas
-  if (typeof WORLD !== 'undefined' && WORLD.tvCams && WORLD.tvCams.length) {
+  if (CITY.on) {   // cidade: câmeras de rua nos cruzamentos
+    GS.tvData = new Float32Array(Math.max(1, CITY.cams.length) * 4);
+    for (const c of CITY.cams) { const o = GS.tvN++ * 4; GS.tvData[o] = 0; GS.tvData[o + 1] = c[0]; GS.tvData[o + 2] = c[1]; GS.tvData[o + 3] = c[2]; }
+    GS.replay = null;
+  } else if (typeof WORLD !== 'undefined' && WORLD.tvCams && WORLD.tvCams.length) {
     const q = new Float64Array(5);
     for (const c of WORLD.tvCams) {
       const o = GS.tvN++ * 4; GS.tvData[o] = ((c.s % TRK.L) + TRK.L) % TRK.L; GS.tvData[o + 1] = c.x; GS.tvData[o + 2] = c.y; GS.tvData[o + 3] = c.z;
@@ -80,7 +84,7 @@ function gameInit() {
 // Sem isso, a primeira troca de câmera ou a primeira ré desotimizaria funções do laço e geraria lixo temporário.
 function gameWarmup() {
   const fx = GS.fxOn, rp = GS.replayOn; GS.replayOn = false; GS.ai = false; RT[2] = 1 / 120;
-  vehicleReset(TRK.L + TRK.startS, TRK.startD, 0);
+  vehicleSpawn();
   for (let i = 0; i < 9000; i++) {
     const ph = (i / 300) | 0, t = i / 120; let k = aiKeys(t);
     if (ph % 7 === 3) k = K_S; else if (ph % 7 === 5) k = K_W | K_D | (i % 60 < 30 ? K_SPACE : 0); else if (ph % 11 === 9) k = K_W | K_A;
@@ -111,7 +115,7 @@ function gameWarmup() {
 async function gamePrewarm() {
   RT[2] = 1 / 60; GS.frozen = true; let worst = 0;
   for (let i = 0; i < 36; i++) {
-    vehicleReset(i * TRK.L / 36, (i % 3) - 1, 0); VEH.slip.fill(1); VEH.vx = 25; for (let k = 0; k < 6; k++) fxStep(); VEH.slip.fill(0); VEH.vx = 0;   // com velocidade: emite fumaça (estreia o pipeline de partículas)
+    if (CITY.on) cityTour(i); else vehicleReset(i * TRK.L / 36, (i % 3) - 1, 0); VEH.slip.fill(1); VEH.vx = 25; for (let k = 0; k < 6; k++) fxStep(); VEH.slip.fill(0); VEH.vx = 0;   // com velocidade: emite fumaça (estreia o pipeline de partículas)
     GS.cam = i % 3; GS.chaseInit = false; GS.tvCur = -1; GS.cut = true; gameTick(true); renderFrame(); gameTick(true); renderFrame();
     if (i >= 6) {   // as primeiras vistas ainda pagam compilação de pipelines: não entram na medida
       await G.dev.queue.onSubmittedWorkDone(); const t0 = performance.now();
@@ -121,10 +125,12 @@ async function gamePrewarm() {
   }
   GS.frozen = false; gameRestart(); return worst;
 }
+// posição inicial: grid do circuito ou a rua de partida da cidade
+function vehicleSpawn() { if (CITY.on) citySpawn(); else vehicleReset(TRK.L + TRK.startS, TRK.startD, 0); }
 function gameRestart() {
   if(typeof CAM_ORBIT!=="undefined")CAM_ORBIT.reset();
   const V = VEH; V.lapS = 0; V.offCount = 0; V.hits = 0; V.laps = 0; V.time = 0; V.steps = 0; V.spin.fill(0); V.susp.fill(0);
-  vehicleReset(TRK.L + TRK.startS, TRK.startD, 0); GS.held = 0; GS.tick60 = 0; GS.acc = 0; GS.sub = 0; GS.keys = GS.prevKeys = 0; GS.cam = +(Q.get('cam') || 0); GS.chaseInit = false; GS.tvCur = -1; GS.cut = true;
+  vehicleSpawn(); GS.held = 0; GS.tick60 = 0; GS.acc = 0; GS.sub = 0; GS.keys = GS.prevKeys = 0; GS.cam = +(Q.get('cam') || 0); GS.chaseInit = false; GS.tvCur = -1; GS.cut = true;
   if (typeof fxReset === 'function') fxReset();
   GS.lapSeen = GS.lapMax = 0; LAP[0] = LAP[1] = LAP[3] = 0;
   GS.alpha = 1; gamePose(); gameCamera();
@@ -142,7 +148,7 @@ function gameStep() {
     if (!(edge & K_UP) !== !(edge & K_DOWN)) vehicleShift(edge & K_UP ? 1 : -1);
     if (edge & K_C) { GS.cam = (GS.cam + 1) % 3; GS.cut = true; GS.chaseInit = false; GS.tvCur = -1; }
     if (edge & K_R) { // devolve o carro à pista: no eixo, alinhado, parado
-      const s = VEH.s; vehicleReset(s, clamp(VEH.d, -2, 2), 0); GS.cut = true; GS.chaseInit = false;
+      if (CITY.on) cityRecover(); else { const s = VEH.s; vehicleReset(s, clamp(VEH.d, -2, 2), 0); } GS.cut = true; GS.chaseInit = false;
     }
   }
   GS.sub++;
@@ -256,7 +262,8 @@ function gameCamera() {
     // TV: câmera fixa à beira da pista mais próxima à frente do carro, com lente longa
     let best = GS.tvCur, bd = 1e9; const n = GS.tvN, TV = GS.tvData;
     // escolhe a câmera mais próxima; a que já passou vale um pouco mais que a que está à frente (a tomada segue o carro indo embora)
-    for (let i = 0; i < n; i++) { let d = TV[i * 4] - V.s; const hl = TRK.L * 0.5; while (d > hl) d -= TRK.L; while (d < -hl) d += TRK.L; d = (d < 0 ? -d * 0.7 : d) - (i === GS.tvCur ? 14 : 0); if (d < bd) { bd = d; best = i; } }
+    if (CITY.on) for (let i = 0; i < n; i++) { const dx = TV[i * 4 + 1] - GS.cx, dz = TV[i * 4 + 3] - GS.cz, d = Math.sqrt(dx * dx + dz * dz) - (i === GS.tvCur ? 25 : 0); if (d < bd) { bd = d; best = i; } }
+    else for (let i = 0; i < n; i++) { let d = TV[i * 4] - V.s; const hl = TRK.L * 0.5; while (d > hl) d -= TRK.L; while (d < -hl) d += TRK.L; d = (d < 0 ? -d * 0.7 : d) - (i === GS.tvCur ? 14 : 0); if (d < bd) { bd = d; best = i; } }
     const cut = best !== GS.tvCur; GS.tvCur = best; const tx = TV[best * 4 + 1], ty = TV[best * 4 + 2], tz = TV[best * 4 + 3];
     const ld = 0.8 + GS.speed * 0.1, ax = GS.cx + c * ld, ay = GS.cy + 0.75, az = GS.cz + s * ld, dist = Math.sqrt((ax - tx) * (ax - tx) + (ay - ty) * (ay - ty) + (az - tz) * (az - tz));
     let fov = 2 * Math.atan(3.3 / dist); fov = fov < 0.04 ? 0.04 : fov > 0.62 ? 0.62 : fov;

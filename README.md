@@ -1,6 +1,6 @@
 # Gol Petrus
 
-Simulador de corrida para navegador, com foco na reprodução visual do **VW Gol G6 Petrus** a partir das fotos do carro real. O projeto também oferece um Honda Civic, mantido separado das revisões do Gol.
+Simulador de corrida para navegador, com foco na reprodução visual do **VW Gol G6 Petrus** a partir das fotos do carro real. O jogo permite dirigir na pista de teste Borghi Veículos ou pela cidade de **Nova Aliança (SP)**. O modelo do Honda Civic permanece no projeto, mas está fora do build padrão enquanto passa por revisão.
 
 **[Jogar no GitHub Pages](https://mateusfrmacedo.github.io/gol-petrus/)** · [Modelo do Gol](modelo/blender/README.md) · [Guia de peças e exportação](modelo/gol-refinado/PARTS.md)
 
@@ -14,7 +14,9 @@ O `index.html` gerado incorpora código, shaders, geometria e texturas da cena. 
 python -m http.server 8765 --bind 127.0.0.1
 ```
 
-Depois abra `http://localhost:8765/`. O jogo também oferece vistas isoladas: `#carro`, `#carro-1` a `#carro-6` e `?scene=car&carcam=0`. Os parâmetros `?vehicle=gol` e `?vehicle=civic` selecionam o veículo.
+Depois abra `http://localhost:8765/`. Para entrar diretamente na cidade, use `http://localhost:8765/?mapa=nova-alianca`; para a pista, `?mapa=circuito`. O mapa também pode ser escolhido no menu, e a escolha fica salva no navegador. A troca de mapa recarrega a página.
+
+O jogo também oferece vistas isoladas: `#carro`, `#carro-1` a `#carro-6` e `?scene=car&carcam=0`. O parâmetro `?vehicle=gol` seleciona o Gol; `?vehicle=civic` depende de um build feito com `--civic`.
 
 ### Erro “Nenhum adaptador WebGPU” no Windows
 
@@ -28,6 +30,26 @@ Essa mensagem ocorre quando `requestAdapter()` retorna vazio, antes de o jogo cr
 Referência: [solução de problemas WebGPU — Chrome for Developers](https://developer.chrome.com/docs/web-platform/webgpu/troubleshooting-tips). A aplicação depende de WebGPU e não possui renderizador alternativo em WebGL.
 
 ## Recursos implementados
+
+### Cidade de Nova Aliança (SP)
+
+Segundo mapa selecionável em **Mapa → Cidade de Nova Aliança**, com área jogável de **3,2 × 2,6 km**. O traçado usa dados locais do OpenStreetMap e o relevo usa uma grade SRTM de 81 × 81 pontos, espaçados em 80 m. Os arquivos originais e o formato estão no [guia do mapa](mapas/nova-alianca/README.md).
+
+A auditoria de 20/11/2026 contabilizou **608 trechos de vias, 370 cruzamentos, 97 nomes de vias, 58,7 km de ruas e 3.460 casas**. Esses números descrevem o cenário gerado dentro do recorte jogável, não um cadastro completo da cidade real.
+
+- Ruas asfaltadas e de terra, cruzamentos com cantos arredondados, calçadas, meios-fios, faixas de pedestres, placas e postes com fiação.
+- Casas e comércios com variações de fachadas, telhados, muros e portões; vegetação e árvores nas áreas urbanas.
+- Lugares modelados: **Borghi Veículos**, **Supermercado Sacoi**, **casa do Petrus**, **Praça Matriz Padre João Nolte e Paróquia Nossa Senhora Aparecida**, além do portal e do letreiro na entrada da cidade.
+- Terreno e altura das ruas integrados à física, colisões com construções e obstáculos, posição inicial na rua e retorno pela tecla **R**.
+- Minimapa da cidade, exibido ou ocultado com **N**.
+
+O traçado e o relevo vêm de dados geográficos; prédios, fachadas e marcos são reconstruções visuais aproximadas. A auditoria atual não encontrou casas sobre ruas nem construções sobrepostas. Permanecem para conferência um ponto do traçado OSM fora da pista gerada, um trecho isolado que sai pela borda do mapa, dez rampas fortes e 45 trechos urbanos sem nome. Os alertas indicam locais a revisar; não confirmam, por si só, erros na cidade real.
+
+### Horário e clima
+
+O menu permite ajustar o horário, parar ou acelerar a passagem do tempo e escolher entre oito condições de clima, de céu limpo a tempestade. A iluminação acompanha o ciclo de dia e noite, com postes e janelas acendendo quando escurece. As teclas **,** e **.** recuam ou avançam uma hora.
+
+A opção **Usar clima real** consulta as condições de Nova Aliança pela Open-Meteo, atualiza a consulta a cada dez minutos e sincroniza o relógio com o horário de São Paulo. Ela depende de conexão com o serviço; o clima manual pode ser usado sem essa consulta. O relevo e os dados de ruas já estão incorporados ao HTML gerado.
 
 ### Gol e interior baseado no carro real
 
@@ -140,7 +162,13 @@ Com Node.js disponível, sem instalar dependências JavaScript:
 node source/build.mjs
 ```
 
-O build reúne os arquivos JavaScript e WGSL em `index.html` e atualiza a reserva `musica/playlist.json`.
+O build reúne os arquivos JavaScript e WGSL, incluindo os dados da cidade, em `index.html` e atualiza a reserva `musica/playlist.json`. Por padrão, inclui apenas o Gol; o HTML atual tem aproximadamente 7 MiB. Para incluir também o Civic em revisão:
+
+```sh
+node source/build.mjs --civic
+```
+
+A inclusão do Civic aumenta o tamanho do HTML. Para voltar à distribuição padrão, execute novamente `node source/build.mjs`.
 
 ### Reconstruir a partir das fontes aprovadas
 
@@ -178,6 +206,11 @@ As imagens ficam em [`modelo/gol-refinado/revisao/`](modelo/gol-refinado/revisao
 Os testes verificam comportamento e geometria, incluindo encaixe dos braços do volante, separação do teto móvel e da vedação, abertura sem chapa oculta, planicidade das rodas, movimentos equivalentes no Blender e no jogo, câmera por mouse, câmbio e integridade do Civic.
 
 ```sh
+node tests/syntax.cjs
+node tests/city.cjs
+node tests/city-collide.cjs
+node tests/clima.cjs
+node tests/shaders.cjs
 node tests/gearbox.cjs
 node tests/steering.cjs
 node tests/steering-spokes.cjs
@@ -191,6 +224,16 @@ node tests/vehicles.cjs
 node --test source/tests/musica.test.mjs
 ```
 
+Os testes da cidade verificam perfis de altura, cruzamentos, rasters, calçadas, posição inicial, marcos, malhas finitas e colisões. O teste de shaders valida as variantes da cidade e do circuito com `naga`; quando o executável não está instalado, ele informa que a verificação foi pulada.
+
+Para gerar a auditoria detalhada do mapa:
+
+```sh
+node scripts/cidade/auditoria.cjs /tmp/nova-alianca-auditoria.json
+```
+
+O JSON contém estatísticas, vias, construções e coordenadas dos alertas para revisão.
+
 Com o ambiente Python de modelagem:
 
 ```sh
@@ -200,17 +243,21 @@ python tests/gol-export.py
 
 Os testes Python e de exportação usam a captura intermediária de geometria. Execute `node scripts/gol/capture-geometry.cjs` antes deles em uma cópia nova do repositório.
 
+O modo `?mapa=nova-alianca&fotos=1` gera uma folha de conferência dos lugares modelados às 10h, ao entardecer e às 21h, com opção de comparação com uma referência salva no navegador.
+
 A revisão visual complementa os testes: vistas internas e externas no jogo, roda em detalhe e comparação do teto aberto/fechado. Os relatórios e as imagens permitem conferir o resultado de cada revisão.
 
 ## Honda Civic
 
 O Civic possui carroceria, interior, materiais e rodas grafite de **aro 19 × 7**, baseadas na referência fornecida. Os recursos e o GLB ficam em [`assets/vehicles/civic/`](assets/vehicles/civic/README.md). A física e o som são os sistemas do jogo; o painel importado do Civic tem imagens estáticas, por isso seu HUD informa velocidade e rotação durante a câmera interna.
 
+O Civic está desabilitado no build padrão enquanto seu modelo 3D passa por revisão. Para habilitá-lo, gere o jogo com `node source/build.mjs --civic`.
+
 As revisões atuais se concentram no Gol. Os arquivos do Civic são mantidos separados e a validação modular compara seus hashes com a versão preservada para impedir alterações acidentais.
 
 ## Música e publicação
 
-Adicione MP3 à pasta [`musica/`](musica/), respeitando os direitos de publicação. **P** toca/pausa e **0** avança; as faixas seguem a ordem dos nomes e avançam automaticamente. **M** controla o áudio sintetizado do jogo separadamente. A lista é consultada pela API pública do GitHub, com `playlist.json` como reserva.
+Adicione MP3 à pasta [`musica/`](musica/), respeitando os direitos de publicação. **P** toca/pausa, **0** avança, **9** volta e **8** alterna a ordem aleatória. Fora do modo aleatório, as faixas seguem a ordem dos nomes e avançam automaticamente. **M** controla o áudio sintetizado do jogo separadamente. A lista é consultada pela API pública do GitHub, com `playlist.json` como reserva.
 
 O GitHub Pages publica a branch **main**, a partir da raiz. Antes de enviar mudanças de código, gere o `index.html` e execute as verificações pertinentes. Alterações de documentação não exigem reconstruir o HTML.
 
@@ -237,7 +284,10 @@ O GitHub Pages publica a branch **main**, a partir da raiz. Antes de enviar muda
 | Zoom externo do Gol | Roda do mouse | — |
 | Centralizar câmera | Duplo clique ou botão na tela | — |
 | Música: tocar / pausar | `P` | — |
-| Próxima música | `0` | — |
+| Próxima música / música anterior | `0` / `9` | — |
+| Ordem aleatória da música | `8` | — |
+| Exibir / ocultar minimapa | `N` | — |
+| Recuar / avançar uma hora | `,` / `.` | — |
 | Som sintetizado: ligar / desligar | `M` | — |
 | Estatísticas de desempenho | `H` | — |
 | Benchmark / volta roteirizada | `B` / `F` | — |
@@ -256,6 +306,8 @@ As próximas etapas devem seguir as [pendências registradas na revisão do inte
 - **Modelo base do Civic:** SQUIR3D, com origem e licença registradas em [`assets/vehicles/civic/`](assets/vehicles/civic/README.md).
 - **AnyMachine:** referência do processo de modelagem por peças e revisão, com [documentação do método](https://github.com/apekshik/anymachine/blob/main/PIPELINE.md).
 - **AnyWreck:** ferramenta do ensaio de dano, com [licença MIT preservada](modelo/gol-refinado/danos/LICENSE-AnyWreck.txt).
+- **Mapa de Nova Aliança:** © colaboradores do OpenStreetMap, ODbL; relevo SRTM/NASA distribuído em tiles Terrarium. Fontes e formato no [guia do mapa](mapas/nova-alianca/README.md).
+- **Clima real:** consulta à Open-Meteo para as condições de Nova Aliança.
 - **Referências visuais:** fotos do carro real e materiais fornecidos pelo proprietário, incluindo Borghi Veículos e Nova Aliança.
 
 A licença do código não substitui as licenças dos modelos, ferramentas, fotografias ou músicas.

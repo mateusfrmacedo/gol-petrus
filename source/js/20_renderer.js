@@ -1,7 +1,7 @@
 // Núcleo do renderizador diferido: recursos, uniformes de quadro, famílias de material e o grafo de passes.
 const SHADOW_RES = 2048, SHADOW_S_RES = 4096, ENV_RES = 512, ENV_MIPS = 7, SKY_W = 4096, SKY_H = 1024, VOL_DIST = 220;
 const SKY_EL0 = -0.14, SKY_ELR = PI / 2 + 0.14;
-const SH_DEFS = { SHADOW_RES: SHADOW_RES + '.0', ENV_MIPS: ENV_MIPS + '.0', ENV_MIP_K: (ENV_RES * 2 / (PI * 1.5)).toFixed(2), VOL_DIST: VOL_DIST + '.0', SKY_EL0: SKY_EL0.toFixed(5), SKY_ELR: SKY_ELR.toFixed(5) };
+const SH_DEFS = { SHADOW_RES: SHADOW_RES + '.0', ENV_MIPS: ENV_MIPS + '.0', ENV_MIP_K: (ENV_RES * 2 / (PI * 1.5)).toFixed(2), VOL_DIST: VOL_DIST + '.0', SKY_EL0: SKY_EL0.toFixed(5), SKY_ELR: SKY_ELR.toFixed(5), WM_ZS: '2.0' };
 const KIND = { GBUF: 0, SHADOW: 1, CUBE: 2 };
 
 // ---- struct Frame: lista de campos gera o WGSL e os deslocamentos ----
@@ -9,7 +9,7 @@ const FRAME_FIELDS = [
   ['viewProj', 'm'], ['viewProjJ', 'm'], ['prevViewProj', 'm'], ['invViewProjJ', 'm'], ['view', 'm'], ['invView', 'm'], ['projJ', 'm'], ['invProjJ', 'm'],
   ['shadowVP', 'm4'], ['carInv', 'm'], ['carMat', 'm'],
   ['camPos', 'v'], ['camFwd', 'v'], ['sunDir', 'v'], ['sunCol', 'v'], ['screen', 'v'], ['jitter', 'v'], ['misc', 'v'], ['wind', 'v'],
-  ['fog', 'v'], ['fogCol', 'v'], ['shadowP', 'v'], ['shadowSplit', 'v'], ['car', 'v'], ['car2', 'v'], ['post', 'v'], ['wm', 'v'], ['sunScr', 'v'], ['sh', 'v9'],
+  ['fog', 'v'], ['fogCol', 'v'], ['shadowP', 'v'], ['shadowSplit', 'v'], ['car', 'v'], ['car2', 'v'], ['post', 'v'], ['wm', 'v'], ['sunScr', 'v'], ['clima', 'v'], ['sh', 'v9'],
 ];
 const FR = { o: {}, data: null, size: 0 };
 (function () {
@@ -225,7 +225,7 @@ function frameUniforms() {
   f.set(c.view, o.view); m4inv(c.tmp, c.view); f.set(c.tmp, o.invView); f.set(c.projJ, o.projJ); m4inv(c.tmp, c.projJ); f.set(c.tmp, o.invProjJ);
   let k = o.camPos; f[k] = c.pos[0]; f[k + 1] = c.pos[1]; f[k + 2] = c.pos[2]; f[k + 3] = RT[0];
   k = o.camFwd; f[k] = c.fwd[0]; f[k + 1] = c.fwd[1]; f[k + 2] = c.fwd[2]; f[k + 3] = c.near;
-  k = o.sunDir; f[k] = R.sun[0]; f[k + 1] = R.sun[1]; f[k + 2] = R.sun[2]; f[k + 3] = 0;
+  k = o.sunDir; f[k] = R.sun[0]; f[k + 1] = R.sun[1]; f[k + 2] = R.sun[2]; f[k + 3] = R.night || 0;
   k = o.sunCol; f[k] = R.sunCol[0]; f[k + 1] = R.sunCol[1]; f[k + 2] = R.sunCol[2]; f[k + 3] = 1;
   k = o.screen; f[k] = W; f[k + 1] = H; f[k + 2] = 1 / W; f[k + 3] = 1 / H;
   k = o.misc; f[k] = RT[1]; f[k + 1] = R.frameIdx % 64; f[k + 2] = R.exposure; f[k + 3] = R.debug;
@@ -234,6 +234,8 @@ function frameUniforms() {
   k = o.fog; f[k] = R.fog[0]; f[k + 1] = R.fog[1]; f[k + 2] = R.fog[2]; f[k + 3] = R.fog[3];
   k = o.fogCol; f[k] = R.fogCol[0]; f[k + 1] = R.fogCol[1]; f[k + 2] = R.fogCol[2]; f[k + 3] = R.fogCol[3];
   k = o.wind; f[k] = R.wind[0]; f[k + 1] = R.wind[1]; f[k + 2] = R.wind[2]; f[k + 3] = RT[0];
+  // clima (25_clima.js): x = chão molhado, y = chuva na tela, z = clarão de raio, w = sol aparente (1 = céu aberto)
+  k = o.clima; f[k] = CLIMA.cur.wet; f[k + 1] = CLIMA.cur.rain; f[k + 2] = CLIMA.flash; f[k + 3] = CLIMA.cur.sun;
   k = o.wm; f[k] = WM.x0; f[k + 1] = WM.z0; f[k + 2] = WM.sx; f[k + 3] = WM.sz;
   // posição do sol na tela (uv) para o brilho de lente; z = 1 se está à frente da câmera
   { const m = c.vp, sx = R.sun[0], sy = R.sun[1], sz = R.sun[2], cw = m[3] * sx + m[7] * sy + m[11] * sz;
@@ -277,7 +279,7 @@ function cascadeFocus(i) {
   FR.data.set(cs.vp[i], FO.shadowVP + i * 16);
 }
 function staticShadowSetup() {
-  const cs = R.casc, rad = 1250;
+  const cs = R.casc, rad = CITY.on ? 1850 : 1250;
   lightView(cs.view);
   m4point(_cs, 0, cs.view, TRK.cx, 20, TRK.cz);
   orthoInto(cs.tmp, _cs[0] - rad, _cs[0] + rad, _cs[1] - rad * 0.62, _cs[1] + rad * 0.62, -_cs[2] - 2600, -_cs[2] + 2600);
@@ -311,6 +313,7 @@ function apiFinish(enc) { return enc.finish(); }
 function apiCanvasView() { return G.ctx.getCurrentTexture().createView(); }
 function renderFrame() {
   const dev = G.dev, c = R.cam, D = R.pd;
+  todFrame();   // hora do dia: sol, céu, sombra estática (24_tempo.js)
   frameUniforms();
   for (let i = 0; i < 3; i++) cascadeSetup(i);
   setPass(0, c.vpJ, c.pos);

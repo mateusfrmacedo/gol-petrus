@@ -13,7 +13,14 @@
 #ifdef PASS_GBUF
 struct GOut { @location(0) a: vec4f, @location(1) b: vec4f, @location(2) c: vec4f, @location(3) v: vec4f }
 @fragment fn fs(in: V2F, @builtin(front_facing) ff: bool) -> GOut {
-  let s = surf(in, ff);
+  var s = surf(in, ff);
+#ifndef NO_WET
+  // chuva: superfícies voltadas para cima escurecem, ficam lisas e refletem (poças onde o material já tinha cavidades)
+  if (F.clima.x > 0.001) {
+    let w = F.clima.x * smoothstep(0.35, 0.9, s.normal.y) * (1.0 - s.metal * 0.7);
+    s.albedo = s.albedo * mix(1.0, 0.62, w); s.rough = mix(s.rough, 0.07, w * 0.85); s.wet = max(s.wet, w * 0.85);
+  }
+#endif
   var o: GOut;
   o.a = vec4f(s.albedo, s.ao);
   o.b = vec4f(octEnc(s.normal), s.rough, s.metal);

@@ -1,0 +1,18 @@
+{
+  "source": "https://github.com/apekshik/anymachine",
+  "commit": "d5e8889eef0b33e0bbe62ddca6f713f94b154b68",
+  "helper": "hardsurface/dugout_blender/props_hand/_common/hs.py",
+  "meshes": 30,
+  "triangles_before_export": 66235,
+  "windows_measured": 10,
+  "bolt_holes": 4,
+  "rim_diameter_estimate_m": 0.468,
+  "tire_diameter_estimate_m": 0.566,
+  "tire_width_estimate_m": 0.212,
+  "notes": [
+    "Escala e profundidade estimadas; não é projeto de fabricação.",
+    "Somente o emblema usa recorte da fotografia.",
+    "Shaders procedurais de microtextura ficam no Blender; GLB usa PBR simples.",
+    "Verso inferido, sulcos simplificados, sem marcações laterais do pneu."
+  ]
+}

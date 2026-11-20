@@ -30,6 +30,8 @@ assert(CIVIC_META.replacedRimMeshes.length>0);
 assert(CIVIC_META.chromeGrilleMeshes.includes('black_m_06_black_m_0'));
 assert(CIVIC_META.chromeGrilleMeshes.includes('gum_01_gum_0'));
 assert(CIVIC_META.parts.some(p=>p.dest===0&&p.mat===23));
+assert.equal(CIVIC_META.removedPlateMeshes.length,2);
+assert(!CIVIC_META.parts.some(p=>p.mat===3));
 for(let dest=1;dest<=4;dest++){
  assert(CIVIC_META.parts.some(p=>p.dest===dest&&p.mat===21));
  assert(CIVIC_META.parts.some(p=>p.dest===dest&&p.mat===22));
@@ -61,5 +63,7 @@ assert.equal(glb.readUInt32LE(8), glb.length);
 const doc = JSON.parse(glb.subarray(20, 20 + glb.readUInt32LE(12)).toString());
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'assets/vehicles/civic/manifest.json'),'utf8'));
 assert.equal(doc.materials.length, 24); assert.equal(doc.images.length, 7);
+assert(!doc.meshes.some(m=>m.primitives.some(p=>p.material===3)));
+assert(!manifest.sourceMeshes.some(m=>m.material==='plate'));
 assert.equal(doc.meshes.reduce((n, m) => n + doc.accessors[m.primitives[0].indices].count / 3, 0), manifest.triangles);
 console.log('PASS: Civic geometry, 19×7 wheels, open spokes, low-profile tire fit, normals, seven textures, GLB and vehicle switching.');

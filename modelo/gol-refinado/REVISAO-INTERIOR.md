@@ -40,7 +40,7 @@ As molduras dos neblinas, aletas pintadas e refletores claros foram acrescentado
 
 ## Verificação
 
-Os testes cobrem separação das duas peças móveis, conservação da quantidade de triângulos, elevação antes do deslizamento, retorno à posição fechada, inversão de movimento, matrizes rígidas, buffers exportados e integridade do Civic por hashes. A revisão visual é feita no jogo, pela câmera do motorista e por uma vista externa, antes da publicação.
+Os testes cobrem separação das duas peças móveis, conservação da quantidade de triângulos, elevação antes do deslizamento, retorno à posição fechada, inversão de movimento, matrizes rígidas, buffers exportados e integridade do Civic por hashes. A revisão visual é feita no jogo, pela câmera do motorista e por uma vista externa, sem publicar esta etapa.
 
 
 ## Revisão externa complementar

@@ -31,20 +31,37 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 #ui button+button{background:rgba(255,255,255,.16)}
 #ui button:focus-visible{outline:2px solid #fff;outline-offset:2px}
 #transmission{display:none;position:absolute;right:1.6vh;top:1.6vh;padding:.55em .9em;border-radius:.6em;background:rgba(9,11,14,.72);color:#fff;font-variant-numeric:tabular-nums;pointer-events:none}
-#gear-mode,#vehicle-choice{font:inherit;color:#fff;background:#25282d;border:1px solid #777;border-radius:.4em;padding:.4em .7em}
-#sunroof{position:absolute;left:1.6vh;bottom:1.6vh;padding:.65em 1em;border:1px solid #777;border-radius:.6em;background:rgba(9,11,14,.82);color:#fff;font:inherit;cursor:pointer;touch-action:manipulation}
-#camera-tools{position:absolute;left:1.6vh;bottom:4.8em;max-width:85vw;padding:.55em .7em;border-radius:.6em;background:rgba(9,11,14,.82);color:#ddd;font-size:12px}
+#gear-mode,#vehicle-choice,#map-choice,#tempo,#clima,#clima-real{font:inherit;color:#fff;background:#25282d;border:1px solid #777;border-radius:.4em;padding:.4em .7em}
+#sunroof{position:absolute;left:calc(1.6vh + 142px);bottom:1.6vh;padding:.65em 1em;border:1px solid #777;border-radius:.6em;background:rgba(9,11,14,.82);color:#fff;font:inherit;cursor:pointer;touch-action:manipulation}
+#camera-tools{position:absolute;left:calc(1.6vh + 142px);bottom:4.8em;max-width:85vw;padding:.55em .7em;border-radius:.6em;background:rgba(9,11,14,.82);color:#ddd;font-size:12px}
 #camera-tools button{font:inherit;color:#fff;background:transparent;border:1px solid #777;border-radius:.4em;padding:.4em .7em;margin-right:.6em;cursor:pointer}
 #camera-tools button:focus-visible{outline:2px solid #fff;outline-offset:2px}
 #sunroof:focus-visible{outline:2px solid #fff;outline-offset:3px}
+#clock{position:fixed;left:1.6vh;bottom:calc(1.6vh + 138px);width:132px;text-align:center;z-index:6;pointer-events:none;color:#fff;font:600 15px/1.2 system-ui,sans-serif;letter-spacing:.06em;text-shadow:0 1px 3px #000;display:none}
+#hora{width:12em;vertical-align:middle;accent-color:#ccc}
 .gear-setting{margin:1.2em 0 0}
-#gol-controls{position:absolute;left:1.6vh;bottom:8.2em;display:flex;flex-wrap:wrap;gap:.35em;max-width:min(620px,85vw);padding:.45em;border-radius:.6em;background:rgba(9,11,14,.82);font-size:12px}
+#gol-controls{position:absolute;left:calc(1.6vh + 142px);bottom:8.2em;display:flex;flex-wrap:wrap;gap:.35em;max-width:min(620px,85vw);padding:.4em;border-radius:.7em;background:rgba(9,11,14,.82);font-size:12px}
 #gol-controls[hidden]{display:none}
-#gol-controls button{font:inherit;color:#eee;background:#20252a;border:1px solid #777;border-radius:.4em;padding:.55em .7em;cursor:pointer;touch-action:none}
+.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;display:block}
+#gol-controls button,#music-bar button{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:.3em;min-width:40px;height:38px;font:inherit;color:#e8e8e8;background:#20252a;border:1px solid #4a5058;border-radius:.55em;padding:0 .55em;cursor:pointer;touch-action:none;transition:transform .12s ease-out,background-color .15s ease-out,border-color .15s ease-out,color .15s ease-out}
+#gol-controls button:active,#music-bar button:active{transform:scale(.97)}
+@media (hover:hover){#gol-controls button:hover,#music-bar button:hover{border-color:#8a929c}}
+#gol-controls kbd{font:600 10px/1 system-ui,sans-serif;color:#9aa3ad;border:1px solid #4a5058;border-radius:3px;padding:2px 3px;font-variant-numeric:tabular-nums}
 #gol-controls button[aria-pressed="true"]{border-color:#a3d6c1;background:#254c3c;color:#d8ffee}
 #gol-controls #gol-high[aria-pressed="true"]{background:#163d70;border-color:#8bc4ff;color:#d3eaff}
-#gol-controls #gol-left.lit,#gol-controls #gol-right.lit{background:#176c3b;color:#caffd4}
-#gol-controls button:focus-visible{outline:2px solid white;outline-offset:2px}
+#gol-controls #gol-left[aria-pressed="true"],#gol-controls #gol-right[aria-pressed="true"]{background:#3a2c10;border-color:#a8813a;color:#ffd27a}
+#gol-controls #gol-left.lit,#gol-controls #gol-right.lit{background:#7a5208;border-color:#ffb020;color:#fff}
+#gol-controls #gol-left.lit .seta,#gol-controls #gol-right.lit .seta{fill:#ffb020;stroke:#ffb020}
+#gol-controls #gol-horn[aria-pressed="true"]{background:#5a2420;border-color:#e0786c;color:#ffe1dc}
+#gol-controls button:focus-visible,#music-bar button:focus-visible{outline:2px solid white;outline-offset:2px}
+#music-bar{position:fixed;left:1.6vh;top:1.6vh;z-index:6;display:none;align-items:center;gap:.3em;padding:.35em;border-radius:.7em;background:rgba(9,11,14,.82);color:#e8e8e8;font:12px system-ui,sans-serif;max-width:min(460px,70vw)}
+#music-bar.on{display:flex}
+#music-bar .mt{display:inline-flex;align-items:center;gap:.4em;padding:0 .45em;min-width:0;flex:1}
+#music-bar .mt .ic{width:16px;height:16px;color:#9aa3ad}
+#music-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+#music-bar .ch{fill:currentColor;stroke:none}
+#mus-play [data-i="pause"]{display:none}#mus-play[aria-pressed="true"] [data-i="play"]{display:none}#mus-play[aria-pressed="true"] [data-i="pause"]{display:block}
+#mus-shuf[aria-pressed="true"]{border-color:#a3d6c1;background:#254c3c;color:#d8ffee}
 </style>
 </head>
 <body>
@@ -53,14 +70,23 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 <div id="hint">W acelera · S freia/ré · A/D faz curvas · Espaço freio de mão · C câmera · R volta à pista</div>
 <canvas id="hg"></canvas><canvas id="ht"></canvas><canvas id="hs"></canvas><div id="tag"></div>
 <div id="camera-tools" hidden><button id="orbit-reset" type="button">Girar câmera</button><span>Arraste para girar · roda do mouse: zoom · duplo clique: centralizar</span></div>
+<div id="clock" aria-live="off"></div>
+<div id="music-bar" role="group" aria-label="Rádio">
+<span class="mt"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18V6l11-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg><span id="music-title">Rádio</span></span>
+<button id="mus-prev" type="button" aria-label="Música anterior · 9" title="Anterior · 9"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 5v14"/><path class="ch" d="M19 5L9 12l10 7z"/></svg></button>
+<button id="mus-play" type="button" aria-pressed="false" aria-label="Tocar · P" title="Tocar / pausar · P"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" data-i="play"><path class="ch" d="M7 4.5v15L19.5 12z"/></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" data-i="pause"><path class="ch" d="M6.5 5h4v14h-4zM13.5 5h4v14h-4z"/></svg></button>
+<button id="mus-next" type="button" aria-label="Próxima música · 0" title="Próxima · 0"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 5v14"/><path class="ch" d="M5 5l10 7-10 7z"/></svg></button>
+<button id="mus-shuf" type="button" aria-pressed="false" aria-label="Ordem aleatória · 8" title="Ordem aleatória · 8"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 7h3.5c2 0 3.2 1 4.3 2.6l2.4 3.8c1.1 1.6 2.3 2.6 4.3 2.6H21M3 17h3.5c1.4 0 2.4-.5 3.2-1.3M14 8.3c.8-.8 1.8-1.3 3.2-1.3H21"/><path d="M18.5 4.5L21 7l-2.5 2.5M18.5 14.5L21 17l-2.5 2.5"/></svg></button>
+</div>
+
 <button id="sunroof" type="button" aria-pressed="false" hidden>Abrir teto solar · O</button>
 <div id="gol-controls" role="group" aria-label="Luzes e buzina do Gol" hidden>
-<button id="gol-low" type="button" aria-pressed="false">Farol · L</button>
-<button id="gol-high" type="button" aria-pressed="false">Alto · K</button>
-<button id="gol-plate" type="button" aria-pressed="false">Luz da placa · I</button>
-<button id="gol-left" type="button" aria-label="Seta esquerda · Z" aria-pressed="false">← Esquerda · Z</button>
-<button id="gol-right" type="button" aria-label="Seta direita · X" aria-pressed="false">Direita → · X</button>
-<button id="gol-horn" type="button" aria-pressed="false" title="Segure para buzinar">Buzina · J</button>
+<button id="gol-low" type="button" aria-pressed="false" aria-label="Farol baixo · L" title="Farol baixo · L"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 5c-3.9 0-6 3.1-6 7s2.1 7 6 7c1.1 0 1.6-.8 1.6-1.6V6.6C11.6 5.8 11.1 5 10 5z"/><path d="M15 8.5l5 1.8M15 12l5 1.8M15 15.5l5 1.8"/></svg><kbd>L</kbd></button>
+<button id="gol-high" type="button" aria-pressed="false" aria-label="Farol alto · K" title="Farol alto · K"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 5c-3.9 0-6 3.1-6 7s2.1 7 6 7c1.1 0 1.6-.8 1.6-1.6V6.6C11.6 5.8 11.1 5 10 5z"/><path d="M15 7.5h6M15 10.5h6M15 13.5h6M15 16.5h6"/></svg><kbd>K</kbd></button>
+<button id="gol-plate" type="button" aria-pressed="false" aria-label="Luz da placa · I" title="Luz da placa · I"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="8" width="18" height="10" rx="1.5"/><path d="M7 13h10"/><path d="M12 3v2.5M7.5 4.5l1.2 1.8M16.5 4.5l-1.2 1.8"/></svg><kbd>I</kbd></button>
+<button id="gol-left" type="button" aria-label="Seta esquerda · Z" title="Seta esquerda · Z" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="seta" d="M10 4L3 12l7 8v-5h11V9H10z"/></svg><kbd>Z</kbd></button>
+<button id="gol-right" type="button" aria-label="Seta direita · X" title="Seta direita · X" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="seta" d="M14 4l7 8-7 8v-5H3V9h11z"/></svg><kbd>X</kbd></button>
+<button id="gol-horn" type="button" aria-pressed="false" aria-label="Buzina · J (segure)" title="Segure para buzinar · J"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10v4h3l7 4V6L6 10z"/><path d="M16 9c1.2.8 1.8 1.8 1.8 3s-.6 2.2-1.8 3M18.5 6.5c2 1.5 3 3.4 3 5.5s-1 4-3 5.5"/></svg><kbd>J</kbd></button>
 </div>
 <div id="transmission" role="status" aria-live="polite"></div>
 <div id="ui"><div>
@@ -99,15 +125,23 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 </table></div>
 <div><h2>Ferramentas</h2><table>
 <tr><td>P</td><td>toca ou pausa a música</td></tr>
-<tr><td>0</td><td>próxima música</td></tr>
+<tr><td>0 / 9</td><td>próxima / música anterior</td></tr>
+<tr><td>8</td><td>liga / desliga a ordem aleatória</td></tr>
 <tr><td>M</td><td>liga e desliga o som</td></tr>
 <tr><td>H</td><td>estatísticas de desempenho</td></tr>
+<tr><td>N</td><td>liga / desliga o minimapa</td></tr>
+<tr><td>, .</td><td>volta / avança uma hora</td></tr>
 <tr><td>B</td><td>benchmark (volta roteirizada de 60 s)</td></tr>
 <tr><td>F</td><td>assistir à volta roteirizada</td></tr>
 <tr><td>1 a 6</td><td>poses fixas</td></tr>
 <tr><td colspan="2" style="font-weight:400;color:#ddd;opacity:.75;padding-top:.5em">5 marchas · embreagem automática<br>S freia e engata ré ao parar<br>A volta conta ao cruzar a largada</td></tr>
 </table></div>
 </div>
+<p class="gear-setting"><label for="map-choice">Mapa </label><select id="map-choice"><option value="circuito">Pista de teste Borghi Veículos</option><option value="nova-alianca">Cidade de Nova Aliança</option></select></p>
+<p class="gear-setting"><label for="hora">Horário </label><input id="hora" type="range" min="0" max="23.99" step="0.05" value="16"> <span id="hora-txt">16:00</span></p>
+<p class="gear-setting"><button id="clima-real" type="button" aria-pressed="false">Usar clima real</button> <label for="clima">Clima </label><select id="clima"><option value="limpo">Sem nuvens</option><option value="ensolarado">Ensolarado</option><option value="quente">Sol quente</option><option value="poucas">Poucas nuvens</option><option value="muitas">Muitas nuvens</option><option value="nublado">Nublado</option><option value="chuva">Chuva</option><option value="tempestade">Tempestade</option></select></p>
+<p class="gear-setting" id="clima-info" aria-live="polite"></p>
+<p class="gear-setting"><label for="tempo">Passagem do tempo </label><select id="tempo"><option value="parado">Parado</option><option value="normal">1 minuto por segundo</option><option value="rapido">10 minutos por segundo</option><option value="turbo">1 hora por segundo</option></select></p>
 <p class="gear-setting"><label for="vehicle-choice">Veículo </label><select id="vehicle-choice"><option value="gol">VW Gol Petrus</option><option value="civic">Honda Civic</option></select></p>
 <p class="gear-setting"><label for="gear-mode">Câmbio </label><select id="gear-mode"><option value="manual">Manual · E/Q ou B/LB</option><option value="auto">Automático</option></select></p>
 <div class="bt"><button id="b0">Começar</button><button id="b1">Benchmark</button></div>

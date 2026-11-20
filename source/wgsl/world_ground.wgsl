@@ -98,7 +98,11 @@ fn groundSurf(wpos: vec3f, Ng: vec3f, forest: f32) -> Surface {
   }
   // ---- brita ----
   let gw = max(fwidth(z.g) * 1.2, 0.004);
+#ifdef CITY
+  let gm = 0.0;   // na cidade o canal G guarda a luz dos postes
+#else
   let gm = smoothstep(0.5 - gw, 0.5 + gw, z.g + (nC.b - 0.5) * 0.012);
+#endif
   if (gm > 0.0) {
     let wq = xz + (nA.rg - 0.5) * 2.4 + (nC.rg - 0.5) * 0.22;      // domínio torcido: a textura fina não repete em ladrilho
     let st = (textureSample(tNoise, sLin, wq * 2.9) + textureSample(tNoise, sLin, vec2f(xz.x * 0.342 - xz.y * 0.94, xz.x * 0.94 + xz.y * 0.342) * 2.13 + 0.61)) * 0.5;
@@ -135,7 +139,11 @@ fn groundSurf(wpos: vec3f, Ng: vec3f, forest: f32) -> Surface {
   let cm = smoothstep(0.5 - cw, 0.5 + cw, z.a);
   if (cm > 0.0) {
     let d = xz.y; let sr = xz.x + 60.0;
+#ifdef CITY
+    let lane = 0.0;
+#else
     let lane = step(0.0, d) * (1.0 - smoothstep(PIT_L1 + 0.1, PIT_L1 + 0.35, d));
+#endif
     // placas de concreto com juntas
     let sl = xz / 5.0; let jf = abs(fract(sl) - 0.5); let jd = (0.5 - max(jf.x, jf.y)) * 5.0;
     let joint = 1.0 - smoothstep(0.012, 0.012 + max(fwidth(jd), 0.004), jd);
@@ -153,6 +161,9 @@ fn groundSurf(wpos: vec3f, Ng: vec3f, forest: f32) -> Surface {
     grad = mix(grad, (nD.rg - 0.5) * mix(0.25, 0.9, lane) * near2, cm); ao = mix(ao, 1.0 - joint * 0.4, cm);
   }
   s.albedo = alb; s.rough = rough; s.ao = ao; s.sss = sss * 0.6;
+#ifdef CITY
+  s.emissive = z.g * 0.5 * F.sunDir.w;   // poças de luz dos postes à noite
+#endif
   s.normal = bumpXZ(Ng, grad);
   return s;
 }

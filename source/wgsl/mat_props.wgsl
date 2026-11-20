@@ -198,6 +198,69 @@ fn surf(in: V2F, ff: bool) -> Surface {
     c = mix(c, c * 0.35, seam * 0.8);
     s.albedo = c; s.rough = 0.36 + 0.2 * n2.g; s.metal = 0.45; s.ao *= 1.0 - seam * 0.3 - 0.12 * (0.5 - 0.5 * sin(ph)) * k;
     s.normal = normalize(N + tg * cos(ph) * 0.3 * k);
+  } else if (id == 19u) {
+    // reboco pintado (casas de Nova Aliança): tinta com manchas de chuva, respingo de terra vermelha junto ao chão, rachaduras finas
+    let streak = textureSample(tNoise, sLin, vec2f(pu.x * 1.3, wp.y * 0.11)).g;
+    let blot = textureSample(tNoise, sLin, pu * 0.07 + 0.3);
+    var c = in.col.rgb * (0.88 + 0.16 * n1.r) * (0.93 + 0.1 * n2.a * near) * (0.86 + 0.18 * streak);
+    c = mix(c, c * vec3f(0.78, 0.76, 0.72), smoothstep(0.55, 0.8, blot.g) * 0.5);
+    let hgW = wp.y - wmHeight(wp.xz);
+    c = mix(c, vec3f(0.26, 0.12, 0.06) * (0.7 + 0.5 * n2.g), (1.0 - smoothstep(0.0, 0.5 + 0.3 * n1.b, hgW)) * step(hgW, 2.0) * 0.6);
+    let cr = abs(n2.b * 0.6 + n1.g * 0.5 - 0.55); let crk = (1.0 - smoothstep(0.0, max(fwidth(cr), 1e-4) * 1.2, cr)) * smoothstep(0.6, 0.75, blot.r) * near;
+    s.albedo = mix(c, c * 0.5, crk * 0.6); s.rough = 0.78 + 0.15 * matA(in.mat) * 0.2;
+    bump = (vec3f(n2.r, n2.g, n2.b) - 0.5) * 0.12 * near;
+  } else if (id == 20u) {
+    // telha cerâmica colonial: fiadas (0,38 m) e canais (0,21 m), tom variando de telha para telha, limo e encardido
+    let u = in.uv.x / 0.21; let v = in.uv.y / 0.38;
+    let fw = fwidth(u) + fwidth(v); let k = 1.0 - smoothstep(0.3, 1.0, fw);
+    let wave = sin(u * 6.2832); let row = fract(v);
+    let cell = floor(vec2f(u, v)); let h = fract(sin(dot(cell, vec2f(12.9898, 78.233))) * 43758.5453);
+    var c = in.col.rgb * (0.78 + 0.34 * h * k + 0.17 * (1.0 - k)) * (0.85 + 0.25 * n1.r);
+    c *= 1.0 - (0.22 * (0.5 - 0.5 * wave) + 0.3 * smoothstep(0.85, 1.0, row)) * k;
+    c = mix(c, vec3f(0.07, 0.07, 0.05), smoothstep(0.55, 0.8, n1.b * 0.6 + n2.g * 0.4) * 0.45);
+    s.albedo = c; s.rough = 0.72; s.ao *= 1.0 - 0.25 * smoothstep(0.85, 1.0, row) * k;
+    let tg = normalize(cross(vec3f(0.0, 1.0, 0.0), N) + vec3f(1e-5, 0.0, 0.0));
+    s.normal = normalize(N + tg * cos(u * 6.2832) * 0.45 * k);
+  } else if (id == 21u) {
+    // janela: caixilho (cor do vértice), vidro escuro refletindo o céu e grade de segurança de barras verticais
+    let w = in.uv; let aa = max(fwidth(w.x) + fwidth(w.y), 0.003);
+    let mid = 1.0 - smoothstep(0.02, 0.02 + aa, abs(fract(w.x / 0.65 + 0.5) - 0.5) * 0.65);
+    let bars = (1.0 - smoothstep(0.012, 0.012 + aa, abs(fract(w.x / 0.13) - 0.5) * 0.13)) * (1.0 - smoothstep(30.0, 80.0, dist));
+    let glass = mix(vec3f(0.035, 0.045, 0.055), vec3f(0.16, 0.2, 0.25), smoothstep(0.0, 1.4, w.y) * (0.5 + 0.5 * n1.g));
+    var c = glass; c = mix(c, in.col.rgb * 0.8, mid * 0.9); c = mix(c, vec3f(0.06, 0.06, 0.065), bars * 0.85);
+    s.albedo = c; s.metal = 0.2; s.rough = mix(0.08, 0.5, max(mid, bars)); s.coat = 1.0 - max(mid, bars);
+    // à noite parte das janelas fica acesa (luz amarelada atrás do vidro e da grade)
+    let lit = step(0.45, hash21(floor(wp.xz / 2.7) + floor(wp.y / 2.6) * 7.1)) * F.sunDir.w;
+    if (lit > 0.0) { s.albedo = mix(s.albedo, vec3f(0.95, 0.72, 0.42) * (1.0 - bars * 0.85), lit * (1.0 - mid)); s.emissive = 0.42 * lit * (1.0 - max(mid, bars)); s.coat = s.coat * (1.0 - lit); }
+  } else if (id == 22u) {
+    // tijolinho aparente: fiadas de 7,5 cm, tijolos de 24 cm em amarração, rejunte claro, tom variando de peça para peça
+    let u = in.uv.x / 0.25; let v = in.uv.y / 0.08; let row = floor(v);
+    let uu = u + 0.5 * (row - 2.0 * floor(row * 0.5));
+    let cell = vec2f(floor(uu), row); let h = fract(sin(dot(cell, vec2f(12.9898, 78.233))) * 43758.5453);
+    let fx = abs(fract(uu) - 0.5); let fy = abs(fract(v) - 0.5);
+    let aa = fwidth(u) + fwidth(v); let k = 1.0 - smoothstep(0.25, 0.8, aa);
+    let mort = max(1.0 - smoothstep(0.42, 0.47, fx), 0.0); let mort2 = smoothstep(0.38, 0.44, fy); let jm = max(smoothstep(0.43, 0.48, fx), mort2) * k;
+    var c = in.col.rgb * (0.78 + 0.42 * h) * (0.9 + 0.2 * n1.r);
+    c = mix(c, vec3f(0.55, 0.52, 0.47), jm * 0.85 + (1.0 - k) * 0.12);
+    s.albedo = c; s.rough = 0.85; s.ao *= 1.0 - jm * 0.25;
+    bump = (vec3f(n2.r, n2.g, n2.b) - 0.5) * 0.15 * near;
+  } else if (id == 23u) {
+    // piso de bloquete de concreto vermelho (praças): peças de 20 x 10 cm em espinha, juntas escuras, desbotado e com folhas
+    let q = in.uv / vec2f(0.2, 0.1); let row = floor(q.y); let qq = vec2f(q.x + 0.5 * (row - 2.0 * floor(row * 0.5)), q.y);
+    let cell = floor(qq); let h = fract(sin(dot(cell, vec2f(12.9898, 78.233))) * 43758.5453);
+    let f = abs(fract(qq) - 0.5); let aa = fwidth(q.x) + fwidth(q.y); let k = 1.0 - smoothstep(0.3, 0.9, aa);
+    let jm = max(smoothstep(0.42, 0.49, f.x), smoothstep(0.38, 0.48, f.y)) * k;
+    var c = in.col.rgb * (0.8 + 0.35 * h) * (0.8 + 0.35 * n1.r);
+    c = mix(c, c * vec3f(1.1, 1.05, 1.0) + 0.03, smoothstep(0.5, 0.8, n1.g) * 0.5);      // desbotado pelo sol
+    c = mix(c, vec3f(0.12, 0.1, 0.06), smoothstep(0.7, 0.85, n2.b * 0.6 + n1.b * 0.4) * 0.5);
+    s.albedo = mix(c, c * 0.4, jm * 0.8); s.rough = 0.88; s.ao *= 1.0 - jm * 0.3;
+    bump = (vec3f(n2.r, n2.g, n2.b) - 0.5) * 0.1 * near;
+  } else if (id == 25u) {
+    // luz sempre acesa (LED de loja): a cor do vértice, emissão pela intensidade em matA
+    s.albedo = in.col.rgb; s.emissive = matA(in.mat) * 0.8; s.rough = 0.3;
+  } else if (id == 24u) {
+    // lente da luminária pública: acende ao anoitecer
+    s.albedo = mix(vec3f(0.55, 0.55, 0.52), in.col.rgb, F.sunDir.w); s.emissive = matA(in.mat) * F.sunDir.w; s.rough = 0.25;
   } else {
     s.albedo = in.col.rgb;
   }

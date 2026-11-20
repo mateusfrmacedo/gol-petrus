@@ -55,6 +55,8 @@ fn altOf(p: vec3f) -> f32 { return length(p + vec3f(0.0, RP, 0.0)) - RP; }
   let d = skyDirFromUV(in.uv); let sun = U.sun.xyz; let alt = 40.0;
   let full = atmosphere(d, sun, alt, 1e9);
   var col = full.rgb; var Tc = 1.0;
+  let dayK = smoothstep(-0.12, 0.08, sun.y);   // à noite as nuvens perdem a luz ambiente do céu (fica só um resto azulado da lua)
+  let nAmb = vec3f(0.0025, 0.003, 0.0045) * (1.0 - dayK);
   if (d.y > 0.004) {
     let o = vec3f(0.0, RP + alt, 0.0);
     // cirros altos (camada 2D a 9,5 km)
@@ -65,7 +67,7 @@ fn altOf(p: vec3f) -> f32 { return length(p + vec3f(0.0, RP, 0.0)) - RP; }
     let sunHi = SUN_I * transm(optDepth(vec3f(0.0, RP + 9500.0, 0.0), sun, 8));
     let cph = phM(dot(d, sun), 0.6) * 2.2 + 0.11;
     let nearC = atmosphere(d, sun, alt, tci);
-    col = mix(col, nearC.rgb + nearC.a * (sunHi * cph + vec3f(0.10, 0.14, 0.22)), ci);
+    col = mix(col, nearC.rgb + nearC.a * (sunHi * cph + vec3f(0.10, 0.14, 0.22) * dayK) + nAmb, ci);
     // cúmulos
     let t0 = raySphere(o, d, RP + CB).y; let t1 = min(raySphere(o, d, RP + CT).y, 90000.0);
     if (t1 > t0) {
@@ -91,7 +93,7 @@ fn altOf(p: vec3f) -> f32 { return length(p + vec3f(0.0, RP, 0.0)) - RP; }
           let lsun = sunC * (exp(-e) * ph + 0.5 * exp(-e * 0.3) * mix(ph, 0.08, 0.55) + 0.28 * exp(-e * 0.09) * 0.08);
           let powder = 1.0 - exp(-e * 2.0 - sig * 60.0);
           let amb = mix(vec3f(0.30, 0.34, 0.44), vec3f(0.50, 0.64, 0.95), sat(hn * 1.2)) * 0.34 * SUN_I * 0.05 * (0.6 + 0.4 * exp(-e * 0.6));
-          let L = lsun * mix(0.55, 1.0, powder) * 3.2 + amb;
+          let L = lsun * mix(0.55, 1.0, powder) * 3.2 + amb * dayK + nAmb;
           let a = 1.0 - exp(-sig * dt);
           S += Tc * a * L; tw += Tc * a * t; ww += Tc * a; Tc *= 1.0 - a;
         }
@@ -102,5 +104,6 @@ fn altOf(p: vec3f) -> f32 { return length(p + vec3f(0.0, RP, 0.0)) - RP; }
       }
     }
   }
-  return vec4f(col, Tc);
+  col = select(col, vec3f(0.0), col != col);   // proteção contra NaN com o sol abaixo do horizonte
+  return vec4f(max(col, vec3f(0.0)), Tc);
 }

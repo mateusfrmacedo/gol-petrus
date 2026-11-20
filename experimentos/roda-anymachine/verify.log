@@ -1,0 +1,33 @@
+08:17:43 | INFO: Data are loaded, start creating Blender stuff
+08:17:43 | INFO: Blender create Mesh node Alojamento parafuso 1
+08:17:43 | INFO: Blender create Mesh node Alojamento parafuso 2
+08:17:43 | INFO: Blender create Mesh node Alojamento parafuso 3
+08:17:43 | INFO: Blender create Mesh node Alojamento parafuso 4
+08:17:43 | INFO: Blender create Mesh node Apoio grafite 1.1
+08:17:43 | INFO: Blender create Mesh node Apoio grafite 1.-1
+08:17:43 | INFO: Blender create Mesh node Apoio grafite 2.1
+08:17:43 | INFO: Blender create Mesh node Apoio grafite 2.-1
+08:17:43 | INFO: Blender create Mesh node Apoio grafite 3.1
+08:17:43 | INFO: Blender create Mesh node Apoio grafite 3.-1
+08:17:43 | INFO: Blender create Mesh node Apoio grafite 4.1
+08:17:43 | INFO: Blender create Mesh node Apoio grafite 4.-1
+08:17:43 | INFO: Blender create Mesh node Apoio grafite 5.1
+08:17:43 | INFO: Blender create Mesh node Apoio grafite 5.-1
+08:17:43 | INFO: Blender create Mesh node Aro emblema
+08:17:43 | INFO: Blender create Mesh node Calota preta
+08:17:43 | INFO: Blender create Mesh node Disco UV emblema
+08:17:43 | INFO: Blender create Mesh node Face medida nas fotos
+08:17:43 | INFO: Blender create Mesh node Friso lateral pneu
+08:17:43 | INFO: Blender create Mesh node Friso lateral pneu.001
+08:17:43 | INFO: Blender create Mesh node Friso lateral pneu.002
+08:17:43 | INFO: Blender create Mesh node Friso lateral pneu.003
+08:17:43 | INFO: Blender create Mesh node Labio frontal polido
+08:17:43 | INFO: Blender create Mesh node Labio traseiro
+08:17:43 | INFO: Blender create Mesh node Parafuso sextavado 1
+08:17:43 | INFO: Blender create Mesh node Parafuso sextavado 2
+08:17:43 | INFO: Blender create Mesh node Parafuso sextavado 3
+08:17:43 | INFO: Blender create Mesh node Parafuso sextavado 4
+08:17:43 | INFO: Blender create Mesh node Pneu · perfil e sulcos
+08:17:43 | INFO: Blender create Mesh node Tambor grafite
+08:17:43 | INFO: glTF import finished in 0.10s
+{"passed": true, "meshes_reimported": 30, "dimensions_m": [0.56596, 0.56596, 0.212], "animations": 1, "half_turn_rad": 3.141592502593994, "embedded_images": 1}

@@ -10,9 +10,8 @@ function atmSunColor(dirY) {
 }
 async function skyInit(progress) {
   const dev = G.dev, T = R.tex, V = R.view;
-  R.sun[0] = Math.cos(SUN_EL) * Math.cos(SUN_AZ); R.sun[1] = Math.sin(SUN_EL); R.sun[2] = Math.cos(SUN_EL) * Math.sin(SUN_AZ);
-  // cor do sol: transmitância da atmosfera como se o sol estivesse um pouco mais baixo (tom mais quente), com ganho artístico
-  const sc = atmSunColor(Math.sin(14.5 * PI / 180)); R.sunCol[0] = sc[0] * 1.5; R.sunCol[1] = sc[1] * 1.5; R.sunCol[2] = sc[2] * 1.5;
+  // sol e cor do sol pela hora do dia (24_tempo.js); o céu é gerado para a posição real do sol (abaixo do horizonte à noite)
+  todApply(); TOD.bakeSun.set(TOD.real); TOD.bakeCover = CLIMA.cur.cover;
   // ruído
   const nb = mkPost('noisebake', {}, ['rgba8unorm']);
   const ub = mkBuf(65 * 256, BU.U), ud = new Float32Array(65 * 64);
@@ -26,8 +25,9 @@ async function skyInit(progress) {
   genMips(T.noise, 'rgba8unorm');
   // céu, em faixas (para não travar a GPU num único comando longo)
   const sb = mkPost('skybake', {}, ['rgba16float']);
-  const su = mkBuf(32, BU.U, new Float32Array([R.sun[0], R.sun[1], R.sun[2], 0, 0.57, 0, 0, 0]));
+  const su = mkBuf(32, BU.U, new Float32Array([TOD.real[0], TOD.real[1], TOD.real[2], 0, CLIMA.cur.cover, 0, 0, 0]));
   const sbg = bgOf(sb, 0, [su, V.noise3, V.noise, R.sLin]);
+  R.skyBake = { sb, sbg, su };
   const strips = 16;
   for (let i = 0; i < strips; i++) {
     enc = dev.createCommandEncoder();

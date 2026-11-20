@@ -30,7 +30,7 @@ fn tone(c: vec3f) -> vec3f { return agx(c); }
 @fragment fn fs(in: FsV) -> @location(0) vec4f {
   let p = vec2i(in.pos.xy); let dim = vec2i(F.screen.xy) - 1;
   // exposição automática parcial: compensa ~50% da variação de luminância (cenas escuras continuam um pouco mais escuras)
-  let lavg = clamp(textureLoad(tExp, vec2i(0), 0).r, 0.02, 3.0);
+  let lavg = clamp(textureLoad(tExp, vec2i(0), 0).r, 0.008, 3.0);
   let ex = F.misc.z * 0.094 * pow(0.16 / lavg, 0.5) / 0.16;
   var c = textureLoad(tCol, p, 0).rgb;
   // nitidez (em espaço de tons) com os 4 vizinhos
@@ -54,8 +54,23 @@ fn tone(c: vec3f) -> vec3f { return agx(c); }
       let halo = 0.05 / (1.0 + pow(r / 0.045, 2.0)) + 0.012 / (1.0 + pow(r / 0.25, 2.0));
       let rays = (pow(abs(cos(an * 3.0 + 0.4)), 40.0) * 0.5 + pow(abs(cos(an * 7.0 + 1.1)), 90.0) * 0.25) * 0.05 / (1.0 + pow(r / 0.16, 2.0));
       let streak = 0.03 * exp(-abs(dv.y) * 90.0) / (1.0 + pow(abs(dv.x) / 0.3, 2.0));
-      c += F.sunCol.rgb * (halo + rays + streak) * vis * 0.32;
+      c += F.sunCol.rgb * (halo + rays + streak) * vis * 0.32 * F.clima.w;
     }
+  }
+  // clarão de raio (tempestade): o quadro inteiro clareia por um instante
+  c = c * (1.0 + F.clima.z * 2.5) + vec3f(0.55, 0.6, 0.75) * F.clima.z * lavg * 0.6;
+  // chuva: riscos finos inclinados caindo em duas camadas (perto mais rápida e grossa), sobre a imagem
+  if (F.clima.y > 0.001) {
+    let t = F.wind.w; var rs = 0.0;
+    for (var k = 0; k < 2; k++) {
+      let fk = f32(k); let sc = vec2f(mix(90.0, 170.0, fk), mix(5.0, 9.0, fk));
+      var q = vec2f(in.uv.x * F.post.z + in.uv.y * 0.12, in.uv.y) * sc; q.y = q.y - t * mix(9.0, 13.0, fk);
+      let cell = floor(q); let f = fract(q); let h = hash21(cell + fk * 17.0);
+      let on = step(1.0 - F.clima.y * mix(0.35, 0.22, fk), h);
+      let x0 = 0.2 + 0.6 * fract(h * 7.31); let len = 0.35 + 0.5 * fract(h * 3.7);
+      rs += on * smoothstep(0.09, 0.0, abs(f.x - x0)) * smoothstep(0.0, 0.2, f.y) * step(f.y, len) * mix(0.8, 0.5, fk);
+    }
+    c = mix(c, c * 0.92 + vec3f(lavg * 0.9 + 0.02), sat(rs) * 0.35);
   }
   // vinheta
   let q = (in.uv - 0.5) * vec2f(F.post.z / 1.7778, 1.0); let vg = 1.0 - smoothstep(0.35, 1.25, length(q) * 1.45) * 0.42;

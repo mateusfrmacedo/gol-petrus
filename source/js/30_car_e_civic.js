@@ -8,7 +8,7 @@ const CIVIC = {
     const buffer = await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate'))).arrayBuffer();
     this.slotBody = objSlot();
     for (let i = 0; i < 4; i++) { this.slotWheel.push(objSlot()); this.slotBrake.push(objSlot()); }
-    const fam = this.fam = mkFamily('civic', { src: 'mat_civic', noCube: true, cull: 'none' });
+    const fam = this.fam = mkFamily('civic', { src: 'mat_civic', noCube: true, cull: 'none', defs: { NO_WET: '' } });
     const set = this.set = new MeshSet(fam);
     const mul = mkFwdFamily('civicGlassMul', { src: 'civic_glass', defs: { GLASS_MUL: '' }, blend: { color: { srcFactor: 'dst', dstFactor: 'zero' }, alpha: { srcFactor: 'zero', dstFactor: 'one' } } });
     const add = mkFwdFamily('civicGlassAdd', { src: 'civic_glass', defs: { GLASS_ADD: '' }, blend: { color: { srcFactor: 'one', dstFactor: 'one' }, alpha: { srcFactor: 'zero', dstFactor: 'one' } } });

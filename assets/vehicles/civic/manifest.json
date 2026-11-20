@@ -2,7 +2,7 @@
   "name": "Honda Civic",
   "author": "SQUIR3D",
   "source": "https://sketchfab.com/3d-models/honda-civic-2019-598a9665b5214a01b3379502899e5823",
-  "meshes": 227,
+  "meshes": 225,
   "originalSourceMeshes": 237,
   "originalSourceTriangles": 1157481,
   "wheelStyle": {
@@ -60,8 +60,12 @@
     "gum_35_gum_0",
     "gum_36_gum_0"
   ],
-  "triangles": 1088317,
-  "vertices": 800465,
+  "removedPlateMeshes": [
+    "plate_01_plate_0",
+    "plate_02_plate_0"
+  ],
+  "triangles": 1085309,
+  "vertices": 798599,
   "hubs": [
     [
       1.346055,
@@ -123,311 +127,304 @@
     },
     {
       "dest": 0,
-      "mat": 3,
-      "nv": 1866,
-      "ni": 9024,
-      "offset": 2591696
-    },
-    {
-      "dest": 0,
       "mat": 4,
       "nv": 3978,
       "ni": 20352,
-      "offset": 2687504
+      "offset": 2591696
     },
     {
       "dest": 0,
       "mat": 6,
       "nv": 2613,
       "ni": 15120,
-      "offset": 2896208
+      "offset": 2800400
     },
     {
       "dest": 0,
       "mat": 8,
       "nv": 39462,
       "ni": 214908,
-      "offset": 3040304
+      "offset": 2944496
     },
     {
       "dest": 0,
       "mat": 9,
       "nv": 224587,
       "ni": 647016,
-      "offset": 5162720
+      "offset": 5066912
     },
     {
       "dest": 0,
       "mat": 10,
       "nv": 270,
       "ni": 1152,
-      "offset": 14937568
+      "offset": 14841760
     },
     {
       "dest": 0,
       "mat": 11,
       "nv": 47856,
       "ni": 222315,
-      "offset": 14950816
+      "offset": 14855008
     },
     {
       "dest": 0,
       "mat": 12,
       "nv": 89810,
       "ni": 466116,
-      "offset": 17371468
+      "offset": 17275660
     },
     {
       "dest": 0,
       "mat": 13,
       "nv": 12318,
       "ni": 47394,
-      "offset": 22109852
+      "offset": 22014044
     },
     {
       "dest": 0,
       "mat": 14,
       "nv": 10263,
       "ni": 45912,
-      "offset": 22693604
+      "offset": 22597796
     },
     {
       "dest": 0,
       "mat": 15,
       "nv": 8519,
       "ni": 30366,
-      "offset": 23205668
+      "offset": 23109860
     },
     {
       "dest": 0,
       "mat": 16,
       "nv": 20356,
       "ni": 101754,
-      "offset": 23599740
+      "offset": 23503932
     },
     {
       "dest": 0,
       "mat": 18,
       "nv": 4234,
       "ni": 18504,
-      "offset": 24658148
+      "offset": 24562340
     },
     {
       "dest": 0,
       "mat": 19,
       "nv": 12300,
       "ni": 60216,
-      "offset": 24867652
+      "offset": 24771844
     },
     {
       "dest": 0,
       "mat": 20,
       "nv": 70304,
       "ni": 322842,
-      "offset": 25502116
+      "offset": 25406308
     },
     {
       "dest": 0,
       "mat": 23,
       "nv": 37410,
       "ni": 199824,
-      "offset": 29043212
+      "offset": 28947404
     },
     {
       "dest": 1,
       "mat": 5,
       "nv": 4020,
       "ni": 21600,
-      "offset": 31039628
+      "offset": 30943820
     },
     {
       "dest": 1,
       "mat": 7,
       "nv": 2772,
       "ni": 14688,
-      "offset": 31254668
+      "offset": 31158860
     },
     {
       "dest": 1,
       "mat": 11,
       "nv": 1211,
       "ni": 3510,
-      "offset": 31402124
+      "offset": 31306316
     },
     {
       "dest": 1,
       "mat": 21,
       "nv": 6279,
       "ni": 35886,
-      "offset": 31454916
+      "offset": 31359108
     },
     {
       "dest": 1,
       "mat": 22,
       "nv": 13883,
       "ni": 53262,
-      "offset": 31799388
+      "offset": 31703580
     },
     {
       "dest": 2,
       "mat": 5,
       "nv": 4020,
       "ni": 21600,
-      "offset": 32456692
+      "offset": 32360884
     },
     {
       "dest": 2,
       "mat": 7,
       "nv": 2772,
       "ni": 14688,
-      "offset": 32671732
+      "offset": 32575924
     },
     {
       "dest": 2,
       "mat": 11,
       "nv": 1211,
       "ni": 3510,
-      "offset": 32819188
+      "offset": 32723380
     },
     {
       "dest": 2,
       "mat": 21,
       "nv": 6279,
       "ni": 35886,
-      "offset": 32871980
+      "offset": 32776172
     },
     {
       "dest": 2,
       "mat": 22,
       "nv": 13883,
       "ni": 53262,
-      "offset": 33216452
+      "offset": 33120644
     },
     {
       "dest": 3,
       "mat": 5,
       "nv": 4020,
       "ni": 21600,
-      "offset": 33873756
+      "offset": 33777948
     },
     {
       "dest": 3,
       "mat": 7,
       "nv": 2772,
       "ni": 14688,
-      "offset": 34088796
+      "offset": 33992988
     },
     {
       "dest": 3,
       "mat": 11,
       "nv": 1211,
       "ni": 3510,
-      "offset": 34236252
+      "offset": 34140444
     },
     {
       "dest": 3,
       "mat": 21,
       "nv": 6279,
       "ni": 35886,
-      "offset": 34289044
+      "offset": 34193236
     },
     {
       "dest": 3,
       "mat": 22,
       "nv": 13883,
       "ni": 53262,
-      "offset": 34633516
+      "offset": 34537708
     },
     {
       "dest": 4,
       "mat": 5,
       "nv": 4020,
       "ni": 21600,
-      "offset": 35290820
+      "offset": 35195012
     },
     {
       "dest": 4,
       "mat": 7,
       "nv": 2772,
       "ni": 14688,
-      "offset": 35505860
+      "offset": 35410052
     },
     {
       "dest": 4,
       "mat": 11,
       "nv": 1211,
       "ni": 3510,
-      "offset": 35653316
+      "offset": 35557508
     },
     {
       "dest": 4,
       "mat": 21,
       "nv": 6279,
       "ni": 35886,
-      "offset": 35706108
+      "offset": 35610300
     },
     {
       "dest": 4,
       "mat": 22,
       "nv": 13883,
       "ni": 53262,
-      "offset": 36050580
+      "offset": 35954772
     },
     {
       "dest": 5,
       "mat": 17,
       "nv": 3235,
       "ni": 12468,
-      "offset": 36707884
+      "offset": 36612076
     },
     {
       "dest": 5,
       "mat": 20,
       "nv": 1060,
       "ni": 2790,
-      "offset": 36861276
+      "offset": 36765468
     },
     {
       "dest": 6,
       "mat": 17,
       "nv": 10733,
       "ni": 50760,
-      "offset": 36906356
+      "offset": 36810548
     },
     {
       "dest": 6,
       "mat": 20,
       "nv": 1060,
       "ni": 2790,
-      "offset": 37452852
+      "offset": 37357044
     },
     {
       "dest": 7,
       "mat": 17,
       "nv": 10633,
       "ni": 50760,
-      "offset": 37497932
+      "offset": 37402124
     },
     {
       "dest": 7,
       "mat": 20,
       "nv": 1060,
       "ni": 2790,
-      "offset": 38041228
+      "offset": 37945420
     },
     {
       "dest": 8,
       "mat": 17,
       "nv": 10633,
       "ni": 50760,
-      "offset": 38086308
+      "offset": 37990500
     },
     {
       "dest": 8,
       "mat": 20,
       "nv": 1060,
       "ni": 2790,
-      "offset": 38629604
+      "offset": 38533796
     }
   ],
   "sourceMeshes": [
@@ -924,12 +921,6 @@
       "triangles": 120
     },
     {
-      "name": "plate_02_plate_0",
-      "material": "plate",
-      "destination": 0,
-      "triangles": 1504
-    },
-    {
       "name": "gum_46_gum_0",
       "material": "gum",
       "destination": 5,
@@ -1378,12 +1369,6 @@
       "material": "gum",
       "destination": 0,
       "triangles": 2732
-    },
-    {
-      "name": "plate_01_plate_0",
-      "material": "plate",
-      "destination": 0,
-      "triangles": 1504
     },
     {
       "name": "r_glass_06_r_glass_0",

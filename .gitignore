@@ -20,3 +20,13 @@ assets/interior/painel-detalhes.png
 # Arquivos de trabalho e ferramentas locais; não publicar referências originais.
 .local-backups/
 .tools/
+
+# Referências originais e cópias locais de distribuição.
+/*.jpg
+/*.jpeg
+/*.png
+/*.textClipping
+/*.zip
+*.blend1
+*.blend2
+modelo/gol-refinado/revisao/referencias-contato.jpg
