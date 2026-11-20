@@ -5527,7 +5527,7 @@ function cityShops() {
   for (const [name, lat, lon, bg, fg, rua] of CITY_SHOPS) {
     const x = (lon + 49.4981) * kx, z = -(lat + 21.0164) * kz;
     let best = null, bd = 30 * 30;
-    for (const h of C.houses) { const d = (h.x - x) ** 2 + (h.z - z) ** 2; if (d < bd && !h.shop && (!rua || C.chains[h.ch].cls.name === rua)) { bd = d; best = h; } }
+    for (const h of C.houses) { const d = (h.x - x) ** 2 + (h.z - z) ** 2; if (d < bd && !h.shop && !h.borghiRef && (!rua || C.chains[h.ch].cls.name === rua)) { bd = d; best = h; } }
     if (!best) continue;
     best.shop = name; best.comm = true; best.wall = false; best.two = false; best.signBg = bg; best.signFg = fg;
     if (name === 'MARKIN MOTOS') best.col = [0.22, 0.23, 0.24];
@@ -5538,7 +5538,7 @@ function cityShops() {
   for (const p of C.pois) {
     if (!p.name || !/^(fast_food|bar|cafe|restaurant|pharmacy)$/.test(p.tags.am || '')) continue;
     let best = null, bd = 25 * 25;
-    for (const h of C.houses) { const d = (h.x - p.x) ** 2 + (h.z - p.z) ** 2; if (d < bd && !h.shop) { bd = d; best = h; } }
+    for (const h of C.houses) { const d = (h.x - p.x) ** 2 + (h.z - p.z) ** 2; if (d < bd && !h.shop && !h.borghiRef) { bd = d; best = h; } }
     if (!best) continue;
     best.shop = p.name.toUpperCase(); best.comm = true; best.wall = false; best.two = false; best.signBg = p.tags.am === 'bar' ? '#4e342e' : '#e65100'; best.signFg = '#fff';
   }

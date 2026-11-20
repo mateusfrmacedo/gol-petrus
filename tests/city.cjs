@@ -29,6 +29,7 @@ for (const ch of C.chains.filter(c=>c.cls.urban).slice(0,60)) { if(ch.L-ch.trimA
 // lugares modelados presentes e reservados (nenhuma casa genérica em cima)
 for (const k of ['borghi','sacoi','petrus','matriz']) assert(MARCOS[k],'lugar '+k);
 for (const k of ['borghi','sacoi','petrus']) { const M=MARCOS[k]; for (const h of C.houses) assert(Math.hypot(h.x-M.ox,h.z-M.oz)>9,'casa sobre '+k); }
+assert(C.houses.some(h=>h.shop==='MARKIN MOTOS' && !h.borghiRef), 'oficina preservada fora dos lotes residenciais de referência');
 assert(C.houses.filter(h=>h.borghiRef).length===5, 'cinco lotes de referência no entorno da Borghi');
 assert(MARCOS.borghi.neighbors.every(h=>C.houses.includes(h)), 'lotes da Borghi preservados após resolver sobreposições');
 assert(MARCOS.matriz.paved.length>800 && MARCOS.trees.length>40,'praça matriz com piso e árvores');
