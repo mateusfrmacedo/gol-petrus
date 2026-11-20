@@ -1,6 +1,6 @@
 # Mapa de Nova Aliança (SP)
 
-Segundo mapa do jogo, escolhido no menu (**Mapa → Cidade de Nova Aliança**) ou pelo endereço `?mapa=nova-alianca`.
+Mapa padrão para novos jogadores, escolhido no menu (**Mapa → Cidade de Nova Aliança**) ou pelo endereço `?mapa=nova-alianca`.
 
 ## Origem dos dados
 
@@ -62,3 +62,7 @@ As imagens foram usadas apenas para observação: não são distribuídas nem ap
 Fontes: `source/js/12_city5_borghi.js` (lotes, fachadas e pintura) e `12_city4_marcos.js` (loja). A prancha de conferência em três horários é aberta com `?mapa=nova-alianca&fotos=borghi`.
 
 ![Prancha do entorno da Borghi, de dia, ao entardecer e à noite](revisao/borghi-entorno.jpg)
+
+O Gol começa na Rua do Comércio, em frente à saída da Borghi Veículos, na faixa do lado da loja e alinhado em direção ao centro. O ponto fica no asfalto para permitir sair imediatamente, sem atravessar grades ou construções. A seleção explícita de circuito pelo menu ou endereço continua disponível.
+
+![Gol no ponto inicial junto à saída da Borghi](revisao/partida-borghi.jpg)

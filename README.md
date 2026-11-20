@@ -33,7 +33,7 @@ Referência: [solução de problemas WebGPU — Chrome for Developers](https://d
 
 ### Cidade de Nova Aliança (SP)
 
-Segundo mapa selecionável em **Mapa → Cidade de Nova Aliança**, com área jogável de **3,2 × 2,6 km**. O traçado usa dados locais do OpenStreetMap e o relevo usa uma grade SRTM de 81 × 81 pontos, espaçados em 80 m. Os arquivos originais e o formato estão no [guia do mapa](mapas/nova-alianca/README.md).
+Mapa padrão para novos jogadores, também selecionável em **Mapa → Cidade de Nova Aliança**, com área jogável de **3,2 × 2,6 km**. O traçado usa dados locais do OpenStreetMap e o relevo usa uma grade SRTM de 81 × 81 pontos, espaçados em 80 m. Os arquivos originais e o formato estão no [guia do mapa](mapas/nova-alianca/README.md).
 
 A auditoria de 20/11/2026 contabilizou **608 trechos de vias, 370 cruzamentos, 97 nomes de vias, 58,7 km de ruas e 3.444 casas**. Esses números descrevem o cenário gerado dentro do recorte jogável, não um cadastro completo da cidade real.
 
@@ -42,7 +42,7 @@ A auditoria de 20/11/2026 contabilizou **608 trechos de vias, 370 cruzamentos, 9
 - Quarteirão da Borghi revisado pelo Street View: cinco lotes próprios, mercearia verde em frente, casas de esquina, muros, jardim e quintal gradeado; ajustes na loja, terreno local e pintura PARE na Francisco Coco.
 - Fachadas do centro ampliadas, incluindo Banco do Brasil, Padaria do Parque, posto da Polícia Militar, Aliança Saúde e Oquelifibra; Paço Municipal com fachada própria, escadaria e rampa.
 - Lugares modelados: **Borghi Veículos**, **Supermercado Sacoi**, **casa do Petrus**, **Praça Matriz Padre João Nolte e Paróquia Nossa Senhora Aparecida**, além do portal e do letreiro na entrada da cidade.
-- Terreno e altura das ruas integrados à física, colisões com construções e obstáculos, posição inicial na rua e retorno pela tecla **R**.
+- Terreno e altura das ruas integrados à física, colisões com construções e obstáculos, posição inicial em frente à saída da Borghi Veículos, na faixa da direita em direção ao centro, e retorno pela tecla **R**.
 - Minimapa da cidade, exibido ou ocultado com **N**.
 
 O traçado e o relevo vêm de dados geográficos; prédios, fachadas e marcos são reconstruções visuais aproximadas. A auditoria atual não encontrou casas sobre ruas nem construções sobrepostas. Permanecem para conferência um ponto do traçado OSM fora da pista gerada, um trecho isolado que sai pela borda do mapa, dez rampas fortes e 45 trechos urbanos sem nome. Os alertas indicam locais a revisar; não confirmam, por si só, erros na cidade real.

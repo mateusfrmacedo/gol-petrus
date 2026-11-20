@@ -170,7 +170,7 @@ function cityPlace(ch, s, dir) {
   for (let k = 0; k < 6; k++) vehicleGround(1);
   vehicleSavePrev();
 }
-function citySpawn() { const sp = CITY.spawn; cityPlace(sp.ch, sp.s, -1); }
+function citySpawn() { const sp = CITY.spawn; cityPlace(sp.ch, sp.s, sp.dir); }
 function cityTour(i) { const t = CITY.tour[i % CITY.tour.length]; cityPlace(t.ch, t.s, i & 1 ? 1 : -1); }
 // R: volta para a rua mais próxima, no sentido mais parecido com o do carro
 function cityRecover() {

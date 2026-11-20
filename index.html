@@ -4821,7 +4821,7 @@ CITY.on = (() => {
   const m = Q.get('mapa');
   if (m) return m === 'nova-alianca';
   if (typeof GAME !== 'undefined' && (GAME.capture || GAME.mode !== 'game')) return false;
-  try { return localStorage.getItem('gol-mapa') === 'nova-alianca'; } catch (e) { return false; }
+  try { return localStorage.getItem('gol-mapa') !== 'circuito'; } catch (e) { return true; }
 })();
 
 // ---------- relevo (SRTM, grade 81x81 de 80 m, interpolação bicúbica: sem vincos na grade) ----------
@@ -5401,12 +5401,21 @@ function cityBuild() {
   cityRasters(); cityNatGrid(); cityNearGrid(); cityForestBuild(); cityLots();
   // pontas cortadas na borda da área: barreiras
   for (const nd of C.nodes) if (nd.ends.length === 1 && (Math.abs(nd.x - C.X0) < 0.6 || Math.abs(nd.x - C.X1) < 0.6 || Math.abs(nd.z - C.Z0) < 0.6 || Math.abs(nd.z - C.Z1) < 0.6)) C.ends.push(nd);
-  // ponto de partida: Rua do Comércio, junto à igreja; faixa da direita
-  const o = new Float64Array(5);
-  let best = null, bd = 1e18;
-  for (const ch of C.chains) if (/Comércio/.test(ch.cls.name) && ch.L > 60) { chainAt(ch, ch.L / 2, o); const d = Math.hypot(o[0] - 40, o[1] + 20); if (d < bd) { bd = d; best = ch; } }
-  if (!best) best = C.chains.reduce((a, b) => (b.cls.urban && b.L > (a ? a.L : 0) ? b : a), null);
-  C.spawn = { ch: best, s: best.L * 0.35 };
+  // Partida em frente à saída da Borghi, na faixa da loja e no sentido do centro.
+  // Usa a via já amostrada, mantendo o Gol no asfalto e fora do cruzamento.
+  const o = new Float64Array(5), M = MARCOS.borghi, target = M.at(-M.D / 2 - 4, 0);
+  let best = null, bs = 0, bd = 1e18, dir = -1;
+  for (const ch of C.chains) {
+    if (!/Comércio/.test(ch.cls.name)) continue;
+    for (let i = 0; i < ch.n; i++) {
+      if (ch.s[i] < ch.trimA + 6 || ch.s[i] > ch.L - ch.trimB - 6) continue;
+      const d = (ch.x[i] - target[0]) ** 2 + (ch.z[i] - target[1]) ** 2;
+      if (d < bd) { bd = d; best = ch; bs = ch.s[i]; }
+    }
+  }
+  if (!best) throw new Error('Não foi encontrada uma saída segura junto à Borghi.');
+  chainAt(best, bs, o); dir = o[3] >= 0 ? 1 : -1;
+  C.spawn = { ch: best, s: bs, dir, name: 'Saída da Borghi Veículos' };
   // passeio para o aquecimento da GPU: pontos espalhados pela cidade e pelas rodovias
   const cand = C.chains.filter(c => c.L > 40 && !c.cls.dirt);
   for (let i = 0; i < 36; i++) { const ch = cand[(i * 7919) % cand.length]; C.tour.push({ ch, s: ch.L * 0.5 }); }
@@ -5764,7 +5773,7 @@ function cityPlace(ch, s, dir) {
   for (let k = 0; k < 6; k++) vehicleGround(1);
   vehicleSavePrev();
 }
-function citySpawn() { const sp = CITY.spawn; cityPlace(sp.ch, sp.s, -1); }
+function citySpawn() { const sp = CITY.spawn; cityPlace(sp.ch, sp.s, sp.dir); }
 function cityTour(i) { const t = CITY.tour[i % CITY.tour.length]; cityPlace(t.ch, t.s, i & 1 ? 1 : -1); }
 // R: volta para a rua mais próxima, no sentido mais parecido com o do carro
 function cityRecover() {

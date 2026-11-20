@@ -1,6 +1,15 @@
 // Mapa de Nova Aliança: dados, malha viária, rasters, física do chão, lugares modelados e malhas (sem GPU).
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
 const read=n=>fs.readFileSync(path.join(__dirname,'../source/js',n),'utf8');
+// Escolha inicial real: cidade por padrão, preservando mapa explícito ou escolha salva.
+const mapChoice=read('12_city1_core.js').match(/CITY\.on = \(\(\) => \{[\s\S]*?\}\)\(\);/)[0];
+function chosenMap(query='', saved=null, capture=false) {
+ const c=vm.createContext({Q:new URLSearchParams(query),GAME:{mode:'game',capture},CITY:{},localStorage:{getItem:()=>saved}});
+ vm.runInContext(mapChoice,c); return c.CITY.on;
+}
+assert.equal(chosenMap(),true); assert.equal(chosenMap('', 'circuito'),false);
+assert.equal(chosenMap('mapa=circuito','nova-alianca'),false);
+assert.equal(chosenMap('mapa=nova-alianca','circuito'),true); assert.equal(chosenMap('',null,true),false);
 const ctx=vm.createContext({console,performance,URLSearchParams,assert});
 vm.runInContext(`const Q=new URLSearchParams('mapa=nova-alianca');const GAME={mode:'game',capture:false};
 ${read('00_math.js')}
@@ -19,6 +28,11 @@ for (const ch of C.chains) { for (let i=1;i<ch.n;i++){ const ds=ch.s[i]-ch.s[i-1
   assert(Math.abs(ch.y[0]-ch.a.y)<1e-6 && Math.abs(ch.y[ch.n-1]-ch.b.y)<1e-6,'pontas presas aos nós'); }
 // partida na via, faixa da direita, longe da borda
 chainAt(C.spawn.ch,C.spawn.s,o); q[0]=o[0];q[1]=o[1]; cityRasterQ(q); assert(q[9]<-1,'partida sobre o asfalto');
+const sp=C.spawn, lane=sp.ch.hw*0.48, sx=o[0]-o[3]*sp.dir*lane, sz=o[1]+o[2]*sp.dir*lane;
+const exit=MARCOS.borghi.at(-MARCOS.borghi.D/2,0);
+assert(Math.hypot(sx-exit[0],sz-exit[1])<8, 'Gol parte junto à saída da Borghi');
+assert(o[3]*sp.dir>0,'Gol alinhado para seguir em direção ao centro');
+q[0]=sx;q[1]=sz;cityRasterQ(q);assert(q[9]<-1,'Gol na faixa da direita, fora da calçada');
 // raster coerente com a malha: o centro de cada cadeia é via, e a 1 m além da calçada urbana não é
 let n=0; for (const ch of C.chains){ if(ch.L-ch.trimA-ch.trimB<4) continue; chainAt(ch,(ch.trimA+ch.L-ch.trimB)/2,o); q[0]=o[0];q[1]=o[1]; if(q[0]<C.X0+2||q[0]>C.X1-2||q[1]<C.Z0+2||q[1]>C.Z1-2) continue; cityRasterQ(q); assert(q[9]<-ch.hw*0.6,'centro da via '+ch.id+' '+q[9]); assert(Math.abs(q[10]-o[4])<0.06,'altura da via no raster '+ch.cls.name+' '+(q[10]-o[4]).toFixed(3)); n++; }
 assert(n>400); if(globalThis.__bad){console.log(globalThis.__bad.length, JSON.stringify(globalThis.__bad.slice(0,12)));}
