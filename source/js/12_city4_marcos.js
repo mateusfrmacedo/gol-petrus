@@ -271,6 +271,7 @@ function marcoBorghi(mb, REG) {
   }
   CITY.addBox({ x: M.at(X - 4.5, 0)[0], z: M.at(X - 4.5, 0)[1], ux: M.ux, uz: M.uz, hd: 4.5, hw: Z });
   { const p = M.at(-X + 2.6, -(Z - 2.1) * zs); CITY.addBox({ x: p[0], z: p[1], ux: M.ux, uz: M.uz, hd: 2.6, hw: 2.1 }); }
+  if (typeof borghiNorthDetails === 'function') borghiNorthDetails(mb);
 }
 // ---------- Supermercado Sacoi ----------
 function marcoSacoi(mb, REG) {

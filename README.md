@@ -40,6 +40,7 @@ A auditoria de 20/11/2026 contabilizou **608 trechos de vias, 370 cruzamentos, 9
 - Ruas asfaltadas e de terra, cruzamentos com cantos arredondados, calçadas, meios-fios, faixas de pedestres, placas e postes com fiação.
 - Casas e comércios com variações de fachadas, telhados, muros e portões; vegetação e árvores nas áreas urbanas.
 - Quarteirão da Borghi revisado pelo Street View: cinco lotes próprios, mercearia verde em frente, casas de esquina, muros, jardim e quintal gradeado; ajustes na loja, terreno local e pintura PARE na Francisco Coco.
+- Detalhes do [setor Norte](mapas/nova-alianca/NORTE.md): trepadeiras floridas, acabamento do muro e pequena laje sobre a drenagem junto à esquina, com balizador.
 - Fachadas do centro ampliadas, incluindo Banco do Brasil, Padaria do Parque, posto da Polícia Militar, Aliança Saúde e Oquelifibra; Paço Municipal com fachada própria, escadaria e rampa.
 - Lugares modelados: **Borghi Veículos**, **Supermercado Sacoi**, **casa do Petrus**, **Praça Matriz Padre João Nolte e Paróquia Nossa Senhora Aparecida**, além do portal e do letreiro na entrada da cidade.
 - Terreno e altura das ruas integrados à física, colisões com construções e obstáculos, posição inicial em frente à saída da Borghi Veículos, na faixa da direita em direção ao centro, e retorno pela tecla **R**.
@@ -202,6 +203,10 @@ python scripts/gol/render-exterior-review.py
 ```
 
 As imagens ficam em [`modelo/gol-refinado/revisao/`](modelo/gol-refinado/revisao/). Os scripts atualizam as prévias sem modificar o `.blend` e o GLB já validados.
+
+### Economia de tokens no desenvolvimento
+
+O [Headroom opcional](scripts/dev/HEADROOM.md) comprime cópias de relatórios locais antes da leitura pelos agentes. Não entra no jogo ou no site. O arquivo original é preservado para conferir os detalhes.
 
 ## Verificações de qualidade
 
