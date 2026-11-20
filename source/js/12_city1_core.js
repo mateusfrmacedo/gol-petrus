@@ -555,6 +555,7 @@ function cityLots() {
       }
     }
   }
+  borghiNeighborhoodLayout(houses, occ);
   // grade para colisão: caixas orientadas (casas com o muro e o quintal da frente, prédios, lugares modelados)
   // e círculos (troncos de árvore, postes, placas, frades). Cada obstáculo entra em todas as células que toca.
   const cell = 32, nx = Math.ceil(C.W / cell), nz = Math.ceil(C.H / cell), grid = Array.from({ length: nx * nz }, () => []);

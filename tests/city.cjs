@@ -9,6 +9,7 @@ ${read('12_city0_data.js')}
 ${read('12_city1_core.js')}
 ${read('12_city3_mesh.js')}
 ${read('12_city4_marcos.js')}
+${read('12_city5_borghi.js')}
 assert(CITY.on,'?mapa=nova-alianca liga a cidade');
 cityBuild();
 const C=CITY, q=new Float64Array(12), o=new Float64Array(5);
@@ -28,6 +29,8 @@ for (const ch of C.chains.filter(c=>c.cls.urban).slice(0,60)) { if(ch.L-ch.trimA
 // lugares modelados presentes e reservados (nenhuma casa genérica em cima)
 for (const k of ['borghi','sacoi','petrus','matriz']) assert(MARCOS[k],'lugar '+k);
 for (const k of ['borghi','sacoi','petrus']) { const M=MARCOS[k]; for (const h of C.houses) assert(Math.hypot(h.x-M.ox,h.z-M.oz)>9,'casa sobre '+k); }
+assert(C.houses.filter(h=>h.borghiRef).length===5, 'cinco lotes de referência no entorno da Borghi');
+assert(MARCOS.borghi.neighbors.every(h=>C.houses.includes(h)), 'lotes da Borghi preservados após resolver sobreposições');
 assert(MARCOS.matriz.paved.length>800 && MARCOS.trees.length>40,'praça matriz com piso e árvores');
 // malhas (sem GPU): geometria finita
 var hfAt=(x,z)=>cityTerrainH(x,z); var mkFamily=()=>({bgl3:{}}); class RangeSet{constructor(){this.r=[];} add(){} upload(mb){this.mb=mb}}
@@ -35,7 +38,7 @@ var WORLD={stats:{tris:{},ranges:{}}}; var worldDefs=()=>({}); var R={drawables:
 var atlasBuild=()=>({createView(){}}); var G={dev:{createBindGroup:()=>({})}};
 marcosAtlas=()=>{ CITY.plates={}; for(const ch of CITY.chains) if(ch.cls.name) CITY.plates[ch.cls.name]='x'; return {tex:{createView(){}}, REG:new Proxy({}, {get:()=>[0,0,1,1]})}; };
 cityRoadsBuild(); cityPropsBuild();
-for (const mb of [WORLD.ribbon.mb]) { for (let i=0;i<mb.nv*9;i+=9) assert(Number.isFinite(mb.f32[i]+mb.f32[i+1]+mb.f32[i+2]),'vértice finito'); }
+for (const mb of [WORLD.ribbon.mb, ...R.drawables.map(d=>d.mb).filter(Boolean)]) { for (let i=0;i<mb.nv*9;i+=9) assert(Number.isFinite(mb.f32[i]+mb.f32[i+1]+mb.f32[i+2]),'vértice finito'); }
 // meio-fio e calçada nunca desenhados em cima da pista de outra via (o carro parecia afundar no asfalto)
 { const mb=WORLD.ribbon.mb, f=mb.f32, ix=mb.idx; let bad=0, tot=0; const q2=new Float64Array(12), ex=[];
   for (let t=0;t<mb.ni;t+=3){ const a=ix[t]; if(mb.u8[a*36+28]!==2||mb.u8[a*36+29]===2) continue; tot++;

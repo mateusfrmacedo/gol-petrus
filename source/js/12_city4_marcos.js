@@ -27,7 +27,7 @@ function marcosLayout(reserved) {
     let sx = -ez, sz = ex; if (sz < 0) { sx = -sx; sz = -sz; }
     const off = (r ? r.ch.hw : 3.6) + C.SW + 0.3, offN = (fc ? fc.ch.hw : 3.6) + C.SW + 0.3;
     const D = 15, W = 20, ox = J.node.x - ex * (off + D / 2) + sx * (offN + W / 2), oz = J.node.z - ez * (off + D / 2) + sz * (offN + W / 2);
-    MARCOS.borghi = Object.assign(marcoFrame(ox, oz, -ex, -ez), { D, W });
+    MARCOS.borghi = Object.assign(marcoFrame(ox, oz, -ex, -ez), { D, W, junction: J.node });
     // o eixo Z do quadro precisa apontar para o sul (canto do escritório no norte)
     if (MARCOS.borghi.zz < 0) MARCOS.borghi.flip = true;
     reserved.push([ox, oz, 14]);
@@ -201,8 +201,8 @@ function marcoBorghi(mb, REG) {
   mb.push(m4basis(m4(), M.ux, 0, M.uz, 0, 1, 0, M.zx * zs, 0, M.zz * zs, M.ox, y0, M.oz));
   const dark = [0.1, 0.1, 0.11], office = [0.2, 0.2, 0.21], yb = ymin - y0 - 0.5;
   // bloco do fundo (galpão escuro) mais alto que a cobertura
-  mb.mat(19, 200).color(...dark, 1); cWalls(mb, 9, W, yb, 4.3); mb.mat(9).color(0.32, 0.33, 0.34, 1); cRect(mb, -4.5, 4.3, -Z, 9, 0, 0, 0, 0, W, 0, 1, 0);
   mb.push(m4translate(m4(), X - 4.5, 0, 0));
+  mb.mat(19, 200).color(...dark, 1); cWalls(mb, 9, W, yb, 4.3); mb.mat(9).color(0.32, 0.33, 0.34, 1); cRect(mb, -4.5, 4.3, -Z, 9, 0, 0, 0, 0, W, 0, 1, 0);
   mb.pop();
   // escritório fechado na esquina (norte = z negativo no quadro)
   mb.mat(19, 200).color(...office, 1);
@@ -232,7 +232,7 @@ function marcoBorghi(mb, REG) {
   for (let a = -X + 0.4; a < -X + 6.4; a += 0.13) mb.box(a, 1.1, Z - 0.1, 0.03, 2.2, 0.03);
   // teto de luz em colmeia (LED hexagonal, como no salão da loja): sempre aceso
   {
-    const r = 0.42, t = 0.045, x0 = -X + 0.7, x1 = -4.9, z0 = -Z + 4.7, z1 = Z - 0.6, h = Math.sqrt(3) * r;
+    const r = 0.42, t = 0.045, x0 = -X + 0.7, x1 = -1.9, z0 = -Z + 4.7, z1 = Z - 0.6, h = Math.sqrt(3) * r;
     mb.mat(2, 180, 0).color(0.12, 0.12, 0.13, 1); mb.box((x0 + x1) / 2, 3.12, (z0 + z1) / 2, x1 - x0 + 0.4, 0.04, z1 - z0 + 0.4);   // forro escuro
     mb.mat(25, 230).color(0.95, 0.97, 1.0, 1);
     for (let i = 0, cx = x0 + r; cx < x1 - r * 0.5; i++, cx += 1.5 * r) for (let cz = z0 + r + (i & 1) * h / 2; cz < z1 - r * 0.5; cz += h) {
@@ -241,7 +241,7 @@ function marcoBorghi(mb, REG) {
     }
   }
   // banner da logo na parede preta do fundo, de frente para a rua
-  marcoSign(mb, REG, 'borghi', -4.53, 0.75, -1.2, 0, 2.0, 2.5, -1, 0);
+  marcoSign(mb, REG, 'borghi', -1.53, 0.75, -1.2, 0, 2.0, 2.5, -1, 0);
   // placa da loja num poste na calçada, junto ao escritório, e o poste da rede pintado (base azul com faixa amarela)
   {
     const [px, pz] = mbOffRoad(mb, -X - 1.7, -Z + 2.6, 1, 0), pg = mbGroundY(mb, px, pz);
@@ -256,7 +256,8 @@ function marcoBorghi(mb, REG) {
     mbColCircle(mb, qx, qz, 0.22);
   }
   // piso de concreto liso, mais escuro e lustroso, sob a cobertura
-  mb.mat(3).color(0.33, 0.33, 0.34, 1); cRect(mb, -X, 0.03, -Z + 4.2, D - 9, 0, 0, 0, 0, W - 4.2, 0, 1, 0);
+  mb.mat(3).color(0.33, 0.33, 0.34, 1); cRect(mb, -X, 0.03, -Z + 4.2, 6, 0, 0, 0, 0, W - 4.2, 0, 1, 0);
+  borghiForecourt(mb, X, Z);
   // letreiro pendurado e carros no pátio
   marcoSign(mb, REG, 'borghi', -X + 0.05, 1.7, -2.6, 0, 1.3, 1.62, -1, 0);
   mb.pop();

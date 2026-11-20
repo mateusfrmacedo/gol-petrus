@@ -196,7 +196,7 @@ function cityTrees(push, rnd) {
         const nx = -o[3] * side, nz = o[2] * side, d = ch.hw + C.SW - 0.7, x = o[0] + nx * d, z = o[1] + nz * d;
         const i = Math.round(x - C.X0), j = Math.round(z - C.Z0);
         const nearP = MARCOS.petrus && Math.hypot(x - MARCOS.petrus.ox, z - MARCOS.petrus.oz) < 24;   // calçada da casa do Petrus sem árvore, como na foto
-        if (rnd() < 0.42 && i >= 0 && j >= 0 && i < C.W && j < C.H && !nearJ(x, z) && !nearP) {
+        if (rnd() < 0.42 && i >= 0 && j >= 0 && i < C.W && j < C.H && !nearJ(x, z) && !nearP && !borghiNear(x, z)) {
           const r = rnd(), arch = r < 0.55 ? 4 : r < 0.8 ? 1 : r < 0.9 ? 3 : 0;
           push(x, cityGroundY(x, z) - 0.12, z, (arch === 4 ? 0.55 : 0.42) + rnd() * 0.3, rnd() * TAU, rnd(), arch);
         }

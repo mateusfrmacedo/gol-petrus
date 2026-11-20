@@ -25,7 +25,7 @@ function cityRoadsBuild() {
   const C = CITY, fam = mkFamily('road', { src: 'mat_road', defs: worldDefs(), noShadow: true }), rs = new RangeSet(fam), mb = new MeshBuilder(1 << 19);
   WORLD.ribbon = rs;
   const o = new Float64Array(5), CU = C.CURB, SW = C.SW;
-  const zebraEnd = nd => { if (nd.junc < 0) return false; const J = C.juncs[nd.junc]; return J.urban && J.ends.length >= 3; };
+  const zebraEnd = nd => { if (MARCOS.borghi && Math.hypot(nd.x - MARCOS.borghi.junction.x, nd.z - MARCOS.borghi.junction.z) < 18) return false; if (nd.junc < 0) return false; const J = C.juncs[nd.junc]; return J.urban && J.ends.length >= 3; };
   for (const ch of C.chains) {
     const s0 = ch.trimA, s1 = ch.L - ch.trimB; if (s1 - s0 < 0.08) continue;
     let ss = [s0]; for (let i = 0; i < ch.n; i++) if (ch.s[i] > s0 + 0.05 && ch.s[i] < s1 - 0.05) ss.push(ch.s[i]); ss.push(s1);
@@ -228,6 +228,7 @@ function cOpeningZ(mb, zw, nz, x, w, y0, y1, mat, col) {
 }
 // uma casa (ou loja) no seu lote; quadro local: X da rua para o fundo, Z ao longo da rua
 function cityHouse(mb, h, rnd) {
+  if (h.borghiRef) { borghiReferenceHouse(mb, h); return; }
   const C = CITY, d = h.d, w = h.w, set = h.set, X = d / 2, Zh = w / 2;
   // chão: maior altura sob a frente; paredes descem até abaixo do terreno mais baixo
   let ymin = 1e9, ymax = -1e9;
@@ -567,6 +568,10 @@ function cityPropsBuild() {
       const { x, y, z, nx, nz } = P;
       // poste de concreto cônico, cruzeta com isoladores, transformador em alguns
       mb.mat(3).color(0.6, 0.59, 0.56, 1); mb.cyl(x, y - 0.5, z, 0.16, y + 9.2, 0.09, 8, false, true);
+      if (borghiNear(x, z)) {
+        mb.mat(2, 200).color(0.20, 0.42, 0.65, 1); mb.cyl(x, y - 0.1, z, 0.165, y + 1.55, 0.153, 8, false, true);
+        mb.mat(2, 200).color(0.82, 0.69, 0.28, 1); mb.cyl(x, y + 1.55, z, 0.153, y + 1.90, 0.15, 8, false, true);
+      }
       mb.push(m4basis(m4(), P.tx, 0, P.tz, 0, 1, 0, -P.tz, 0, P.tx, x, y, z));
       mb.mat(3).color(0.55, 0.54, 0.51, 1); mb.box(0, 8.75, 0, 1.9, 0.11, 0.11);
       mb.mat(2, 200, 0, 30).color(0.2, 0.3, 0.25, 1); for (const a of [-0.8, 0, 0.8]) mb.box(a, 8.9, 0, 0.07, 0.18, 0.07);
@@ -600,6 +605,7 @@ function cityPropsBuild() {
   const MA = marcosAtlas(), bgM = G.dev.createBindGroup({ layout: fam.bgl3, entries: [{ binding: 0, resource: MA.tex.createView() }] });
   const SM = new RangeSet(fam, bgM), mm = new MeshBuilder(1 << 17);
   let j0 = mm.ni; marcoMatriz(mm, MA.REG); SM.add(mm, j0, 7, 1600);
+  j0 = mm.ni; borghiStopPaint(mm); SM.add(mm, j0, 7, 200);
   j0 = mm.ni; marcoBorghi(mm, MA.REG); SM.add(mm, j0, 7, 1200);
   j0 = mm.ni; marcoSacoi(mm, MA.REG); SM.add(mm, j0, 7, 1600);
   j0 = mm.ni; marcoPetrus(mm, MA.REG); SM.add(mm, j0, 7, 900);

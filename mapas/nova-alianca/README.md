@@ -33,7 +33,7 @@ ruas, calçadas e casas, e `12_city4_marcos.js` os lugares modelados pelas fotos
 
 ## Estado e verificações em 20/11/2026
 
-No recorte jogável: 608 trechos de vias, 370 cruzamentos, 97 nomes de vias, 58,7 km de ruas e 3.446 casas. O cenário inclui Borghi Veículos, Sacoi, casa do Petrus, Praça Matriz com igreja e entrada da cidade (portal e letreiro), além das fachadas genéricas, calçadas, sinalização e rede de postes. As construções são aproximações visuais.
+No recorte jogável: 608 trechos de vias, 370 cruzamentos, 97 nomes de vias, 58,7 km de ruas e 3.444 casas. O cenário inclui Borghi Veículos, Sacoi, casa do Petrus, Praça Matriz com igreja e entrada da cidade (portal e letreiro), além das fachadas genéricas, calçadas, sinalização e rede de postes. As construções são aproximações visuais.
 
 Execute, a partir da raiz:
 
@@ -48,3 +48,17 @@ A auditoria não detectou casas sobre ruas nem construções sobrepostas. Alerta
 O minimapa é alternado com **N**. O horário e o clima são ajustados pelo menu; a opção de clima real usa uma consulta de rede independente dos dados locais do mapa.
 
 A atualização do centro acrescenta fachadas próprias para Banco do Brasil, Padaria do Parque, posto da Polícia Militar, Aliança Saúde e Oquelifibra, além do Paço Municipal com escadaria e rampa. O atlas de letreiros passou a 2048 × 3072 pixels, com espaço para até 56 letreiros comerciais e públicos. O modo de fotos inclui câmeras para esses novos pontos.
+
+## Quarteirão da Borghi — revisão visual
+
+Referências observadas no [Google Street View](https://www.google.com/maps/@?api=1&map_action=pano&pano=pkdCqpWt8CB7H-VRR8VBWw&heading=198&pitch=5): esquina da Rua do Comércio com a Rua Francisco Coco, captura de outubro de 2024. Também foi observada a frente pela vista `hR1t4RTFW9tWGS5DwxUOvg` e pela vista `_zJ_UJPGI-_CxGjhVvSElQ` (Rua do Comércio, ao sul da esquina).
+
+A reconstrução inclui a mercearia verde de portas azuis e toldo amarelo em frente à Borghi, a casa de esquina cor salmão, a residência com jardim e muro baixo do outro lado da Francisco Coco, a casa com muro alto ao lado da loja e o quintal gradeado entre a Borghi e a oficina. Esses cinco lotes substituem as construções genéricas que os ocupavam. Árvores de copa arredondada são posicionadas manualmente e o terreno dos lotes recebe acabamento local, preservando os perfis das ruas.
+
+Na loja foram revistos o encaixe entre galpão e colisão, a profundidade do piso e do salão, a grade da frente, o trilho, a antena e a parabólica. Na Francisco Coco, a pintura de aproximação usa PARE e linha de retenção, substituindo as faixas de pedestres genéricas nessa esquina.
+
+As imagens foram usadas apenas para observação: não são distribuídas nem aplicadas como texturas. Medidas, posições no traçado OSM e partes não visíveis são aproximadas; esta versão não é um levantamento arquitetônico nem uma reprodução exata de toda a quadra.
+
+Fontes: `source/js/12_city5_borghi.js` (lotes, fachadas e pintura) e `12_city4_marcos.js` (loja). A prancha de conferência em três horários é aberta com `?mapa=nova-alianca&fotos=borghi`.
+
+![Prancha do entorno da Borghi, de dia, ao entardecer e à noite](revisao/borghi-entorno.jpg)

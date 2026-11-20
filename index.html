@@ -5357,6 +5357,7 @@ function cityLots() {
       }
     }
   }
+  borghiNeighborhoodLayout(houses, occ);
   // grade para colisão: caixas orientadas (casas com o muro e o quintal da frente, prédios, lugares modelados)
   // e círculos (troncos de árvore, postes, placas, frades). Cada obstáculo entra em todas as células que toca.
   const cell = 32, nx = Math.ceil(C.W / cell), nz = Math.ceil(C.H / cell), grid = Array.from({ length: nx * nz }, () => []);
@@ -5789,7 +5790,7 @@ function cityTrees(push, rnd) {
         const nx = -o[3] * side, nz = o[2] * side, d = ch.hw + C.SW - 0.7, x = o[0] + nx * d, z = o[1] + nz * d;
         const i = Math.round(x - C.X0), j = Math.round(z - C.Z0);
         const nearP = MARCOS.petrus && Math.hypot(x - MARCOS.petrus.ox, z - MARCOS.petrus.oz) < 24;   // calçada da casa do Petrus sem árvore, como na foto
-        if (rnd() < 0.42 && i >= 0 && j >= 0 && i < C.W && j < C.H && !nearJ(x, z) && !nearP) {
+        if (rnd() < 0.42 && i >= 0 && j >= 0 && i < C.W && j < C.H && !nearJ(x, z) && !nearP && !borghiNear(x, z)) {
           const r = rnd(), arch = r < 0.55 ? 4 : r < 0.8 ? 1 : r < 0.9 ? 3 : 0;
           push(x, cityGroundY(x, z) - 0.12, z, (arch === 4 ? 0.55 : 0.42) + rnd() * 0.3, rnd() * TAU, rnd(), arch);
         }
@@ -5858,7 +5859,7 @@ function cityRoadsBuild() {
   const C = CITY, fam = mkFamily('road', { src: 'mat_road', defs: worldDefs(), noShadow: true }), rs = new RangeSet(fam), mb = new MeshBuilder(1 << 19);
   WORLD.ribbon = rs;
   const o = new Float64Array(5), CU = C.CURB, SW = C.SW;
-  const zebraEnd = nd => { if (nd.junc < 0) return false; const J = C.juncs[nd.junc]; return J.urban && J.ends.length >= 3; };
+  const zebraEnd = nd => { if (MARCOS.borghi && Math.hypot(nd.x - MARCOS.borghi.junction.x, nd.z - MARCOS.borghi.junction.z) < 18) return false; if (nd.junc < 0) return false; const J = C.juncs[nd.junc]; return J.urban && J.ends.length >= 3; };
   for (const ch of C.chains) {
     const s0 = ch.trimA, s1 = ch.L - ch.trimB; if (s1 - s0 < 0.08) continue;
     let ss = [s0]; for (let i = 0; i < ch.n; i++) if (ch.s[i] > s0 + 0.05 && ch.s[i] < s1 - 0.05) ss.push(ch.s[i]); ss.push(s1);
@@ -6061,6 +6062,7 @@ function cOpeningZ(mb, zw, nz, x, w, y0, y1, mat, col) {
 }
 // uma casa (ou loja) no seu lote; quadro local: X da rua para o fundo, Z ao longo da rua
 function cityHouse(mb, h, rnd) {
+  if (h.borghiRef) { borghiReferenceHouse(mb, h); return; }
   const C = CITY, d = h.d, w = h.w, set = h.set, X = d / 2, Zh = w / 2;
   // chão: maior altura sob a frente; paredes descem até abaixo do terreno mais baixo
   let ymin = 1e9, ymax = -1e9;
@@ -6400,6 +6402,10 @@ function cityPropsBuild() {
       const { x, y, z, nx, nz } = P;
       // poste de concreto cônico, cruzeta com isoladores, transformador em alguns
       mb.mat(3).color(0.6, 0.59, 0.56, 1); mb.cyl(x, y - 0.5, z, 0.16, y + 9.2, 0.09, 8, false, true);
+      if (borghiNear(x, z)) {
+        mb.mat(2, 200).color(0.20, 0.42, 0.65, 1); mb.cyl(x, y - 0.1, z, 0.165, y + 1.55, 0.153, 8, false, true);
+        mb.mat(2, 200).color(0.82, 0.69, 0.28, 1); mb.cyl(x, y + 1.55, z, 0.153, y + 1.90, 0.15, 8, false, true);
+      }
       mb.push(m4basis(m4(), P.tx, 0, P.tz, 0, 1, 0, -P.tz, 0, P.tx, x, y, z));
       mb.mat(3).color(0.55, 0.54, 0.51, 1); mb.box(0, 8.75, 0, 1.9, 0.11, 0.11);
       mb.mat(2, 200, 0, 30).color(0.2, 0.3, 0.25, 1); for (const a of [-0.8, 0, 0.8]) mb.box(a, 8.9, 0, 0.07, 0.18, 0.07);
@@ -6433,6 +6439,7 @@ function cityPropsBuild() {
   const MA = marcosAtlas(), bgM = G.dev.createBindGroup({ layout: fam.bgl3, entries: [{ binding: 0, resource: MA.tex.createView() }] });
   const SM = new RangeSet(fam, bgM), mm = new MeshBuilder(1 << 17);
   let j0 = mm.ni; marcoMatriz(mm, MA.REG); SM.add(mm, j0, 7, 1600);
+  j0 = mm.ni; borghiStopPaint(mm); SM.add(mm, j0, 7, 200);
   j0 = mm.ni; marcoBorghi(mm, MA.REG); SM.add(mm, j0, 7, 1200);
   j0 = mm.ni; marcoSacoi(mm, MA.REG); SM.add(mm, j0, 7, 1600);
   j0 = mm.ni; marcoPetrus(mm, MA.REG); SM.add(mm, j0, 7, 900);
@@ -6503,7 +6510,7 @@ function marcosLayout(reserved) {
     let sx = -ez, sz = ex; if (sz < 0) { sx = -sx; sz = -sz; }
     const off = (r ? r.ch.hw : 3.6) + C.SW + 0.3, offN = (fc ? fc.ch.hw : 3.6) + C.SW + 0.3;
     const D = 15, W = 20, ox = J.node.x - ex * (off + D / 2) + sx * (offN + W / 2), oz = J.node.z - ez * (off + D / 2) + sz * (offN + W / 2);
-    MARCOS.borghi = Object.assign(marcoFrame(ox, oz, -ex, -ez), { D, W });
+    MARCOS.borghi = Object.assign(marcoFrame(ox, oz, -ex, -ez), { D, W, junction: J.node });
     // o eixo Z do quadro precisa apontar para o sul (canto do escritório no norte)
     if (MARCOS.borghi.zz < 0) MARCOS.borghi.flip = true;
     reserved.push([ox, oz, 14]);
@@ -6677,8 +6684,8 @@ function marcoBorghi(mb, REG) {
   mb.push(m4basis(m4(), M.ux, 0, M.uz, 0, 1, 0, M.zx * zs, 0, M.zz * zs, M.ox, y0, M.oz));
   const dark = [0.1, 0.1, 0.11], office = [0.2, 0.2, 0.21], yb = ymin - y0 - 0.5;
   // bloco do fundo (galpão escuro) mais alto que a cobertura
-  mb.mat(19, 200).color(...dark, 1); cWalls(mb, 9, W, yb, 4.3); mb.mat(9).color(0.32, 0.33, 0.34, 1); cRect(mb, -4.5, 4.3, -Z, 9, 0, 0, 0, 0, W, 0, 1, 0);
   mb.push(m4translate(m4(), X - 4.5, 0, 0));
+  mb.mat(19, 200).color(...dark, 1); cWalls(mb, 9, W, yb, 4.3); mb.mat(9).color(0.32, 0.33, 0.34, 1); cRect(mb, -4.5, 4.3, -Z, 9, 0, 0, 0, 0, W, 0, 1, 0);
   mb.pop();
   // escritório fechado na esquina (norte = z negativo no quadro)
   mb.mat(19, 200).color(...office, 1);
@@ -6708,7 +6715,7 @@ function marcoBorghi(mb, REG) {
   for (let a = -X + 0.4; a < -X + 6.4; a += 0.13) mb.box(a, 1.1, Z - 0.1, 0.03, 2.2, 0.03);
   // teto de luz em colmeia (LED hexagonal, como no salão da loja): sempre aceso
   {
-    const r = 0.42, t = 0.045, x0 = -X + 0.7, x1 = -4.9, z0 = -Z + 4.7, z1 = Z - 0.6, h = Math.sqrt(3) * r;
+    const r = 0.42, t = 0.045, x0 = -X + 0.7, x1 = -1.9, z0 = -Z + 4.7, z1 = Z - 0.6, h = Math.sqrt(3) * r;
     mb.mat(2, 180, 0).color(0.12, 0.12, 0.13, 1); mb.box((x0 + x1) / 2, 3.12, (z0 + z1) / 2, x1 - x0 + 0.4, 0.04, z1 - z0 + 0.4);   // forro escuro
     mb.mat(25, 230).color(0.95, 0.97, 1.0, 1);
     for (let i = 0, cx = x0 + r; cx < x1 - r * 0.5; i++, cx += 1.5 * r) for (let cz = z0 + r + (i & 1) * h / 2; cz < z1 - r * 0.5; cz += h) {
@@ -6717,7 +6724,7 @@ function marcoBorghi(mb, REG) {
     }
   }
   // banner da logo na parede preta do fundo, de frente para a rua
-  marcoSign(mb, REG, 'borghi', -4.53, 0.75, -1.2, 0, 2.0, 2.5, -1, 0);
+  marcoSign(mb, REG, 'borghi', -1.53, 0.75, -1.2, 0, 2.0, 2.5, -1, 0);
   // placa da loja num poste na calçada, junto ao escritório, e o poste da rede pintado (base azul com faixa amarela)
   {
     const [px, pz] = mbOffRoad(mb, -X - 1.7, -Z + 2.6, 1, 0), pg = mbGroundY(mb, px, pz);
@@ -6732,7 +6739,8 @@ function marcoBorghi(mb, REG) {
     mbColCircle(mb, qx, qz, 0.22);
   }
   // piso de concreto liso, mais escuro e lustroso, sob a cobertura
-  mb.mat(3).color(0.33, 0.33, 0.34, 1); cRect(mb, -X, 0.03, -Z + 4.2, D - 9, 0, 0, 0, 0, W - 4.2, 0, 1, 0);
+  mb.mat(3).color(0.33, 0.33, 0.34, 1); cRect(mb, -X, 0.03, -Z + 4.2, 6, 0, 0, 0, 0, W - 4.2, 0, 1, 0);
+  borghiForecourt(mb, X, Z);
   // letreiro pendurado e carros no pátio
   marcoSign(mb, REG, 'borghi', -X + 0.05, 1.7, -2.6, 0, 1.3, 1.62, -1, 0);
   mb.pop();
@@ -7182,6 +7190,172 @@ function marcoEntrada(mb) {
       x += W + gap;
     }
     mb.pop();
+  }
+}
+
+// ---- 12_city5_borghi.js
+// Entorno da Borghi: reconstrução manual pelas vistas públicas de out/2024.
+// Os cinco lotes substituem casas procedurais; posições e medidas são aproximadas.
+// Nenhuma fotografia do Street View é incorporada às texturas do jogo.
+function borghiNear(x, z) {
+  const M = MARCOS.borghi;
+  return !!M && Math.hypot(x - M.ox, z - M.oz) < 58;
+}
+function borghiNeighborhoodLayout(houses, occ) {
+  const M = MARCOS.borghi, C = CITY; if (!M) return;
+  const defs = [
+    // a: oeste a partir da loja; b: norte. Eixo n aponta para dentro do lote.
+    ['jardim', 12, 34, 30, 16, 3.0, M.zx, M.zz, [0.82, 0.69, 0.58]],
+    ['salmao', -38, 32, 21, 12, 2.0, M.zx, M.zz, [0.73, 0.43, 0.34]],
+    ['mercearia', -29, 0, 18, 16, 0.1, -M.ux, -M.uz, [0.43, 0.53, 0.31]],
+    ['muro', 25, 0, 15, 12, 2.2, -M.zx, -M.zz, [0.73, 0.72, 0.64]],
+    ['quintal', 0, -14.9, 7.4, 14, 0, M.ux, M.uz, [0.79, 0.78, 0.71]],
+  ];
+  const fixed = defs.map(([kind, a, b, w, d, set, nx, nz, col], i) => {
+    const [x, z] = M.at(a, b), r = nearestChain(x, z, kind === 'mercearia' || kind === 'quintal' ? /Comércio/ : /Francisco Coco/);
+    const q = new Float64Array(12); q[0] = x - nx * d / 2; q[1] = z - nz * d / 2; cityRasterQ(q);
+    return { x, z, w, d, set, nx, nz, fx: -nz, fz: nx, yaw: Math.atan2(nz, nx), yr: q[10] + C.CURB,
+      borghiRef: kind, col, wall: set > 1, two: false, comm: false, roof: 0.3, gate: 0.3, seed: 0.31 + i * 0.1,
+      ch: r.ch.id, side: 1, shop: kind === 'mercearia' ? 'Mercearia da esquina (referência visual)' : undefined };
+  });
+  // Teste de eixos separadores: elimina também lotes da rua transversal que invadem a reserva.
+  const box = h => { const e = h.wall ? h.set / 2 : 0; return { x: h.x - h.nx * e, z: h.z - h.nz * e, nx: h.nx, nz: h.nz, d: h.d + 2 * e, w: h.w }; };
+  const overlap = (a, b) => {
+    for (const [x, z] of [[a.nx, a.nz], [-a.nz, a.nx], [b.nx, b.nz], [-b.nz, b.nx]]) {
+      const ra = a.d / 2 * Math.abs(a.nx * x + a.nz * z) + a.w / 2 * Math.abs(-a.nz * x + a.nx * z);
+      const rb = b.d / 2 * Math.abs(b.nx * x + b.nz * z) + b.w / 2 * Math.abs(-b.nz * x + b.nx * z);
+      if (Math.abs((a.x - b.x) * x + (a.z - b.z) * z) >= ra + rb + 0.35) return false;
+    }
+    return true;
+  };
+  const keep = houses.filter(h => !fixed.some(f => overlap(box(h), box(f))));
+  houses.length = 0; houses.push(...fixed, ...keep); M.neighbors = fixed;
+  // Reconstitui a ocupação residencial: as árvores e os lotes substituídos não deixam reservas fantasmas.
+  for (let i = 0; i < occ.length; i++) if (occ[i] === 1) occ[i] = 0;
+  for (const h of houses) {
+    for (let a = -h.d / 2 - h.set; a <= h.d / 2; a += 0.8) for (let b = -h.w / 2; b <= h.w / 2; b += 0.8) {
+      const i = Math.round(h.x + h.nx * a + h.fx * b - C.X0), j = Math.round(h.z + h.nz * a + h.fz * b - C.Z0);
+      if (i >= 0 && j >= 0 && i < C.W && j < C.H && !occ[j * C.W + i]) occ[j * C.W + i] = 1;
+    }
+  }
+  // Copas podadas na calçada e árvores maiores atrás do muro baixo da esquina noroeste.
+  const trees = [
+    [3, 23, 1, 0.70], [14, 23, 1, 0.70], [26, 23, 1, 0.74], [3, 37, 1, 1.0], [16, 38, 0, 0.95], [27, 36, 1, 0.9],
+    [-22, 23, 1, 0.66], [-37, 23, 1, 0.68], [-20, 6, 1, 0.68], [-20, -5, 1, 0.72], [22, 9, 1, 0.65], [32, 9, 1, 0.67],
+  ];
+  // Terraplenagem apenas dos lotes de referência: elimina taludes artificiais junto aos muros.
+  // A grade natural é alterada antes de criar campo de alturas, postes, árvores e colisões.
+  const N = C.nat, pads = [...fixed, { x: M.ox, z: M.oz, nx: M.ux, nz: M.uz, d: M.D, w: M.W, yr: fixed.find(h => h.borghiRef === 'quintal').yr }];
+  for (const h of pads) {
+    const radius = Math.hypot(h.d, h.w) / 2 + 12;
+    for (let j = Math.max(0, Math.floor((h.z - radius - N.z0) / N.cell)); j <= Math.min(N.nz - 1, Math.ceil((h.z + radius - N.z0) / N.cell)); j++) {
+      for (let i = Math.max(0, Math.floor((h.x - radius - N.x0) / N.cell)); i <= Math.min(N.nx - 1, Math.ceil((h.x + radius - N.x0) / N.cell)); i++) {
+        const dx = N.x0 + i * N.cell - h.x, dz = N.z0 + j * N.cell - h.z;
+        const edge = Math.max(Math.abs(dx * h.nx + dz * h.nz) - h.d / 2, Math.abs(-dx * h.nz + dz * h.nx) - h.w / 2);
+        const k = 1 - smooth(0, 10, edge); if (k > 0) N.g[j * N.nx + i] = lerp(N.g[j * N.nx + i], h.yr - 0.05, k);
+      }
+    }
+  }
+  for (const [a, b, type, scale] of trees) { const p = M.at(a, b), q = new Float64Array(12); q[0] = p[0]; q[1] = p[1]; cityRasterQ(q); if (q[9] > 0.4) MARCOS.trees.push([p[0], p[1], type, scale]); }
+}
+
+// Portão de barras, com travessas, orientado no plano x local.
+function borghiFence(mb, x, z0, z1, y, height, color) {
+  mb.mat(2, 170, 100).color(...color, 1);
+  for (let z = z0; z <= z1; z += 0.15) mb.box(x, y + height / 2, z, 0.035, height, 0.035);
+  for (const yy of [y + 0.08, y + height * 0.52, y + height - 0.05]) mb.box(x, yy, (z0 + z1) / 2, 0.055, 0.045, z1 - z0);
+}
+function borghiReferenceHouse(mb, h) {
+  const X = h.d / 2, Z = h.w / 2, F = -X - h.set;
+  const front = [h.x - h.nx * X, h.z - h.nz * X], y = Math.max(h.yr, hfAt(...front)) + 0.08;
+  const H = h.borghiRef === 'muro' ? 3.0 : 3.1;
+  mb.push(m4basis(m4(), h.nx, 0, h.nz, 0, 1, 0, h.fx, 0, h.fz, h.x, y, h.z));
+  if (h.borghiRef === 'quintal') {
+    // Terreno lateral entre o salão e a oficina: chão de terra, grade marrom e paredes claras.
+    mb.mat(19, 220).color(0.77, 0.75, 0.67, 1);
+    mb.box(X - 0.1, 0.85, 0, 0.2, 2.5, h.w); mb.box(0, 0.15, Z - 0.1, h.d, 0.7, 0.2);
+    borghiFence(mb, -X, -Z, Z, 0.05, 1.65, [0.25, 0.18, 0.12]);
+    for (const z of [-Z, 0, Z]) { mb.mat(2, 180).color(0.26, 0.18, 0.13, 1); mb.box(-X, 0.9, z, 0.10, 1.8, 0.10); }
+    mb.pop(); return;
+  }
+  mb.mat(19, 205).color(...h.col, 1); cWalls(mb, h.d, h.w, -1.5, H);
+  mb.mat(20).color(0.57, 0.29, 0.16, 1); cRoof(mb, h.d, h.w, H, Math.min(h.d, h.w) * 0.22, 0.45, false);
+  mb.mat(19, 210).color(0.85, 0.83, 0.76, 1); cSoffit(mb, h.d, h.w, H, 0.45);
+  if (h.borghiRef === 'mercearia') {
+    // Reboco verde, folhas azuis e toldo amarelo de borda recortada vistos em frente à Borghi.
+    cOpening(mb, -X, -1, 2.6, 4.1, 0, 2.6, 13, [0.24, 0.39, 0.53]);
+    cOpening(mb, -X, -1, -3.8, 1.5, 1.1, 2.3, 13, [0.25, 0.39, 0.50]);
+    mb.mat(10).color(0.78, 0.58, 0.20, 1);
+    cRect(mb, -X, 2.88, -Z + 0.25, -1.05, -0.32, 0, 0, 0, h.w - 0.5, -0.3, 1, 0);
+    for (let z = -Z + 0.25; z < Z - 0.25; z += 0.28) mb.box(-X - 1.05, 2.49, z, 0.04, 0.2 + 0.04 * Math.cos(z * 15), 0.27);
+    mb.mat(19, 235).color(0.80, 0.79, 0.67, 1); cRect(mb, -X - 0.04, 0.25, 5.0, 0, 0, 2.4, 0, 1.05, 0, -1, 0, 0);
+    const at = (a, b) => [h.x + h.nx * a + h.fx * b, h.z + h.nz * a + h.fz * b], p = at(-X - 0.06, 5.15), q = at(-X - 0.06, 7.15);
+    CITY.signs.push({ name: 'TEMOS GELO', bg: '#ccc9ab', fg: '#514b39', x: p[0], z: p[1], y: y + 0.55, rx: q[0] - p[0], rz: q[1] - p[1], h: 0.55, nx: -h.nx, nz: -h.nz });
+  } else {
+    // Casas recuadas: varanda de telha, pilares claros, janela de madeira e muro de reboco áspero.
+    cOpening(mb, -X, -1, 1.6, 1.1, 0, 2.25, 13, [0.30, 0.20, 0.13]);
+    for (const z of [-Z * 0.55, Z * 0.55]) {
+      cOpening(mb, -X, -1, z, 1.7, 1.0, 2.15, 13, [0.34, 0.25, 0.18]);
+      mb.mat(19, 195).color(0.88, 0.86, 0.79, 1); mb.box(-X - 0.07, 0.94, z, 0.14, 0.10, 1.9);
+    }
+    const porch = Math.min(2.1, h.set - 0.35);
+    mb.mat(20).color(0.63, 0.31, 0.17, 1); cRect(mb, -X, 2.94, -Z + 0.3, -porch, -0.43, 0, 0, 0, h.w - 0.6, -0.2, 1, 0);
+    mb.mat(19, 200).color(0.89, 0.87, 0.81, 1);
+    for (const z of [-Z + 0.5, 0, Z - 0.5]) mb.box(-X - porch + 0.08, 1.23, z, 0.18, 2.46, 0.18);
+    const wallH = h.borghiRef === 'muro' ? 2.55 : 1.05, wall = [0.65, 0.65, 0.61];
+    mb.mat(19, 245).color(...wall, 1);
+    for (const [a, b] of [[-Z, Z * 0.30], [Z * 0.72, Z]]) mb.box(F, (wallH - 0.6) / 2, (a + b) / 2, 0.20, wallH + 0.6, b - a);
+    for (const z of [-Z, Z]) mb.box((F + X) / 2, (wallH - 0.6) / 2, z, X - F, wallH + 0.6, 0.20);
+    borghiFence(mb, F, Z * 0.30, Z * 0.72, 0.02, wallH + 0.2, [0.37, 0.29, 0.20]);
+    mb.mat(3).color(0.60, 0.58, 0.52, 1); cRect(mb, F, 0.01, -Z, h.set, 0, 0, 0, 0, h.w, 0, 1, 0);
+  }
+  // Faixa junto à fachada com juntas e caixa de energia; sem geometria sobre o asfalto.
+  mb.mat(19, 230).color(0.51, 0.51, 0.45, 1); cRect(mb, -X - 0.025, -0.25, -Z, 0, 0, h.w, 0, 0.43, 0, -1, 0, 0);
+  mb.mat(2, 210).color(0.58, 0.59, 0.56, 1); mb.box(-X - 0.07, 1.4, -Z + 0.65, 0.12, 0.45, 0.30);
+  mb.pop();
+}
+
+function borghiForecourt(mb, X, Z) {
+  // Grade de correr em malha fina, trilho e rampas de concreto sob a cobertura existente.
+  borghiFence(mb, -X + 0.16, -Z + 4.4, Z - 4.3, 0.04, 2.55, [0.10, 0.10, 0.11]);
+  mb.mat(2, 200, 100).color(0.18, 0.18, 0.18, 1); mb.box(-X + 0.12, 2.62, 0, 0.06, 0.09, Z * 2);
+  for (let z = -Z + 4.55; z < Z - 4.3; z += 0.14) {
+    mb.mat(2, 190, 100).color(0.12, 0.12, 0.13, 1); mb.box(-X + 0.16, 1.28, z, 0.015, 2.5, 0.015);
+  }
+  for (const z of [-3.0, 1.0, 5.0]) {
+    mb.mat(3).color(0.45, 0.44, 0.41, 1); cRect(mb, -X - 0.15, 0.04, z - 1.1, 1.0, 0, 0, 0, 0, 2.2, 0, 1, 0);
+    mb.mat(19, 230).color(0.24, 0.24, 0.23, 1); mb.box(-X + 0.6, 0.055, z, 1.4, 0.015, 0.035);
+  }
+  // Bandeja parabólica e antena no telhado, visíveis por cima da lateral.
+  mb.mat(2, 180, 100).color(0.55, 0.54, 0.48, 1); mb.box(X - 1.8, 4.9, -Z + 3, 0.06, 1.5, 0.06);
+  mb.push(m4basis(m4(), 0.8, 0.6, 0, -0.6, 0.8, 0, 0, 0, 1, X - 1.8, 5.15, -Z + 3));
+  mb.cyl(0, 0, 0, 0.72, 0.07, 0.68, 20, true, true); mb.pop();
+}
+
+// Pintura PARE desenhada por traços, sem imagens externas; nas duas aproximações da Francisco Coco.
+function borghiStopPaint(mb) {
+  const M = MARCOS.borghi; if (!M) return;
+  const glyphs = [
+    [[[0, 0], [0, 1], [0.6, 1], [0.6, 0.5], [0, 0.5]]],
+    [[[0, 0], [0.3, 1], [0.6, 0]], [[0.15, 0.5], [0.45, 0.5]]],
+    [[[0, 0], [0, 1], [0.6, 1], [0.6, 0.5], [0, 0.5]], [[0.25, 0.5], [0.65, 0]]],
+    [[[0.6, 1], [0, 1], [0, 0], [0.6, 0]], [[0, 0.5], [0.5, 0.5]]],
+  ];
+  const o = new Float64Array(5), q = new Float64Array(12);
+  for (const ch of CITY.chains) {
+    if (!/Francisco Coco/.test(ch.cls.name) || ch.a !== M.junction && ch.b !== M.junction) continue;
+    const atA = ch.a === M.junction, s = atA ? ch.trimA + 5.5 : ch.L - ch.trimB - 5.5, dir = atA ? -1 : 1;
+    chainAt(ch, s, o); const tx = o[2] * dir, tz = o[3] * dir, rx = -tz, rz = tx;
+    const x = o[0] + rx * ch.hw * 0.5, z = o[1] + rz * ch.hw * 0.5;
+    const point = (a, b) => { const px = x + rx * a + tx * b, pz = z + rz * a + tz * b; q[0] = px; q[1] = pz; cityRasterQ(q); return [px, q[10] + 0.016, pz]; };
+    const stroke = (a, b, c, d, w) => {
+      const len = Math.hypot(c - a, d - b), nx = -(d - b) / len * w / 2, nz = (c - a) / len * w / 2;
+      const A = point(a + nx, b + nz), B = point(c + nx, d + nz), C = point(c - nx, d - nz), D = point(a - nx, b - nz);
+      cTriN(mb, A, B, C, [0, 1, 0]); cTriN(mb, A, C, D, [0, 1, 0]);
+    };
+    mb.mat(3).color(0.75, 0.73, 0.66, 1);
+    glyphs.forEach((paths, i) => { for (const path of paths) for (let k = 1; k < path.length; k++) stroke(-1.35 + i * 0.72 + path[k - 1][0], path[k - 1][1] * 1.8 - 1, -1.35 + i * 0.72 + path[k][0], path[k][1] * 1.8 - 1, 0.10); });
+    stroke(-ch.hw * 0.43, 2.4, ch.hw * 0.43, 2.4, 0.25);
   }
 }
 
@@ -12296,6 +12470,14 @@ function fotoCams() {
   if (!CITY.on) return null;
   const L = [];
   if (MARCOS.borghi) L.push(fotoCamLugar('Borghi Veículos', MARCOS.borghi, 16, 2.0, 2.6));
+  if (MARCOS.borghi) {
+    const M = MARCOS.borghi;
+    for (const [nome, a, b, ta, tb, alt] of [
+      ['Borghi · lateral e casa vizinha', 20, 20, 12, 3, 2.0],
+      ['Borghi · mercearia em frente', -12, -3, -29, 0, 2.0],
+      ['Borghi · casas da Francisco Coco', 12, 17, 12, 34, 2.0],
+    ]) { const e = M.at(a, b), t = M.at(ta, tb); L.push({ nome, eye: [e[0], terrainH(...e) + alt, e[1]], alvo: [t[0], terrainH(...t) + 2.1, t[1]], fov: 1.0 }); }
+  }
   if (MARCOS.sacoi) L.push(fotoCamLugar('Supermercado Sacoi', MARCOS.sacoi, 30, 2.5, 3.5));
   if (MARCOS.matriz) {   // de dentro da praça, no lado leste, olhando a fachada e a torre da igreja (oeste)
     const M = MARCOS.matriz, vm = (M.v0 + M.v1) / 2, e = M.at(M.u1 + 8, vm - 6), t = M.at(M.u0 + 10, vm);
@@ -12321,7 +12503,7 @@ function fotoCams() {
   // rua: vista do alto de um cruzamento urbano (postes, calçadas, placas)
   const c = CITY.cams[Math.floor(CITY.cams.length / 3)];
   if (c) { const s = CITY.spawn, o = new Float64Array(5); chainAt(s.ch, s.s, o); L.push({ nome: 'Rua (partida)', eye: [o[0] - o[2] * 14, o[4] + 3.2, o[1] - o[3] * 14], alvo: [o[0] + o[2] * 30, o[4] + 1, o[1] + o[3] * 30], fov: 1.0 }); }
-  return L;
+  return Q.get('fotos') === 'borghi' ? L.filter(c => c.nome.startsWith('Borghi')) : L;
 }
 const fotoEspera = ms => new Promise(r => setTimeout(r, ms));
 async function fotosRun() {

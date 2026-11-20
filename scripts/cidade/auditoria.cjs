@@ -10,6 +10,7 @@ ${read('12_city0_data.js')}
 ${read('12_city1_core.js')}
 ${read('12_city3_mesh.js')}
 ${read('12_city4_marcos.js')}
+${read('12_city5_borghi.js')}
 cityBuild(); globalThis.CITY=CITY; globalThis.MARCOS=MARCOS; globalThis.cityRasterQ=cityRasterQ; globalThis.chainAt=chainAt; globalThis.cityParse=cityParse; globalThis.roadClass=roadClass; globalThis.clipPolyline=clipPolyline;`,ctx);
 const C=ctx.CITY, q=new Float64Array(12), o=new Float64Array(5), P=[];
 const prob=(tipo,grav,x,z,txt)=>P.push({tipo,grav,x:+x.toFixed(1),z:+z.toFixed(1),txt});

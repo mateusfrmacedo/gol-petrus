@@ -17,6 +17,14 @@ function fotoCams() {
   if (!CITY.on) return null;
   const L = [];
   if (MARCOS.borghi) L.push(fotoCamLugar('Borghi Veículos', MARCOS.borghi, 16, 2.0, 2.6));
+  if (MARCOS.borghi) {
+    const M = MARCOS.borghi;
+    for (const [nome, a, b, ta, tb, alt] of [
+      ['Borghi · lateral e casa vizinha', 20, 20, 12, 3, 2.0],
+      ['Borghi · mercearia em frente', -12, -3, -29, 0, 2.0],
+      ['Borghi · casas da Francisco Coco', 12, 17, 12, 34, 2.0],
+    ]) { const e = M.at(a, b), t = M.at(ta, tb); L.push({ nome, eye: [e[0], terrainH(...e) + alt, e[1]], alvo: [t[0], terrainH(...t) + 2.1, t[1]], fov: 1.0 }); }
+  }
   if (MARCOS.sacoi) L.push(fotoCamLugar('Supermercado Sacoi', MARCOS.sacoi, 30, 2.5, 3.5));
   if (MARCOS.matriz) {   // de dentro da praça, no lado leste, olhando a fachada e a torre da igreja (oeste)
     const M = MARCOS.matriz, vm = (M.v0 + M.v1) / 2, e = M.at(M.u1 + 8, vm - 6), t = M.at(M.u0 + 10, vm);
@@ -42,7 +50,7 @@ function fotoCams() {
   // rua: vista do alto de um cruzamento urbano (postes, calçadas, placas)
   const c = CITY.cams[Math.floor(CITY.cams.length / 3)];
   if (c) { const s = CITY.spawn, o = new Float64Array(5); chainAt(s.ch, s.s, o); L.push({ nome: 'Rua (partida)', eye: [o[0] - o[2] * 14, o[4] + 3.2, o[1] - o[3] * 14], alvo: [o[0] + o[2] * 30, o[4] + 1, o[1] + o[3] * 30], fov: 1.0 }); }
-  return L;
+  return Q.get('fotos') === 'borghi' ? L.filter(c => c.nome.startsWith('Borghi')) : L;
 }
 const fotoEspera = ms => new Promise(r => setTimeout(r, ms));
 async function fotosRun() {
