@@ -19,7 +19,10 @@ globalThis.check=async()=>{
  VEHICLES.current='civic';const before=SUNROOF.value,target=SUNROOF.target;SUNROOF.toggle();SUNROOF.advance(.1);assert.equal(SUNROOF.target,target);assert.equal(SUNROOF.value,before);
  VEHICLES.current='gol';SUNROOF.target=0;for(let i=0;i<200;i++)SUNROOF.advance(.016);assert.equal(SUNROOF.value,0);SUNROOF.matrix(m);assert(Array.from(m).every((v,i)=>Math.abs(v-m4ident(m4())[i])<1e-7));
  assert(GOL_META.frontDetailsBaked);assert(GOL_META.frontDetailParts.length>=12);
- for(const index of GOL_META.frontDetailParts){const p=GOL.parts[index];assert(p.nI>0);for(let i=0;i<p.pos.length;i+=3){const x=p.pos[i],y=p.pos[i+1],z=p.pos[i+2];assert(Number.isFinite(x+y+z)&&x>1.65&&x<2.1);assert(y>.23&&y<.49&&Math.abs(z)>.45&&Math.abs(z)<.82);}}
+ for(const index of GOL_META.frontDetailParts){const p=GOL.parts[index];assert(p.nI>0);for(let i=0;i<p.pos.length;i+=3){const x=p.pos[i],y=p.pos[i+1],z=p.pos[i+2];assert(Number.isFinite(x+y+z)&&x>1.5&&x<2.1);assert(y>.18&&y<.54&&Math.abs(z)<.85);}}
+ assert.equal(GOL_META.frontBumperRevision,3);
+ for(let k=1;k<=3;k++)assert(GOL_META.frontDetailNames.includes('Frente · lâmina central horizontal '+k));
+ for(const side of [-1,1])for(const name of ['divisória branca inclinada','cavidade lateral preta','neblina · lente curva'])assert(GOL_META.frontDetailNames.includes('Frente · '+name+' '+side));
  for(const index of GOL_META.fixedRoofPartIndices)assert(!golRoofPart(GOL.parts[index]),'fixed roof seal must stay on the body');
 
 };`,c);

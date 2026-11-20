@@ -34,6 +34,12 @@ O exportador lê os centros das rodas diretamente das instâncias do Blender. O 
 
 O controle articulado correspondente está no [Gol modular](../gol-refinado/gol-modular.blend). Veja a [revisão e a validação](../gol-refinado/REVISAO-EXTERIOR.md). Os ajustes ainda são uma reconstrução por referência visual, sem levantamento dimensional do veículo real.
 
+## Revisão de 20/11/2026
+
+Para-choque reconstruído pela nova referência, setas dianteiras e nos retrovisores, células traseiras independentes da ré, LEDs da placa, aerofólio preto integral, antena branca, calha do para-brisa e teto solar refinados. Os emblemas laterais foram rebaixados e o adesivo Borghi traseiro recebeu contorno circular.
+
+Veja os [detalhes, comandos e prévias](../gol-refinado/REVISAO-2026-11-20.md).
+
 ## Prévias
 
 ![Vista traseira](traseira.png)

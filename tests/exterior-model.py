@@ -16,8 +16,12 @@ me=bpy.data.objects['Liga · raios e quatro furos traçados'].data
 faces=[p for p in me.polygons if p.material_index==0 and p.normal.z>.97 and p.area>1e-7]
 error=math.sqrt(np.average([(p.center.z-.095)**2 for p in faces],weights=[p.area for p in faces]));assert error<.0007,error
 front=bpy.data.materials['VW frontal · preto sobre branco'].node_tree.nodes.get('Principled BSDF');assert front.inputs['Metallic'].default_value==0
-fins=[o for o in bpy.context.scene.objects if o.name.startswith('Frente · aleta')];assert len(fins)==6
-for o in fins:
+front_parts=bpy.data.collections['Gol recuperado do visualizador'].objects
+central=[o for o in front_parts if o.name.startswith('Frente · lâmina central horizontal')]
+lateral=[o for o in front_parts if o.name.startswith('Frente · lâmina lateral')]
+dividers=[o for o in front_parts if o.name.startswith('Frente · divisória branca inclinada')]
+assert len(central)==3 and len(lateral)==6 and len(dividers)==2
+for o in central+lateral+dividers:
  bm=bmesh.new();bm.from_mesh(o.data);assert all(e.is_manifold for e in bm.edges);bm.free();assert min(o.dimensions)>.003
 shell=[]
 for name in ['PINTURA','VIDRIOS']:
@@ -36,4 +40,4 @@ for u in [0,.1,.2,.5,1]:
  for name,angle,travel,lift in [('Teto · vidro e moldura móveis',cfg['angle']*s,cfg['travel']*s,cfg['lift']*h),('Teto · defletor frontal',-.8*h,0,0)]:
   px,py=cfg['frontX'],cfg['hingeY'];c=math.cos(angle);sn=math.sin(angle);m=np.eye(4);m[:2,:2]=[[c,-sn],[sn,c]];m[0,3]=px-c*px+sn*py-travel;m[1,3]=py-sn*px-c*py+lift
   ob=bpy.data.objects[name].evaluated_get(bpy.context.evaluated_depsgraph_get());err=np.max(np.abs(np.array(ob.matrix_world)-B@m@B.T));assert err<2e-6,(name,u,err)
-print(f'PASS: roof has no hidden floor, six solid bumper fins, nonmetallic front badge, wheel face RMS {error*1000:.3f} mm and Blender/game sunroof poses match.')
+print(f'PASS: roof has no hidden floor, three central/six lateral blades and two solid dividers, nonmetallic front badge, wheel face RMS {error*1000:.3f} mm and Blender/game sunroof poses match.')

@@ -178,6 +178,7 @@ function gameTick(fixed) {
   }
   RT[1] = dt; RT[0] += dt;
   if (typeof SUNROOF !== "undefined") SUNROOF.advance(dt);
+  if (typeof GOL_CONTROLS !== 'undefined') GOL_CONTROLS.advance(dt);
   gamePose();
   if (!GS.freeCam) gameCamera();
   if (GS.cut) { R.cam.first = true; R.debug = 1; GS.cut = false; } else R.debug = 0;
@@ -208,6 +209,7 @@ function gamePose() {
   }
   C.inp[0] = GS.steer; C.inp[1] = GS.steer * 14; C.place(B, GS.spin, GS.susp);
   const bp = objParams(C.slotBody), k = GS.keys; bp[0] = ((k & K_S) && V.gear !== 0) || ((k & K_W) && V.gear === 0) ? 1 : 0; bp[1] = V.gear === 0 ? 1 : 0; bp[2] = 1; bp[3] = GS.cam === 1 && !GS.freeCam ? 1 : 0; bp[4] = GS.speed * 3.6; bp[5] = V.rpm;
+  if(VEHICLES.current==='gol' && typeof GOL_CONTROLS!=='undefined')GOL_CONTROLS.write(bp);
   for (let i = 0; i < 4; i++) { const w = V.omega[i]; objParams(C.slotWheel[i])[0] = w < 0 ? -w : w; }
   FR.data.set(B, FO.carMat); m4inv(T, B); FR.data.set(T, FO.carInv);
   // rodas: a matriz anterior passa a ser a roda atual levada pelo deslocamento rígido da carroceria (anterior × atual⁻¹).
@@ -215,6 +217,8 @@ function gamePose() {
   if (C.slotWheel[0] !== C.slotBody) { const D2 = GS.tmp2; m4mul(D2, objPrev(C.slotBody), T); for (let i = 0; i < 4; i++) m4mul(objPrev(C.slotWheel[i]), D2, objModel(C.slotWheel[i])); }
   const f = FR.data, o = FO.car; f[o] = bp[0]; f[o + 1] = GS.speed; f[o + 2] = GS.steer; f[o + 3] = 0;
   f[FO.car2] = (GS.tick60 < 30 && GS.speed < 0.5) ? 1 : 0;   // luzes de largada: acesas só enquanto o carro espera no grid
+  f[FO.car2+1]=VEHICLES.current==='gol'?bp[2]:0;
+  f[FO.car2+2]=VEHICLES.current==='gol'?bp[8]:0;
   R.cube.pos[0] = B[4] * 1.15 + B[12]; R.cube.pos[1] = B[5] * 1.15 + B[13]; R.cube.pos[2] = B[6] * 1.15 + B[14];
 }
 // rotações lendo o ângulo do registrador ROTQ[0] (sem números por argumento)

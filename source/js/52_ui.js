@@ -6,7 +6,7 @@ const UI = { st: ST.INICIO, back: ST.JOGO, el: null, tag: null, res: null, b0: n
 const $ = id => document.getElementById(id);
 function uiInit() {
   UI.el = $('ui'); UI.tag = $('tag'); UI.res = $('res'); UI.b0 = $('b0'); UI.b1 = $('b1');
-  hudInit(); uiWarmup(); musicInit();
+  hudInit(); uiWarmup(); musicInit(); GOL_CONTROLS.init();
   try { const b = +localStorage.getItem('gol-melhor'); if (b > 20 && b < 600) LAP[2] = b; } catch (e) { /* sem armazenamento local: a melhor volta vale só nesta sessão */ }
   UI.b0.onclick = () => { if (UI.st === ST.INICIO) { sndStart(); uiSet(ST.JOGO); } else uiResume(); };
   UI.b1.onclick = () => benchStart();
@@ -35,6 +35,7 @@ function uiSet(st) {
   if (menu) UI.b0.focus(); else UI.b0.blur();
   if (typeof SUNROOF !== "undefined") SUNROOF.ui();
   if (typeof CAM_ORBIT !== "undefined") CAM_ORBIT.ui();
+  GOL_CONTROLS.ui();
   _lastT = 0;
 }
 function uiPause() { if (UI.st === ST.BENCH) benchStop(); UI.back = UI.st === ST.FITA ? ST.FITA : ST.JOGO; uiSet(ST.PAUSA); }
@@ -135,7 +136,7 @@ function uiFrame() {
 }
 // chamado depois de simular e renderizar o quadro
 function uiAfter() {
-  SUNROOF.ui();CAM_ORBIT.ui();
+  SUNROOF.ui();CAM_ORBIT.ui();GOL_CONTROLS.ui();
   const st = UI.st;
   if (st === ST.BENCH) { if (GS.tick60 >= 3600) benchEnd(); }
   else {

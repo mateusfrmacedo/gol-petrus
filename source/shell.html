@@ -38,6 +38,13 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 #camera-tools button:focus-visible{outline:2px solid #fff;outline-offset:2px}
 #sunroof:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .gear-setting{margin:1.2em 0 0}
+#gol-controls{position:absolute;left:1.6vh;bottom:8.2em;display:flex;flex-wrap:wrap;gap:.35em;max-width:min(620px,85vw);padding:.45em;border-radius:.6em;background:rgba(9,11,14,.82);font-size:12px}
+#gol-controls[hidden]{display:none}
+#gol-controls button{font:inherit;color:#eee;background:#20252a;border:1px solid #777;border-radius:.4em;padding:.55em .7em;cursor:pointer;touch-action:none}
+#gol-controls button[aria-pressed="true"]{border-color:#a3d6c1;background:#254c3c;color:#d8ffee}
+#gol-controls #gol-high[aria-pressed="true"]{background:#163d70;border-color:#8bc4ff;color:#d3eaff}
+#gol-controls #gol-left.lit,#gol-controls #gol-right.lit{background:#176c3b;color:#caffd4}
+#gol-controls button:focus-visible{outline:2px solid white;outline-offset:2px}
 </style>
 </head>
 <body>
@@ -47,6 +54,14 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 <canvas id="hg"></canvas><canvas id="ht"></canvas><canvas id="hs"></canvas><div id="tag"></div>
 <div id="camera-tools" hidden><button id="orbit-reset" type="button">Girar câmera</button><span>Arraste para girar · roda do mouse: zoom · duplo clique: centralizar</span></div>
 <button id="sunroof" type="button" aria-pressed="false" hidden>Abrir teto solar · O</button>
+<div id="gol-controls" role="group" aria-label="Luzes e buzina do Gol" hidden>
+<button id="gol-low" type="button" aria-pressed="false">Farol · L</button>
+<button id="gol-high" type="button" aria-pressed="false">Alto · K</button>
+<button id="gol-plate" type="button" aria-pressed="false">Luz da placa · I</button>
+<button id="gol-left" type="button" aria-label="Seta esquerda · Z" aria-pressed="false">← Esquerda · Z</button>
+<button id="gol-right" type="button" aria-label="Seta direita · X" aria-pressed="false">Direita → · X</button>
+<button id="gol-horn" type="button" aria-pressed="false" title="Segure para buzinar">Buzina · J</button>
+</div>
 <div id="transmission" role="status" aria-live="polite"></div>
 <div id="ui"><div>
 <h1>Gol Petrus</h1>
@@ -62,6 +77,10 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 <tr><td>T</td><td>câmbio manual / automático</td></tr>
 <tr><td>Mouse</td><td>arraste na câmera externa do Gol · roda: zoom · duplo clique: centralizar</td></tr>
 <tr><td>O</td><td>abre / fecha o teto solar do Gol</td></tr>
+<tr><td>L / K</td><td>liga farol / alterna farol alto do Gol</td></tr>
+<tr><td>Z / X</td><td>seta esquerda / direita (repita para desligar)</td></tr>
+<tr><td>J (segurar)</td><td>buzina do Gol</td></tr>
+<tr><td>I</td><td>liga / desliga a luz forte da placa do Gol</td></tr>
 <tr><td>C</td><td>câmera externa / interna / pista</td></tr>
 <tr><td>V (segurar)</td><td>olha para trás</td></tr>
 <tr><td>R</td><td>devolve o carro à pista</td></tr>

@@ -45,6 +45,14 @@ function carBuildSunroof(solid, glass, deflector) {
     const b=p.dest===1?glass:solid;b.mat(p.mat,p.pa).color(...p.col);golEmit(b,p,null,0,false);
   }
   solid.pop();glass.pop();
-  deflector.mat(21,12).color(.009,.011,.013);
-  deflector.rbox(cfg?cfg.frontX-.035:.175,cfg?cfg.hingeY:1.343,0,.07,.005,.74,.002,3);
+  // Tela curva recolhida abaixo da chapa. Só aparece com o teto em abertura.
+  // O antigo bloco plano ficava sobre a borda do vidro como um retângulo cinza.
+  deflector.mat(2,0).color(.007,.008,.009);
+  const front=cfg?cfg.frontX:.145,baseY=(cfg?cfg.hingeY:1.343)-.022;
+  for(let i=0;i<32;i++){
+    const z0=-.37+i*.74/32,z1=-.37+(i+1)*.74/32;
+    const y0=baseY-.026*(z0/.37)**2,y1=baseY-.026*(z1/.37)**2;
+    deflector.quad(front-.006,y0,z0,front-.100,y0,z0,front-.100,y1,z1,front-.006,y1,z1);
+    deflector.quad(front-.006,y1-.001,z1,front-.100,y1-.001,z1,front-.100,y0-.001,z0,front-.006,y0-.001,z0);
+  }
 }

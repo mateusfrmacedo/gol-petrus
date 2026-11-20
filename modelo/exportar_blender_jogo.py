@@ -114,6 +114,12 @@ def emit_object(ob,dest):
             color=tuple(min(.45,max(.025,c)) for c in color)
         if mat.name.startswith('Lente neblina'):
             material=28
+        if mat.name.startswith('Calha do para-brisa'):
+            material=2
+        if mat.name.startswith('LED branco da placa'):
+            material=29
+        if mat.name.startswith('Indicador de direção'):
+            material=30;param=0 if int(mat['signal_side'])<0 else 1
         if mat.name.startswith(('Desenho vermelho','Refletores')):
             material=22
         if mat.name.startswith('Faixa cristal inferior da lanterna'):
@@ -121,7 +127,7 @@ def emit_object(ob,dest):
         groups=[(selected,color,material,tile)]
         if ob.name=='PINTURA':
             centers=position[tri[selected]].mean(1)
-            black=(centers[:,1]>1.535)&(centers[:,2]>1.24)
+            black=np.zeros(len(selected),dtype=bool) if bpy.context.scene.get('spoiler_full_black') else (centers[:,1]>1.535)&(centers[:,2]>1.24)
             groups=[(selected[~black],color,material,tile),(selected[black],(.006,.007,.010),21,None)]
         for chosen,col,mid,tex in groups:
             # A 16-bit index block can address at most 65,535 unique corners.
@@ -206,6 +212,9 @@ meta={'version':'blender-2026-11-19','blender':True,'sourceSha256':hashlib.sha25
       'roofPartIndices':[i for i,p in enumerate(parts)if p['name']in['Teto solar · vidro móvel','Moldura móvel do teto solar']],
       'fixedRoofPartIndices':[i for i,p in enumerate(parts)if p['name']=='Vedação fixa do teto solar'],
       'frontDetailParts':[i for i,p in enumerate(parts)if p['name'].startswith('Frente ·')],
+      'frontDetailNames':[p['name'] for p in parts if p['name'].startswith('Frente ·')],
+      'frontBumperRevision':int(bpy.context.scene.get('exterior_reference_revision',0)),
+      'turnSignalParts':[{'index':i,'name':p['name'],'side':-1 if p['pa']==0 else 1} for i,p in enumerate(parts)if p['mat']==30],
       'frontDetailsBaked':bool(bpy.context.scene.get('exterior_reference_revision',0)),
       'sunroof':{'normalization':0,'frontX':.145,'hingeY':float(bpy.context.scene.get('sunroof_hinge_y',1.36)),'lift':.038,'travel':.47,'angle':.04}}
 target=ROOT/'source/js/30_car_a0_data.js'

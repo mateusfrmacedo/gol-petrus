@@ -156,7 +156,31 @@ struct LOut { @location(0) col: vec4f }
   if (coat > 0.0) { envC = mix(vec3f(lum(envC)), envC, 0.6); col += envC * min(fSchlick1(0.08, nv), 0.26) * coat * mix(specOcc, 1.0, 0.5) * 1.4; }
   // emissivo
   col += albedo * (m.z * m.z) * 16.0;
+  // Dois fachos no espaço do carro; baixo aponta ao solo e alto alcança mais longe.
+  if(F.car2.y>0.5) {
+    let lp=(F.carInv*vec4f(wp,1.0)).xyz;
+    if(lp.x>1.93 && lp.x<95.0) {
+      let high=F.car2.y>1.5;
+      for(var side=0;side<2;side++) {
+        let origin=vec3f(1.90,0.612,select(-0.51,0.51,side==1));let q=lp-origin;
+        let d=max(q.x,0.05);let aim=select(0.035,0.008,high);
+        let radius=length(vec2f(q.z/(d*select(0.24,0.15,high)),(q.y+d*aim)/(d*select(0.105,0.075,high))));
+        let cone=1.0-smoothstep(0.70,1.0,radius);
+        let reach=1.0-smoothstep(select(25.0,65.0,high),select(45.0,90.0,high),d);
+        let lightPos=(F.carMat*vec4f(origin,1.0)).xyz;
+        let nDot=max(0.0,dot(N,normalize(lightPos-wp)));
+        col+=diffC*vec3f(1.0,0.94,0.79)*cone*reach*nDot*select(65.0,180.0,high)/(1.0+0.09*dot(q,q));
+      }
+    }
+  }
   // névoa
+  if(F.car2.z>0.5) {
+    let lp=(F.carInv*vec4f(wp,1.0)).xyz;
+    if(lp.x< -1.78 && lp.x> -2.5 && lp.y<0.53 && lp.y>0.12 && abs(lp.z)<0.34) {
+      let fall=exp(-pow(lp.z/0.29,4.0))*exp(-pow((lp.y-0.42)/0.19,2.0));
+      col+=diffC*vec3f(0.90,0.96,1.0)*fall*2.8;
+    }
+  }
   let dir = -V; let od = fogOD(F.camPos.xyz, dir, dist); let T = exp(-od);
   let nearD = min(dist, VOL_DIST); let Tn = exp(-fogOD(F.camPos.xyz, dir, nearD));
   let sunIn = fogSunCol(dir) * max(0.0, (1.0 - T) - (1.0 - Tn) * (1.0 - hv.g));

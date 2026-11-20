@@ -1,0 +1,19 @@
+{
+  "revision": 3,
+  "reference": "Para-choque dianteiro branco com grade preta.png",
+  "construction": "contornos traçados na foto e projetados em superfície convexa",
+  "removed_faces": {
+    "CROMO": 152,
+    "MISCELANEA": 1062,
+    "NEGRO": 78,
+    "PINTURA": 766,
+    "VIDRIOS": 100
+  },
+  "central_horizontal_blades": 3,
+  "lateral_blades_per_side": 3,
+  "fog_lamps": 2,
+  "fog_lamp_diameter_m": 0.104,
+  "width_m": 1.666,
+  "new_objects": 77,
+  "limitations": "Reconstrução visual com uma foto frontal; profundidades ajustadas à carroceria existente."
+}

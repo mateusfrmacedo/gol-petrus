@@ -1,0 +1,23 @@
+{
+  "sticker": "recorte da foto 20260416_141312.jpg",
+  "sticker_shape": "círculo na superfície tangente, textura retificada da elipse da foto",
+  "photo_ellipse": {
+    "center": [
+      66.33161163330078,
+      38.330841064453125
+    ],
+    "axes": [
+      51.195316314697266,
+      80.943603515625
+    ],
+    "angle": 108.94767761230469
+  },
+  "sticker_diameter_m": 0.05,
+  "sticker_center": [
+    0.641,
+    -0.47
+  ],
+  "plate_leds": 2,
+  "plate_light_independent": true,
+  "smoked_lenses": true
+}

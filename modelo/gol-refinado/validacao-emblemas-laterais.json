@@ -1,0 +1,13 @@
+{
+  "sides": 2,
+  "pieces_per_side": 2,
+  "total_width_m": 0.225,
+  "height_m": 0.027,
+  "door_seam_x_m": 0.79,
+  "center_height_m": 0.6844,
+  "previous_center_height_m": 0.722,
+  "mirror_base_height_m": 0.91,
+  "gap_increase_percent": 20,
+  "texture_mirrored": false,
+  "reference": "Emblema automotivo GOL em preto e cromado.png"
+}

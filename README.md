@@ -33,14 +33,21 @@ Referência: [solução de problemas WebGPU — Chrome for Developers](https://d
 
 - Carroceria branca, rebaixamento, teto solar, aerofólio, lanternas fumê e placa PETRUS.
 - Rodas grafite diamantadas com vazados, chanfros e **face dos raios plana**, conforme a referência. Pneus, diâmetro externo e bitola foram preservados na revisão da face.
-- Frente revisada com grade inferior preta, aletas brancas com espessura, refletores e lentes curvas dos neblinas; emblema VW frontal **preto sobre fundo branco**.
+- Para-choque frontal reconstruído pela referência real: grade preta com três lâminas centrais, divisórias brancas inclinadas e neblinas com refletor, lente e aro. Emblema VW frontal **preto sobre fundo branco**.
+- Aerofólio preto integral, antena tubarão branca central, emblemas GOL laterais sob os retrovisores e adesivo Borghi circular na tampa traseira.
 - Painel fosco com granulado e microrrelevo extraídos das fotos, quatro difusores circulares, console, rádio Pioneer e comandos do ar.
 - Volante com contorno fotográfico, espessura, três braços ligados ao aro e abertura inferior real. Seu giro acompanha o esterço das rodas.
 - Conta-giros, velocímetro e tela vermelha funcionando no painel. Na câmera interna do Gol, os mostradores grandes do HUD ficam ocultos.
 - Visão do motorista com para-brisa sem película ou reflexos sobre a pista. As laterais e a vigia mantêm o acabamento escuro.
 - Revisão de encaixes: remoção de colunas e forros duplicados, ajuste dos difusores e quebra-sóis e correção do canto do painel que ultrapassava a carroceria perto do retrovisor.
 
+A [revisão de 20/11/2026](modelo/gol-refinado/REVISAO-2026-11-20.md) reúne as novas peças, os controles e as prévias.
+
 As referências orientam a forma e os materiais, mas o modelo continua sendo uma reconstrução visual, com partes aproximadas. Os detalhes e as pendências estão nas [revisões do interior](modelo/gol-refinado/REVISAO-INTERIOR.md) e [do exterior](modelo/gol-refinado/REVISAO-EXTERIOR.md).
+
+### Luzes, setas e buzina do Gol
+
+Farol baixo e alto com fachos, luz forte de placa com comando independente, setas âmbar sincronizadas na frente, nas células superiores traseiras e nos retrovisores. A luz branca de ré permanece separada. A buzina toca enquanto a tecla ou o botão está pressionado e para ao soltar, pausar ou perder o foco; respeita o comando de mudo. Os comandos estão disponíveis por teclado e pelos botões na tela.
 
 ### Teto solar articulado
 
@@ -146,6 +153,8 @@ python scripts/gol/build-blender.py
 python scripts/gol/export-interior.py
 python scripts/gol/export-review.py
 node tests/gol-modular.cjs
+node tests/gol-controls.cjs
+node tests/gol-signals.cjs
 node source/build.mjs
 ```
 
@@ -176,6 +185,8 @@ node tests/cockpit.cjs
 node tests/sunroof.cjs
 node tests/orbit-camera.cjs
 node tests/gol-modular.cjs
+node tests/gol-controls.cjs
+node tests/gol-signals.cjs
 node tests/vehicles.cjs
 node --test source/tests/musica.test.mjs
 ```
@@ -218,6 +229,10 @@ O GitHub Pages publica a branch **main**, a partir da raiz. Antes de enviar muda
 | Devolver o carro à pista | `R` | `X` |
 | Pausar / menu | `Esc` | `Start` |
 | Abrir / fechar teto do Gol | `O` ou botão na tela | — |
+| Farol baixo / farol alto do Gol | `L` / `K` ou botões na tela | — |
+| Setas esquerda / direita do Gol | `Z` / `X`; repetir desliga | — |
+| Buzina do Gol | Segurar `J` ou o botão na tela | — |
+| Luz forte da placa do Gol | `I` ou botão na tela | — |
 | Girar câmera externa do Gol | Arrastar com o botão esquerdo | — |
 | Zoom externo do Gol | Roda do mouse | — |
 | Centralizar câmera | Duplo clique ou botão na tela | — |

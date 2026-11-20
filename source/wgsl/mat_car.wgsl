@@ -60,6 +60,16 @@ fn cabinDigit(q: vec2f, digit: u32) -> f32 {
   }
   return 1.0-smoothstep(0.045,0.08,d);
 }
+fn golLampSurface(base: Surface, p: vec3f) -> Surface {
+  var s=base; let az=abs(p.z);
+  if(p.x>1.58 && p.x<1.96 && p.y>0.53 && p.y<0.73) {
+    let low=1.0-smoothstep(0.028,0.040,length(vec2f((az-0.51)*0.90,p.y-0.612)));
+    let high=1.0-smoothstep(0.027,0.038,length(vec2f((az-0.665)*0.90,p.y-0.604)));
+    let power=low*select(0.0,0.95,O.p0.z>0.5)+high*select(0.0,1.5,O.p0.z>1.5);
+    if(power>0.0){s.albedo=mix(s.albedo,vec3f(1.0,0.94,0.79),sat(power));s.emissive=max(s.emissive,power);}
+  }
+  return s;
+}
 fn surf(in: V2F, ff: bool) -> Surface {
   var s = surfDefault(normalize(in.nrm));
   let id = matId(in.mat); let pa = matA(in.mat) * 255.0;
@@ -408,6 +418,15 @@ fn surf(in: V2F, ff: bool) -> Surface {
       let stripe=0.96+0.04*sin(in.ext.y*1800.0);
       s.albedo=in.col.rgb*stripe;s.rough=0.13;s.metal=0.25;s.coat=0.65;s.emissive=0.45;return s;
     }
+    case 30u: { // Seta dedicada: mesmo canal na frente, na traseira e no retrovisor.
+      let blink=select(O.p1.z,O.p1.w,pa>0.5);
+      let rib=0.94+0.06*sin(in.uv.x*150.0);
+      s.albedo=mix(vec3f(0.075,0.085,0.095)*rib,vec3f(1.0,0.20,0.003),blink);
+      s.rough=0.24;s.metal=0.0;s.coat=0.35;s.emissive=1.30*blink;return s;
+    }
+    case 29u: { // LEDs brancos que iluminam a placa traseira
+      s.albedo=vec3f(0.92,0.96,1.0);s.rough=0.2;s.metal=0.0;s.emissive=2.2*sat(O.p2.x);return s;
+    }
     case 27u: { s.albedo=in.col.rgb; s.rough=0.8; s.emissive=0.18; return s; }
     case 26u: { // plástico granulado real, com cor, microrrelevo e rugosidade
       let localN = normalize((vec4f(s.normal,0.0) * O.model).xyz);
@@ -482,7 +501,8 @@ fn surf(in: V2F, ff: bool) -> Surface {
       if (O.p0.w > 0.5 && lp.y > 1.15 && lp.x < 0.75 && abs(lp.z) < 0.72) {
         s.rough = 0.95; s.metal = 0.0; s.coat = 0.0; s.albedo = min(s.albedo, vec3f(0.04));
       }
-      return s;
+      if(lp.x< -1.87 && abs(lp.z)<0.207 && lp.y>0.347 && lp.y<0.487){s.emissive=max(s.emissive,0.65*sat(O.p2.x));}
+      return golLampSurface(s,lp);
     }
     case 21u: { // cor sólida do Blender, incluindo a faixa preta do aerofólio
       let flags = u32(round(pa));
@@ -508,7 +528,7 @@ fn surf(in: V2F, ff: bool) -> Surface {
     }
     case 22u: { // segmentos vermelhos e luz de freio
       s.rough = 0.24; s.coat = 0.25;
-      s.emissive = 0.04 + 0.65 * sat(O.p0.x);
+      s.emissive = 0.04 + 0.55*sat(O.p0.z) + 1.2 * sat(O.p0.x);
       return s;
     }
     case 19u: {   // roda de liga: face diamantada (a=0), grafite (a=1), disco de borrão (a=2), miolo com emblema VW (a=3)

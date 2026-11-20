@@ -1,0 +1,9 @@
+{
+  "front": 2,
+  "mirror_repeaters": 2,
+  "rear_cells": 18,
+  "color": "âmbar",
+  "synchronized_by_side": true,
+  "reverse_light_independent": true,
+  "mirror_lens_center_height_m": 0.914
+}

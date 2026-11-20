@@ -1,0 +1,17 @@
+{
+  "glass_surface": "quadrática contínua sobre a curvatura do teto",
+  "roof_fit_rms_mm": 3.179918202617972,
+  "glass_offset_mm": 2,
+  "moving_frit_width_mm": 7,
+  "fixed_seal_radius_mm": 2.5,
+  "cowl_closed": true,
+  "antenna_center_game_x": -1.14,
+  "antenna_center_game_z": 0,
+  "antenna_dimensions_m": [
+    0.16,
+    0.084,
+    0.068
+  ],
+  "glass_open_rear_x": -1.015,
+  "antenna_front_x": -1.0599999999999998
+}

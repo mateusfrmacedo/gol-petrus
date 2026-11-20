@@ -14,7 +14,7 @@ const CAR = {
     const roof=new MeshBuilder(), roofGlass=new MeshBuilder(), deflector=new MeshBuilder();
     carBuildSunroof(roof,roofGlass,deflector);
     set.add(roof.upload(),CAR.slotRoof,3);glass.add_(roofGlass.upload(),CAR.slotRoof);
-    set.add(deflector.upload(),CAR.slotDeflector,3);
+    CAR.deflector=set.add(deflector.upload(),CAR.slotDeflector,3);
     if (typeof carBuildParts === 'function') carBuildParts(mb, gl);
     CAR.tris = (mb.ni + gl.ni + roof.ni + roofGlass.ni + deflector.ni) / 3;
     set.add(mb.upload(), CAR.slotBody, 3); glass.add_(gl.upload(), CAR.slotBody);
@@ -45,6 +45,7 @@ const CAR = {
     const steer = CAR.inp[0], steerWheelAngle = CAR.inp[1];
     const t = CAR._t2, t2 = CAR._t3;
     if (CAR.slotRoof !== null) {
+      if(CAR.deflector)CAR.deflector.flags=SUNROOF.value>.005?3:0;
       objPrev(CAR.slotRoof).set(objModel(CAR.slotRoof));SUNROOF.matrix(t);m4mul(objModel(CAR.slotRoof),body,t);
       objPrev(CAR.slotDeflector).set(objModel(CAR.slotDeflector));SUNROOF.matrix(t,true);m4mul(objModel(CAR.slotDeflector),body,t);
     }
