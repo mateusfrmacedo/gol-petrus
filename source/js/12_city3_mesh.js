@@ -242,7 +242,9 @@ function cityHouse(mb, h, rnd) {
   cRect(mb, -X - 0.025, yb - y0, -Zh - 0.025, 0, 0, w + 0.05, 0, 0.45 - (yb - y0), 0, -1, 0, 0);
   // fachada da rua (x = -X)
   const wcol = [0.9, 0.9, 0.88], gcol = h.seed < 0.5 ? [0.2, 0.2, 0.21] : [0.85, 0.85, 0.82];
-  if (h.comm && h.style) {
+  if (h.comm && h.style && h.style.kind) {
+    cityShopKind(mb, h, h.style, X, Zh, d, w, H1, y0, col);
+  } else if (h.comm && h.style) {
     // loja com fachada feita pelo Street View: vitrine com grades brancas de abrir, toldo em arco, letreiro e telhado de telha
     const S = h.style;
     cOpening(mb, -X, -1, 0, w - 1.6, 0, 2.7, 21, S.frame || [0.95, 0.95, 0.94]);
@@ -314,6 +316,130 @@ function cityHouse(mb, h, rnd) {
   }
   mb.pop();
 }
+// triângulo com normal dada (a ordem dos vértices é acertada para a face apontar para n)
+function cTriN(mb, A, B, Cc, n) {
+  const a = mb.v(A[0], A[1], A[2], n[0], n[1], n[2], A[2], A[1]), b = mb.v(B[0], B[1], B[2], n[0], n[1], n[2], B[2], B[1]), c = mb.v(Cc[0], Cc[1], Cc[2], n[0], n[1], n[2], Cc[2], Cc[1]);
+  const e1x = B[0] - A[0], e1y = B[1] - A[1], e1z = B[2] - A[2], e2x = Cc[0] - A[0], e2y = Cc[1] - A[1], e2z = Cc[2] - A[2];
+  const cx = e1y * e2z - e1z * e2y, cy = e1z * e2x - e1x * e2z, cz = e1x * e2y - e1y * e2x;
+  if (cx * n[0] + cy * n[1] + cz * n[2] > 0) mb.tri(a, b, c); else mb.tri(a, c, b);
+}
+// painel vertical no plano x (normal ±X) com um arco pleno vazado entre z0 e z1: arranque em ys, topo do painel em yt
+function cArchPanel(mb, x, nx, z0, z1, ys, yt) {
+  const r = (z1 - z0) / 2, zc = (z0 + z1) / 2, N = 12, n = [nx, 0, 0], TL = [x, yt, z0], TR = [x, yt, z1];
+  let prev = [x, ys, z0];
+  for (let k = 1; k <= N; k++) { const a = k / N * PI, p = [x, ys + Math.sin(a) * r, zc - Math.cos(a) * r]; cTriN(mb, prev, p, k <= N / 2 ? TL : TR, n); prev = p; }
+  cTriN(mb, TL, [x, ys + r, zc], TR, n);
+}
+// fachadas especiais conferidas no Street View (Centro): agência bancária, padaria de sobrado, casa de arcos, loja de platibanda
+function cityShopKind(mb, h, S, X, Zh, d, w, H1, y0, col) {
+  const C = CITY, q = (a, b) => [h.x + h.nx * a + h.fx * b, h.z + h.nz * a + h.fz * b];
+  const sign = (x, z0, z1, y, hh, extra) => { const c0 = q(x, z0), c1 = q(x, z1); C.signs.push(Object.assign({ name: h.shop, bg: h.signBg, fg: h.signFg, sub: S.sub, font: S.font, x: c0[0], y: y0 + y, z: c0[1], rx: c1[0] - c0[0], rz: c1[1] - c0[1], h: hh, nx: -h.nx, nz: -h.nz }, extra || {})); };
+  const white = [0.95, 0.94, 0.91];
+  if (S.kind === 'banco') {
+    const HT = 4.5;
+    mb.mat(19, 170).color(col[0], col[1], col[2], 1); cWalls(mb, d, w, H1 - 0.05, HT + 0.9);
+    cOpening(mb, -X, -1, 0, w - 1.0, 0.25, 3.25, 5, [1, 1, 1]);                               // vitrine de vidro
+    mb.mat(19, 210).color(...white, 1);
+    const np = Math.max(2, Math.round(w / 3.2)); for (let i = 0; i <= np; i++) mb.box(-X - 0.2, 1.65, -Zh + 0.35 + (w - 0.7) * i / np, 0.4, 3.3, 0.38);
+    mb.box(-X - 0.3, 0.12, 0, 0.6, 0.24, w);                                                  // soleira
+    mb.mat(19, 120).color(0.97, 0.82, 0.07, 1); mb.box(-X - 0.32, 3.98, 0, 0.64, 1.3, w + 0.2);  // faixa amarela
+    sign(-X - 0.66, -(w / 2 - 0.6), w / 2 - 0.6, 3.45, 1.05);
+    mb.mat(3).color(0.42, 0.41, 0.39, 1); cRect(mb, -X, HT + 0.4, -Zh, d, 0, 0, 0, 0, w, 0, 1, 0);
+    // totem amarelo na esquina (lado onde a calçada encontra a outra rua)
+    let side = 0, bj = 40; for (const J of C.juncs) { const dx = J.node.x - h.x, dz = J.node.z - h.z, t = dx * h.fx + dz * h.fz; if (Math.hypot(dx, dz) < bj) { bj = Math.hypot(dx, dz); side = Math.sign(t); } }
+    if (side) {
+      const tz = side * (Zh - 0.5), tx = -X - 1.3;
+      mb.mat(2, 150, 120).color(0.55, 0.56, 0.57, 1); mb.box(tx, 2.6, tz, 0.26, 5.2, 0.26); mbColCircle(mb, tx, tz, 0.2);
+      mb.mat(19, 120).color(0.97, 0.82, 0.07, 1); mb.box(tx, 5.75, tz, 0.3, 1.5, 1.25);
+      const c0 = q(tx - 0.16, tz - 0.6), c1 = q(tx - 0.16, tz + 0.6); C.signs.push({ name: 'BB', bg: '#f7d417', fg: '#1d3f95', font: 'bold 80px Arial, sans-serif', x: c0[0], y: y0 + 5.5, z: c0[1], rx: c1[0] - c0[0], rz: c1[1] - c0[1], h: 0.55, nx: -h.nx, nz: -h.nz });
+    }
+  } else if (S.kind === 'padaria') {
+    const nd = Math.max(2, Math.round((w - 1) / 3)), dw = (w - 1) / nd;
+    for (let i = 0; i < nd; i++) cOpening(mb, -X, -1, -Zh + 0.5 + dw * (i + 0.5), dw - 0.5, 0, 2.6, i === 0 ? 5 : 21, [0.92, 0.92, 0.9]);
+    mb.mat(19, 230).color(col[0] * 0.75, col[1] * 0.75, col[2] * 0.75, 1); cRect(mb, -X - 0.03, 0, -Zh, 0, 0, w, 0, 0.5, 0, -1, 0, 0);   // barrado
+    // aba de telha laranja ao longo da frente, forro branco e testeira
+    const ty = 3.4, tb = 1.5;
+    mb.mat(20).color(0.72, 0.36, 0.16, 1); cRect(mb, -X, ty, -Zh - 0.25, -tb, -0.5, 0, 0, 0, w + 0.5, -0.32, 0.95, 0);
+    mb.mat(19, 180).color(0.93, 0.92, 0.9, 1); cRect(mb, -X, ty - 0.04, -Zh - 0.25, -tb, -0.5, 0, 0, 0, w + 0.5, 0.32, -0.95, 0);
+    mb.mat(2, 150, 0).color(0.9, 0.9, 0.88, 1); mb.box(-X - tb, ty - 0.56, 0, 0.06, 0.14, w + 0.5);
+    for (const z of [-Zh * 0.66, Zh * 0.66]) if (w > 8) cOpening(mb, -X, -1, z, 1.1, 3.95, 5.05, 21, [0.95, 0.95, 0.94]);
+    sign(-X - 0.07, -1.9, 1.9, 4.0, 1.05);
+    mb.mat(20).color(...(S.roof || [0.55, 0.26, 0.14]), 1); cRoof(mb, d, w, H1, Math.min(d, w) * 0.27, 0.5, false);
+    mb.mat(19, 180).color(0.92, 0.91, 0.88, 1); cSoffit(mb, d, w, H1, 0.5);
+  } else if (S.kind === 'arcos') {
+    const V = 1.7, xa = -X - V, Ht = 3.15, pw = 0.36;
+    mb.mat(19, 150).color(col[0], col[1], col[2], 1); if (Ht > H1) cWalls(mb, d, w, H1 - 0.05, Ht);
+    cOpening(mb, -X, -1, -Zh * 0.4, 1.0, 0, 2.2, 2, [0.42, 0.24, 0.12]); cOpening(mb, -X, -1, Zh * 0.35, 1.6, 1.0, 2.2, 21, white);
+    const n = Math.max(3, Math.round((w - 0.4) / 2.0)), bw = (w - 0.4) / n;
+    for (let i = 0; i < n; i++) { const z0 = -Zh + 0.2 + bw * i + pw / 2, z1 = z0 + bw - pw; cArchPanel(mb, xa, -1, z0, z1, 1.75, Ht); cArchPanel(mb, xa + 0.22, 1, z0, z1, 1.75, Ht); }
+    mb.mat(19, 200).color(...white, 1);
+    for (let i = 0; i < n; i++) { const z0 = -Zh + 0.2 + bw * i + pw / 2, z1 = z0 + bw - pw, r = (z1 - z0) / 2, zc = (z0 + z1) / 2, pts = []; for (let k = 0; k <= 14; k++) { const a = k / 14 * PI; pts.push([xa - 0.05, 1.75 + Math.sin(a) * r, zc - Math.cos(a) * r]); } mb.tube(pts, 0.06, 5); }
+    for (let i = 0; i <= n; i++) { const z = -Zh + 0.2 + bw * i; mb.box(xa + 0.11, 0.9, z, 0.42, 1.8, pw + 0.06); mbColCircle(mb, xa + 0.11, z, 0.22); }
+    mb.box(xa + 0.11, Ht - 0.06, 0, 0.44, 0.12, w); mb.box(xa + 0.11, 0.06, 0, 0.5, 0.12, w + 0.1);
+    mb.mat(19, 180).color(0.93, 0.92, 0.9, 1); cRect(mb, xa + 0.22, Ht - 0.12, -Zh, -xa - X - 0.22, 0, 0, 0, 0, w, 0, -1, 0);   // forro da varanda
+    mb.mat(3).color(0.6, 0.58, 0.54, 1); cRect(mb, xa, 0.03, -Zh, V, 0, 0, 0, 0, w, 0, 1, 0);                                       // piso
+    mb.mat(19, 150).color(col[0], col[1], col[2], 1); cRect(mb, xa, Ht, -Zh, 0, 0.0, 0, 0, 0, w, -1, 0, 0);
+    // três oitões na frente, com friso branco
+    for (const k of [-1, 0, 1]) { const zc = k * w / 3, gw = Math.min(3.2, w / 3 - 0.25); mb.mat(19, 150).color(col[0], col[1], col[2], 1); cTriN(mb, [xa - 0.01, Ht, zc - gw / 2], [xa - 0.01, Ht, zc + gw / 2], [xa - 0.01, Ht + 1.05, zc], [-1, 0, 0]);
+      mb.mat(19, 200).color(...white, 1); mb.tube([[xa - 0.05, Ht, zc - gw / 2 - 0.1], [xa - 0.05, Ht + 1.1, zc], [xa - 0.05, Ht, zc + gw / 2 + 0.1]], 0.06, 5); }
+    mb.push(m4basis(m4(), 1, 0, 0, 0, 1, 0, 0, 0, 1, -V / 2, 0, 0));
+    mb.mat(20).color(...(S.roof || [0.5, 0.2, 0.1]), 1); cRoof(mb, d + V + 0.2, w, Ht, Math.min(d, w) * 0.26, 0.45, false);
+    mb.mat(19, 180).color(0.92, 0.91, 0.88, 1); cSoffit(mb, d + V + 0.2, w, Ht, 0.45);
+    mb.pop();
+    sign(-X - 0.07, -Zh * 0.9 + 0.2, -Zh * 0.9 + 2.6, 2.35, 0.55);
+    // mureta branca com gradil na divisa da calçada
+    if (h.set > V + 0.7) {
+      const xw = -X - h.set + 0.1; mb.mat(19, 200).color(...white, 1);
+      for (const [z0, z1] of [[-Zh, -0.8], [0.8, Zh]]) { mb.box(xw, 0.35, (z0 + z1) / 2, 0.2, 0.7, z1 - z0); mb.mat(2, 140, 150).color(...white, 1); for (let z = z0 + 0.1; z < z1; z += 0.16) mb.box(xw, 1.05, z, 0.03, 0.7, 0.03); mb.box(xw, 1.42, (z0 + z1) / 2, 0.05, 0.05, z1 - z0); mb.mat(19, 200).color(...white, 1); }
+      for (const z of [-Zh, -0.8, 0.8, Zh]) mb.box(xw, 0.75, z, 0.3, 1.5, 0.3);
+    }
+  } else {
+    // loja simples de platibanda: porta de vidro, vitrine, toldo de lona opcional e letreiro na platibanda
+    const HT = Math.max(H1, 3.3);
+    mb.mat(19, 170).color(col[0], col[1], col[2], 1); cWalls(mb, d, w, H1 - 0.05, HT + 1.0);
+    mb.mat(19, 230).color(col[0] * 0.7, col[1] * 0.7, col[2] * 0.7, 1); cRect(mb, -X - 0.03, 0, -Zh, 0, 0, w, 0, 0.45, 0, -1, 0, 0);
+    cOpening(mb, -X, -1, w > 6 ? -Zh * 0.35 : 0, Math.min(2.2, w * 0.32), 0, 2.6, 5, [1, 1, 1]);
+    if (w > 6) cOpening(mb, -X, -1, Zh * 0.42, Math.min(2.4, w * 0.32), 0.9, 2.4, 21, white);
+    mb.mat(19, 200).color(...white, 1); mb.box(-X - 0.05, HT + 0.95, 0, 0.12, 0.1, w + 0.02);   // pingadeira
+    if (S.toldo) { mb.mat(10).color(...S.toldo, 1); cRect(mb, -X, 2.95, -Zh + 0.3, -1.2, -0.45, 0, 0, 0, w - 0.6, -0.35, 0.94, 0); mb.mat(19, 200).color(...S.toldo, 1); cRect(mb, -X - 1.2, 2.5, -Zh + 0.3, 0, 0.0, 0, 0, 0, w - 0.6, -1, 0, 0); cRect(mb, -X - 1.2, 2.5, -Zh + 0.3, 0, -0.22, 0, 0, 0, w - 0.6, -1, 0, 0); }
+    const sw = Math.min(w - 0.8, S.signW || w - 1); sign(-X - 0.07, -sw / 2, sw / 2, HT - 0.05, S.signH || 0.95);
+    mb.mat(3).color(0.42, 0.41, 0.39, 1); cRect(mb, -X + 0.2, HT + 0.55, -Zh, d - 0.4, 0, 0, 0, 0, w, 0, 1, 0);
+  }
+}
+// Paço Municipal "Waldemar Pala" (Praça Padre João Nolte, 22), pelo Street View (out/2024): dois pavimentos revestidos de pedra bege,
+// faixa cinza-escura no alto, panos de vidro fumê entre montantes de pedra, marquise escura sobre a entrada, degraus, rampa de piso vermelho e vasos
+function cityPaco(mb, x, z, yaw) {
+  const D = 14, W = 20, H = 7.0, c = Math.cos(yaw), s = Math.sin(yaw);
+  let ymin = 1e9, ymax = -1e9; for (const [a, b] of [[-D / 2, -W / 2], [D / 2, -W / 2], [D / 2, W / 2], [-D / 2, W / 2]]) { const yy = hfAt(x + c * a - s * b, z + s * a + c * b); ymin = Math.min(ymin, yy); ymax = Math.max(ymax, yy); }
+  const fg = cityGroundY(x - c * (D / 2 + 3.2), z - s * (D / 2 + 3.2)), y = Math.max(fg + 0.45, ymax + 0.15), rise = y - fg;
+  mb.push(m4basis(m4(), c, 0, s, 0, 1, 0, -s, 0, c, x, y, z));
+  const stone = [0.83, 0.78, 0.67], dark = [0.21, 0.22, 0.24], X = -D / 2;
+  mb.mat(19, 110).color(...stone, 1); cWalls(mb, D, W, ymin - y - 0.6, H);
+  // bloco de vidro fumê à esquerda (dois pavimentos) com montantes e faixa de pedra
+  const g0 = -W / 2 + 0.8, g1 = 1.2;
+  cOpening(mb, X, -1, (g0 + g1) / 2, g1 - g0, 0.45, 3.05, 5, [1, 1, 1]); cOpening(mb, X, -1, (g0 + g1) / 2, g1 - g0, 3.85, 6.35, 5, [1, 1, 1]);
+  mb.mat(19, 110).color(stone[0] * 1.03, stone[1] * 1.03, stone[2] * 1.03, 1);
+  for (let k = 0; k <= 4; k++) mb.box(X - 0.14, H / 2, g0 + (g1 - g0) * k / 4, 0.28, H, 0.4);
+  mb.box(X - 0.16, 3.45, (g0 + g1) / 2, 0.32, 0.8, g1 - g0 + 0.4); mb.box(X - 0.12, 0.22, (g0 + g1) / 2, 0.24, 0.44, g1 - g0 + 0.4);
+  // entrada à direita: porta de vidro sob a marquise escura, nome em letras de metal na pedra
+  cOpening(mb, X, -1, 5.6, 3.6, 0, 2.85, 5, [1, 1, 1]);
+  mb.mat(2, 70, 40).color(...dark, 1); mb.box(X - 1.3, 3.2, 5.6, 2.6, 0.32, 6.2); for (const zz of [2.75, 8.45]) { mb.box(X - 2.45, 1.55, zz, 0.2, 3.1, 0.2); mbColCircle(mb, X - 2.45, zz, 0.16); }
+  const q = (a, b) => [x + c * a - s * b, z + s * a + c * b], c0 = q(X - 0.06, 2.3), c1 = q(X - 0.06, 9.4);
+  CITY.signs.push({ name: 'PAÇO MUNICIPAL', sub: 'WALDEMAR PALA', bg: '#d4c9b0', fg: '#3b3b3b', font: 'bold 54px Georgia, serif', x: c0[0], y: y + 4.25, z: c0[1], rx: c1[0] - c0[0], rz: c1[1] - c0[1], h: 1.45, nx: -c, nz: -s });
+  // faixa escura no alto, avançando sobre a fachada
+  mb.mat(2, 70, 40).color(...dark, 1); mb.box(-0.15, H + 0.55, 0, D + 0.5, 1.1, W + 0.5);
+  mb.mat(3).color(0.4, 0.39, 0.37, 1); cRect(mb, -D / 2, H + 0.6, -W / 2, D, 0, 0, 0, 0, W, 0, 1, 0);
+  // degraus diante da entrada e rampa de piso vermelho ao lado
+  const ns = Math.max(2, Math.round(rise / 0.17)), sh = rise / ns;
+  mb.mat(3).color(0.66, 0.64, 0.6, 1); mb.box(X - 0.75, -rise / 2, 5.6, 1.5, rise, 6.4);   // patamar sob a marquise
+  for (let k = 1; k < ns; k++) mb.box(X - 1.5 - (k - 0.5) * 0.32, (-rise - k * sh) / 2, 5.6, 0.32, rise - k * sh, 6.4);
+  const rl = Math.max(2.5, rise * 9); mb.mat(23).color(0.62, 0.3, 0.24, 1); cRect(mb, X - 0.05, 0, 0.1, -rl, -rise, 0, 0, 0, 2.2, -rise / rl, 1, 0);
+  // vasos com arbustos
+  for (const zz of [1.9, 9.3]) { mb.mat(2, 120, 0).color(0.3, 0.3, 0.31, 1); mb.box(X - 2.0, 0.35, zz, 0.7, 0.7, 0.7); mb.mat(19, 255).color(0.22, 0.38, 0.16, 1); mb.cyl(X - 2.0, 0.7, zz, 0.42, 1.5, 0.15, 8, false, true); }
+  mb.pop();
+  CITY.addBox({ x, z, ux: c, uz: s, hd: D / 2, hw: W / 2 });
+  CITY.paco = { fx: x - c * D / 2, fz: z - s * D / 2, nx: c, nz: s, tx: -s, tz: c };
+}
 // prédio genérico (público): caixa de 1–2 andares, telhado de fibrocimento ou laje, janelas em fila
 function cityBuilding(mb, x, z, yaw, d, w, floors, col, opt) {
   opt = opt || {};
@@ -381,8 +507,8 @@ function cityPropsBuild() {
     const t = p.tags, f = cityFaceRoad(p.x, p.z), yaw = f.ang + PI;   // eixo local X: da via para dentro do lote
     const off = (dd) => [p.x - Math.cos(f.ang) * Math.max(0, dd - f.dist), p.z - Math.sin(f.ang) * Math.max(0, dd - f.dist)];
     if (t.am === 'place_of_worship') { if (MARCOS.matriz) continue; const [x, z] = off(C.SW + 4.2 + 20); cityChurch(mb, x, z, yaw); }
-    else if (t.am === 'school' || t.am === 'kindergarten') { const [x, z] = off(4.2 + C.SW + 8); cityBuilding(mb, x, z, yaw, 12, t.am === 'school' ? 34 : 18, 1, [0.92, 0.88, 0.72], { gable: false, sign: (p.name || (t.am === 'school' ? 'Escola' : 'Creche')).replace(/^Escola Estadual /, 'E. E. ').replace(/^Escola M+unicipal /, 'E. M. ').toUpperCase(), bg: '#f4f4f0', fg: '#1a4d8f' }); }
-    else if (t.am === 'townhall') { const [x, z] = off(4.2 + C.SW + 9); cityBuilding(mb, x, z, yaw, 14, 22, 2, [0.94, 0.92, 0.84], { flat: true, sign: 'PREFEITURA MUNICIPAL DE NOVA ALIANÇA', bg: '#f4f4f0', fg: '#0d3b66' }); }
+    else if (t.am === 'school' || t.am === 'kindergarten') { const [x, z] = off(4.2 + C.SW + 8); cityBuilding(mb, x, z, yaw, 12, t.am === 'school' ? 34 : 18, 1, [0.92, 0.88, 0.72], { gable: false, sign: (p.name || (t.am === 'school' ? 'Escola' : 'Creche')).replace(/^Escola Estadual /, 'E. E. ').replace(/^Escola M+unicipal /i, 'E. M. ').toUpperCase(), bg: '#f4f4f0', fg: '#1a4d8f' }); }
+    else if (t.am === 'townhall') { const [x, z] = off(4.2 + C.SW + 7 + 3.2); cityPaco(mb, x, z, yaw); }
     else if (t.am === 'post_office') { const [x, z] = off(4.2 + C.SW + 7); cityBuilding(mb, x, z, yaw, 11, 12, 1, [0.95, 0.8, 0.15], { flat: true, sign: 'CORREIOS', bg: '#ffd400', fg: '#0052a5' }); }
     else if (t.am === 'police') { const [x, z] = off(4.2 + C.SW + 7); cityBuilding(mb, x, z, yaw, 11, 14, 1, [0.82, 0.84, 0.86], { flat: true, sign: (p.name || 'POLÍCIA').toUpperCase(), bg: '#5d4037', fg: '#fff' }); }
     else if (t.am === 'clinic' || t.am === 'nursing_home' || t.am === 'funeral_hall' || t.am === 'library') { const [x, z] = off(4.2 + C.SW + 7); cityBuilding(mb, x, z, yaw, 11, 16, 1, [0.9, 0.9, 0.86], { sign: (p.name || (t.am === 'library' ? 'Biblioteca Municipal' : t.am === 'clinic' ? 'Unidade Básica de Saúde' : '')).toUpperCase().replace('UNIDADE BÁSICA DE SAÚDE DE NOVA ALIANÇA', 'UBS NOVA ALIANÇA') || null, bg: t.am === 'clinic' ? '#0277bd' : '#f4f4f0', fg: t.am === 'clinic' ? '#fff' : '#333' }); }
@@ -495,6 +621,13 @@ function cityPave() {
     const t = p.tags;
     if (t.am === 'fuel') { const s = poiSite(p, 4.2 + C.SW + 9); C.pave.push(s.x, s.z, 15); }
     else if (t.bd === 'transportation') { const s = poiSite(p, 4.2 + C.SW + 6); C.pave.push(s.x, s.z, 14); }
+    else if (t.am === 'townhall') { const s = poiSite(p, 4.2 + C.SW + 10.2), c = Math.cos(s.yaw), sn = Math.sin(s.yaw); for (let b = -9; b <= 9; b += 3) C.pave.push(s.x - c * 9 - sn * b, s.z - sn * 9 + c * b, 2.6); }
+  }
+  // comércio: frente cimentada da calçada até a fachada (sem grama na porta da loja)
+  for (const h of C.houses) {
+    if (!h.comm || h.set < 0.4) continue;
+    const r = Math.max(1.0, h.set / 2 + 0.5), xf = -h.d / 2 - h.set / 2;
+    for (let b = -h.w / 2 + r * 0.7; b <= h.w / 2 - r * 0.7 + 1e-6; b += r) C.pave.push(h.x + h.nx * xf + h.fx * b, h.z + h.nz * xf + h.fz * b, r);
   }
   for (const B of C.blocks) {
     if (B.kind !== 'park' || B.matriz) continue;

@@ -123,6 +123,7 @@ function cityGraph(items) {
     const tg = it.tags; if (it.t === 'w' && (tg.hw || tg.ww)) continue;
     if (it.t === 'n' && tg.hw === 'stop') { C.stops.push(it.pts[0] / D, it.pts[1] / D); continue; }
     if (!(tg.am || tg.ls || tg.lu || tg.bd || tg.nt || tg.sh || tg.hw === 'services')) continue;
+    if (tg.nm === 'Polícia Militar') continue;   // o posto da PM é a casa de arcos da Rua Gotardi (CITY_SHOPS), não um prédio genérico
     let x = 0, z = 0; const n = it.pts.length / 2; for (let i = 0; i < n; i++) { x += it.pts[i * 2]; z += it.pts[i * 2 + 1]; }
     C.pois.push({ x: x / n / D, z: z / n / D, tags: tg, name: tg.nm || '' });
   }
@@ -495,7 +496,7 @@ function cityLots() {
   const reserved = [];
   for (const p of C.pois) {
     const t = p.tags;
-    const r = t.ls === 'park' ? 0 : t.am === 'place_of_worship' ? 30 : t.am === 'school' || t.am === 'kindergarten' ? 26 : t.ls === 'pitch' ? 60 : t.lu === 'cemetery' ? 0 : t.am === 'fuel' ? 22 : (t.am || t.bd || t.hw === 'services') ? 14 : 0;
+    const r = t.ls === 'park' ? 0 : t.am === 'place_of_worship' ? 30 : t.am === 'school' || t.am === 'kindergarten' ? 26 : t.ls === 'pitch' ? 60 : t.lu === 'cemetery' ? 0 : t.am === 'fuel' ? 22 : t.am === 'townhall' ? 19 : (t.am || t.bd || t.hw === 'services') ? 14 : 0;
     if (r) reserved.push([p.x, p.z, r]);
   }
   // praças e cemitério: a quadra inteira (preenchimento a partir do ponto, limitado pelas calçadas)
@@ -678,23 +679,56 @@ const CITY_SHOPS = [
   ['MARKIN MOTOS', -21.0151262, -49.4970352, '#1e2124', '#f5f5f5'],
   ['Prisma', -21.0169200, -49.4973000, '#14245c', '#ffffff'],
   ['SEGALA', -21.0168650, -49.4972550, '#1d1d1f', '#f2f2f2'],
+  // Centro, conferidos no Google Maps e no Street View (nov/2026): posição pelo ponto do Google, fachada pelo Street View
+  ['BANCO DO BRASIL', -21.0168384, -49.4966161, '#f7d417', '#1d3f95', 'Rua Gotardi'],
+  ['PADARIA DO PARQUE', -21.0167167, -49.4964512, '#2a2a2d', '#f3e3c0'],
+  ['POLÍCIA MILITAR', -21.0168491, -49.4969571, '#f4f4f0', '#1a1a1a', 'Rua Gotardi'],
+  ['Aliança Saúde', -21.0161883, -49.4985310, '#d9d9d6', '#3a3a3a'],
+  ['OQUELIFIBRA', -21.0160801, -49.4978341, '#1565c0', '#ffffff'],
+  ['REDE TEM', -21.0157938, -49.4974687, '#c62828', '#ffffff'],
+  ['CABELEIREIRO ROSILDO', -21.0158094, -49.4975415, '#f4f4f0', '#222222'],
+  ['SECRETARIA DA EDUCAÇÃO', -21.0171501, -49.4980662, '#f4f4f0', '#0d3b66'],
+  ['AUTO PEÇAS J. L.', -21.0152681, -49.4966995, '#0d47a1', '#ffffff'],
+  ['CHAPA QUENTE', -21.0166043, -49.4986851, '#b71c1c', '#ffd54f'],
+  ['DERSOS BIER', -21.0178773, -49.4964799, '#3e2723', '#ffca28'],
+  ['TOP GRILL', -21.0164297, -49.4995265, '#212121', '#ff7043'],
+  ['MINI MERCADO RNA', -21.0163067, -49.4997835, '#2e7d32', '#ffffff'],
+  ['ARTENES BEAUTY', -21.0162365, -49.4992466, '#f8bbd0', '#4a148c'],
+  ['ISA SIQUEIRA STUDIO', -21.0164886, -49.4998963, '#efe6dc', '#5d4037'],
+  ['MARLENE MODAS', -21.0165230, -49.4999664, '#880e4f', '#ffffff'],
+  ['DROGARIA TOTAL', -21.0163956, -49.5002224, '#0057a8', '#ffffff'],
+  ['MULTI CASA', -21.0166181, -49.5004204, '#f57c00', '#ffffff'],
+  ['FARMA NOVA', -21.0167267, -49.5003840, '#00897b', '#ffffff'],
+  ['KAEDU', -21.0163431, -49.5006172, '#263238', '#ffffff'],
 ];
 // fachadas de lojas feitas pelo Street View (dez/2023): cor da parede, toldo, grades, letreiro
 const CITY_SHOP_STYLE = {
   'Prisma': { col: [0.64, 0.84, 0.66], awning: [0.3, 0.72, 0.48], grade: true, sub: 'PAPELARIA', signH: 1.15, roof: [0.6, 0.28, 0.15] },
   'SEGALA': { col: [0.86, 0.52, 0.38], awning: [0.6, 0.6, 0.6], grade: false, sub: 'ELÉTRICA · ELETRÔNICOS', signH: 1.05, roof: [0.55, 0.27, 0.15], frame: [0.3, 0.3, 0.32] },
+  // agência na esquina da praça com a Rua do Comércio: vitrine de vidro entre pilares brancos, faixa amarela com o nome em azul, totem na esquina
+  'BANCO DO BRASIL': { kind: 'banco', col: [0.93, 0.93, 0.9] },
+  // sobrado azul na esquina da Gotardi com a Rua do Comércio: aba de telha laranja na frente, letreiro escuro no andar de cima
+  'PADARIA DO PARQUE': { kind: 'padaria', two: true, col: [0.5, 0.62, 0.86], sub: 'CAFÉ', roof: [0.6, 0.27, 0.13] },
+  // casa de tijolo avermelhado com varanda de arcos brancos e três oitões na frente, mureta branca com grade
+  'POLÍCIA MILITAR': { kind: 'arcos', col: [0.6, 0.27, 0.2], roof: [0.5, 0.2, 0.1], sub: 'POSTO POLICIAL' },
+  // fachada cinza com letreiro manuscrito na platibanda e toldo de lona branca
+  'Aliança Saúde': { kind: 'simples', col: [0.78, 0.79, 0.79], toldo: [0.93, 0.92, 0.9], font: 'italic bold 60px Georgia, serif', sub: 'DROGARIA', signH: 0.95 },
+  // casa de esquina verde-bandeira (Rua Guilhermite com a Rui Barbosa), placa azul da Oquelifibra
+  'OQUELIFIBRA': { kind: 'simples', col: [0.16, 0.62, 0.3], sub: 'INTERNET FIBRA ÓPTICA', signH: 0.85, signW: 4.2 },
+  'SECRETARIA DA EDUCAÇÃO': { kind: 'simples', col: [0.94, 0.93, 0.89], sub: 'PREFEITURA DE NOVA ALIANÇA', signH: 0.8 },
+  'REDE TEM': { kind: 'simples', col: [0.86, 0.79, 0.64], toldo: [0.7, 0.32, 0.18], sub: 'MATERIAIS DE CONSTRUÇÃO', signH: 1.0 },
 };
 function cityShops() {
   const C = CITY, R = 6378137, kx = Math.cos(-21.0164 * PI / 180) * PI / 180 * R, kz = PI / 180 * R;
   C.shops = [];
-  for (const [name, lat, lon, bg, fg] of CITY_SHOPS) {
+  for (const [name, lat, lon, bg, fg, rua] of CITY_SHOPS) {
     const x = (lon + 49.4981) * kx, z = -(lat + 21.0164) * kz;
     let best = null, bd = 30 * 30;
-    for (const h of C.houses) { const d = (h.x - x) ** 2 + (h.z - z) ** 2; if (d < bd && !h.shop) { bd = d; best = h; } }
+    for (const h of C.houses) { const d = (h.x - x) ** 2 + (h.z - z) ** 2; if (d < bd && !h.shop && (!rua || C.chains[h.ch].cls.name === rua)) { bd = d; best = h; } }
     if (!best) continue;
     best.shop = name; best.comm = true; best.wall = false; best.two = false; best.signBg = bg; best.signFg = fg;
     if (name === 'MARKIN MOTOS') best.col = [0.22, 0.23, 0.24];
-    if (CITY_SHOP_STYLE[name]) { const S = CITY_SHOP_STYLE[name]; best.style = S; if (S.col) best.col = S.col; if (S.w) best.w = Math.min(best.w, S.w); }
+    if (CITY_SHOP_STYLE[name]) { const S = CITY_SHOP_STYLE[name]; best.style = S; if (S.col) best.col = S.col; if (S.w) best.w = Math.min(best.w, S.w); if (S.two) best.two = true; }
     C.shops.push(name);
   }
   // lanchonetes e bares do OpenStreetMap

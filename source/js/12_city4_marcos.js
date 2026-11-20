@@ -98,9 +98,9 @@ function marcosLayout(reserved) {
 }
 // ---------- atlas próprio dos letreiros da cidade ----------
 function marcosAtlas() {
-  const cv = document.createElement('canvas'); cv.width = 2048; cv.height = 2048; const g = cv.getContext('2d');
-  const REG = {}, reg = (n, x, y, w, h) => { REG[n] = [x / 2048, y / 2048, (x + w) / 2048, (y + h) / 2048]; };
-  g.fillStyle = '#888'; g.fillRect(0, 0, 2048, 2048);
+  const cv = document.createElement('canvas'); cv.width = 2048; cv.height = 3072; const g = cv.getContext('2d');
+  const REG = {}, reg = (n, x, y, w, h) => { REG[n] = [x / 2048, y / 3072, (x + w) / 2048, (y + h) / 3072]; };
+  g.fillStyle = '#888'; g.fillRect(0, 0, 2048, 3072);
   // Sacoi: letras arredondadas coloridas sobre o reboco bege, "SUPERMERCADOS" em verde
   g.fillStyle = '#cbbf9f'; g.fillRect(0, 0, 1024, 384);
   g.textBaseline = 'alphabetic'; g.font = '900 250px "Arial Rounded MT Bold", "Nunito", "Arial Black", Arial, sans-serif';
@@ -138,10 +138,10 @@ function marcosAtlas() {
     g.textAlign = 'left'; g.textBaseline = 'alphabetic';
     reg('rua' + i, x, y, 256, 48); CITY.plates[nm] = 'rua' + i;
   });
-  // letreiros dos comércios e prédios públicos (512 x 96 cada, a partir de y = 1600)
+  // letreiros dos comércios e prédios públicos (512 x 96 cada): 16 a partir de y = 1600 e mais 40 a partir de y = 2048
   const sn = [...new Map(CITY.signs.map(s => [s.name, s])).values()];
-  sn.slice(0, 16).forEach((sg, i) => {
-    const x = (i % 4) * 512, y = 1600 + Math.floor(i / 4) * 96;
+  sn.slice(0, 56).forEach((sg, i) => {
+    const x = (i % 4) * 512, y = i < 16 ? 1600 + Math.floor(i / 4) * 96 : 2048 + Math.floor((i - 16) / 4) * 96;
     g.fillStyle = sg.bg; g.fillRect(x, y, 512, 96);
     if (sg.name === 'Prisma') {   // painel azul de "galáxia" com brilhos, como o letreiro da papelaria
       const gr = g.createRadialGradient(x + 200, y + 40, 10, x + 256, y + 48, 300); gr.addColorStop(0, '#3d6fd6'); gr.addColorStop(0.5, '#1a2f7a'); gr.addColorStop(1, '#0b1436'); g.fillStyle = gr; g.fillRect(x, y, 512, 96);
@@ -149,8 +149,9 @@ function marcosAtlas() {
     }
     g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(x, y + 88, 512, 8);
     g.fillStyle = sg.fg; g.textAlign = 'center'; g.textBaseline = 'middle';
-    if (sg.sub) { g.font = (sg.name === 'Prisma' ? 'italic bold 56px Georgia, serif' : 'bold 48px Arial, sans-serif'); g.fillText(sg.name, x + 256, y + 38, 490); g.font = 'bold 19px Arial, sans-serif'; g.fillText(sg.sub, x + 256, y + 78, 490); }
-    else { g.font = 'bold 50px Arial, sans-serif'; g.fillText(sg.name, x + 256, y + 46, 490); }
+    if (sg.band) { g.fillStyle = sg.band; g.fillRect(x, y + 70, 512, 18); g.fillStyle = sg.fg; }
+    if (sg.sub) { g.font = sg.font || (sg.name === 'Prisma' ? 'italic bold 56px Georgia, serif' : 'bold 48px Arial, sans-serif'); g.fillText(sg.name, x + 256, y + 38, 490); g.font = 'bold 19px Arial, sans-serif'; g.fillText(sg.sub, x + 256, y + 78, 490); }
+    else { g.font = sg.font || 'bold 50px Arial, sans-serif'; g.fillText(sg.name, x + 256, y + (sg.band ? 38 : 46), 490); }
     g.textAlign = 'left'; g.textBaseline = 'alphabetic'; reg('sg' + i, x, y, 512, 96); CITY.signReg = CITY.signReg || {}; CITY.signReg[sg.name] = 'sg' + i;
   });
   // mural da lateral da Borghi (Rua Francisco Coco): serviços à esquerda, logo no meio, telefones à direita
@@ -166,8 +167,8 @@ function marcosAtlas() {
     g.fillStyle = '#f2f2f2'; g.beginPath(); g.arc(x0 + 1250, 746, 26, 0, TAU); g.fill(); g.fillStyle = '#121315'; g.beginPath(); g.arc(x0 + 1250, 746, 18, 0, TAU); g.fill();
     g.textBaseline = 'alphabetic'; reg('borghiwall', x0, 660, 1536, 360); void y0; void H;
   }
-  const tex = mkTex(2048, 2048, 'rgba8unorm-srgb', TU.RT | TU.TB | TU.CD, { mipLevelCount: 12 });
-  G.dev.queue.copyExternalImageToTexture({ source: cv }, { texture: tex }, [2048, 2048]);
+  const tex = mkTex(2048, 3072, 'rgba8unorm-srgb', TU.RT | TU.TB | TU.CD, { mipLevelCount: 12 });
+  G.dev.queue.copyExternalImageToTexture({ source: cv }, { texture: tex }, [2048, 3072]);
   genMips(tex, 'rgba8unorm-srgb');
   return { tex, REG };
 }

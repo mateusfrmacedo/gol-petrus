@@ -35,10 +35,11 @@ Referência: [solução de problemas WebGPU — Chrome for Developers](https://d
 
 Segundo mapa selecionável em **Mapa → Cidade de Nova Aliança**, com área jogável de **3,2 × 2,6 km**. O traçado usa dados locais do OpenStreetMap e o relevo usa uma grade SRTM de 81 × 81 pontos, espaçados em 80 m. Os arquivos originais e o formato estão no [guia do mapa](mapas/nova-alianca/README.md).
 
-A auditoria de 20/11/2026 contabilizou **608 trechos de vias, 370 cruzamentos, 97 nomes de vias, 58,7 km de ruas e 3.460 casas**. Esses números descrevem o cenário gerado dentro do recorte jogável, não um cadastro completo da cidade real.
+A auditoria de 20/11/2026 contabilizou **608 trechos de vias, 370 cruzamentos, 97 nomes de vias, 58,7 km de ruas e 3.446 casas**. Esses números descrevem o cenário gerado dentro do recorte jogável, não um cadastro completo da cidade real.
 
 - Ruas asfaltadas e de terra, cruzamentos com cantos arredondados, calçadas, meios-fios, faixas de pedestres, placas e postes com fiação.
 - Casas e comércios com variações de fachadas, telhados, muros e portões; vegetação e árvores nas áreas urbanas.
+- Fachadas do centro ampliadas, incluindo Banco do Brasil, Padaria do Parque, posto da Polícia Militar, Aliança Saúde e Oquelifibra; Paço Municipal com fachada própria, escadaria e rampa.
 - Lugares modelados: **Borghi Veículos**, **Supermercado Sacoi**, **casa do Petrus**, **Praça Matriz Padre João Nolte e Paróquia Nossa Senhora Aparecida**, além do portal e do letreiro na entrada da cidade.
 - Terreno e altura das ruas integrados à física, colisões com construções e obstáculos, posição inicial na rua e retorno pela tecla **R**.
 - Minimapa da cidade, exibido ou ocultado com **N**.

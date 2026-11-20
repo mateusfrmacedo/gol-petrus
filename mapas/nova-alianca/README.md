@@ -33,7 +33,7 @@ ruas, calçadas e casas, e `12_city4_marcos.js` os lugares modelados pelas fotos
 
 ## Estado e verificações em 20/11/2026
 
-No recorte jogável: 608 trechos de vias, 370 cruzamentos, 97 nomes de vias, 58,7 km de ruas e 3.460 casas. O cenário inclui Borghi Veículos, Sacoi, casa do Petrus, Praça Matriz com igreja e entrada da cidade (portal e letreiro), além das fachadas genéricas, calçadas, sinalização e rede de postes. As construções são aproximações visuais.
+No recorte jogável: 608 trechos de vias, 370 cruzamentos, 97 nomes de vias, 58,7 km de ruas e 3.446 casas. O cenário inclui Borghi Veículos, Sacoi, casa do Petrus, Praça Matriz com igreja e entrada da cidade (portal e letreiro), além das fachadas genéricas, calçadas, sinalização e rede de postes. As construções são aproximações visuais.
 
 Execute, a partir da raiz:
 
@@ -46,3 +46,5 @@ node scripts/cidade/auditoria.cjs /tmp/nova-alianca-auditoria.json
 A auditoria não detectou casas sobre ruas nem construções sobrepostas. Alertas atuais: um ponto do traçado OSM fora da pista gerada, um trecho isolado que sai pela borda, dez rampas fortes, onze pontas de ruas sem saída e 45 trechos urbanos sem nome. As pontas sem saída e os trechos sem nome precisam ser confrontados com os dados de origem; não são necessariamente falhas de montagem. As coordenadas dos alertas ficam no JSON.
 
 O minimapa é alternado com **N**. O horário e o clima são ajustados pelo menu; a opção de clima real usa uma consulta de rede independente dos dados locais do mapa.
+
+A atualização do centro acrescenta fachadas próprias para Banco do Brasil, Padaria do Parque, posto da Polícia Militar, Aliança Saúde e Oquelifibra, além do Paço Municipal com escadaria e rampa. O atlas de letreiros passou a 2048 × 3072 pixels, com espaço para até 56 letreiros comerciais e públicos. O modo de fotos inclui câmeras para esses novos pontos.

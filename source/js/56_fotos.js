@@ -27,6 +27,12 @@ function fotoCams() {
   if (MARCOS.petrus) L.push(fotoCamLugar('Casa do Petrus', MARCOS.petrus, 13, 1.8, 2.2));
   { const h = CITY.houses.find(h => h.shop === 'Prisma'); if (h) { const fx = h.x - h.nx * h.d / 2, fz = h.z - h.nz * h.d / 2, ex = fx - h.nx * 13 + h.fx * 4, ez = fz - h.nz * 13 + h.fz * 4;
     L.push({ nome: 'Papelaria Prisma', eye: [ex, terrainH(ex, ez) + 1.7, ez], alvo: [fx, terrainH(fx, fz) + 2.6, fz], fov: 0.8 }); } }
+  // Centro (etapa 1 da conferência pelo Street View)
+  const loja = (nome, shop, rec, lado, ay) => { const h = CITY.houses.find(h => h.shop === shop); if (!h) return; const fx = h.x - h.nx * h.d / 2, fz = h.z - h.nz * h.d / 2, ex = fx - h.nx * rec + h.fx * (lado || 0), ez = fz - h.nz * rec + h.fz * (lado || 0);
+    L.push({ nome, eye: [ex, terrainH(ex, ez) + 1.7, ez], alvo: [fx, terrainH(fx, fz) + (ay || 2.6), fz], fov: 0.85 }); };
+  if (CITY.paco) { const P = CITY.paco, ex = P.fx - P.nx * 22 + P.tx * 5, ez = P.fz - P.nz * 22 + P.tz * 5; L.push({ nome: 'Paço Municipal', eye: [ex, terrainH(ex, ez) + 1.7, ez], alvo: [P.fx, terrainH(P.fx, P.fz) + 4, P.fz], fov: 0.9 }); }
+  loja('Banco do Brasil', 'BANCO DO BRASIL', 15, -5); loja('Padaria do Parque', 'PADARIA DO PARQUE', 15, 3, 3.4); loja('Posto PM', 'POLÍCIA MILITAR', 14, 4);
+  loja('Aliança Saúde', 'Aliança Saúde', 11, 2); loja('Oquelifibra', 'OQUELIFIBRA', 12, -3);
   if (MARCOS.entrada) {   // pórtico de quem chega pela rodovia e as letras no campo
     const E = MARCOS.entrada, P = E.P, ex = P.x - P.ux * 38 - P.vx * P.dl, ez = P.z - P.uz * 38 - P.vz * P.dl;
     L.push({ nome: 'Entrada (pórtico)', eye: [ex, terrainH(ex, ez) + 1.7, ez], alvo: [P.x, terrainH(P.x, P.z) + 4.5, P.z], fov: 0.95 });

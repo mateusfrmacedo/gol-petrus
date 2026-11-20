@@ -4925,6 +4925,7 @@ function cityGraph(items) {
     const tg = it.tags; if (it.t === 'w' && (tg.hw || tg.ww)) continue;
     if (it.t === 'n' && tg.hw === 'stop') { C.stops.push(it.pts[0] / D, it.pts[1] / D); continue; }
     if (!(tg.am || tg.ls || tg.lu || tg.bd || tg.nt || tg.sh || tg.hw === 'services')) continue;
+    if (tg.nm === 'Polícia Militar') continue;   // o posto da PM é a casa de arcos da Rua Gotardi (CITY_SHOPS), não um prédio genérico
     let x = 0, z = 0; const n = it.pts.length / 2; for (let i = 0; i < n; i++) { x += it.pts[i * 2]; z += it.pts[i * 2 + 1]; }
     C.pois.push({ x: x / n / D, z: z / n / D, tags: tg, name: tg.nm || '' });
   }
@@ -5297,7 +5298,7 @@ function cityLots() {
   const reserved = [];
   for (const p of C.pois) {
     const t = p.tags;
-    const r = t.ls === 'park' ? 0 : t.am === 'place_of_worship' ? 30 : t.am === 'school' || t.am === 'kindergarten' ? 26 : t.ls === 'pitch' ? 60 : t.lu === 'cemetery' ? 0 : t.am === 'fuel' ? 22 : (t.am || t.bd || t.hw === 'services') ? 14 : 0;
+    const r = t.ls === 'park' ? 0 : t.am === 'place_of_worship' ? 30 : t.am === 'school' || t.am === 'kindergarten' ? 26 : t.ls === 'pitch' ? 60 : t.lu === 'cemetery' ? 0 : t.am === 'fuel' ? 22 : t.am === 'townhall' ? 19 : (t.am || t.bd || t.hw === 'services') ? 14 : 0;
     if (r) reserved.push([p.x, p.z, r]);
   }
   // praças e cemitério: a quadra inteira (preenchimento a partir do ponto, limitado pelas calçadas)
@@ -5480,23 +5481,56 @@ const CITY_SHOPS = [
   ['MARKIN MOTOS', -21.0151262, -49.4970352, '#1e2124', '#f5f5f5'],
   ['Prisma', -21.0169200, -49.4973000, '#14245c', '#ffffff'],
   ['SEGALA', -21.0168650, -49.4972550, '#1d1d1f', '#f2f2f2'],
+  // Centro, conferidos no Google Maps e no Street View (nov/2026): posição pelo ponto do Google, fachada pelo Street View
+  ['BANCO DO BRASIL', -21.0168384, -49.4966161, '#f7d417', '#1d3f95', 'Rua Gotardi'],
+  ['PADARIA DO PARQUE', -21.0167167, -49.4964512, '#2a2a2d', '#f3e3c0'],
+  ['POLÍCIA MILITAR', -21.0168491, -49.4969571, '#f4f4f0', '#1a1a1a', 'Rua Gotardi'],
+  ['Aliança Saúde', -21.0161883, -49.4985310, '#d9d9d6', '#3a3a3a'],
+  ['OQUELIFIBRA', -21.0160801, -49.4978341, '#1565c0', '#ffffff'],
+  ['REDE TEM', -21.0157938, -49.4974687, '#c62828', '#ffffff'],
+  ['CABELEIREIRO ROSILDO', -21.0158094, -49.4975415, '#f4f4f0', '#222222'],
+  ['SECRETARIA DA EDUCAÇÃO', -21.0171501, -49.4980662, '#f4f4f0', '#0d3b66'],
+  ['AUTO PEÇAS J. L.', -21.0152681, -49.4966995, '#0d47a1', '#ffffff'],
+  ['CHAPA QUENTE', -21.0166043, -49.4986851, '#b71c1c', '#ffd54f'],
+  ['DERSOS BIER', -21.0178773, -49.4964799, '#3e2723', '#ffca28'],
+  ['TOP GRILL', -21.0164297, -49.4995265, '#212121', '#ff7043'],
+  ['MINI MERCADO RNA', -21.0163067, -49.4997835, '#2e7d32', '#ffffff'],
+  ['ARTENES BEAUTY', -21.0162365, -49.4992466, '#f8bbd0', '#4a148c'],
+  ['ISA SIQUEIRA STUDIO', -21.0164886, -49.4998963, '#efe6dc', '#5d4037'],
+  ['MARLENE MODAS', -21.0165230, -49.4999664, '#880e4f', '#ffffff'],
+  ['DROGARIA TOTAL', -21.0163956, -49.5002224, '#0057a8', '#ffffff'],
+  ['MULTI CASA', -21.0166181, -49.5004204, '#f57c00', '#ffffff'],
+  ['FARMA NOVA', -21.0167267, -49.5003840, '#00897b', '#ffffff'],
+  ['KAEDU', -21.0163431, -49.5006172, '#263238', '#ffffff'],
 ];
 // fachadas de lojas feitas pelo Street View (dez/2023): cor da parede, toldo, grades, letreiro
 const CITY_SHOP_STYLE = {
   'Prisma': { col: [0.64, 0.84, 0.66], awning: [0.3, 0.72, 0.48], grade: true, sub: 'PAPELARIA', signH: 1.15, roof: [0.6, 0.28, 0.15] },
   'SEGALA': { col: [0.86, 0.52, 0.38], awning: [0.6, 0.6, 0.6], grade: false, sub: 'ELÉTRICA · ELETRÔNICOS', signH: 1.05, roof: [0.55, 0.27, 0.15], frame: [0.3, 0.3, 0.32] },
+  // agência na esquina da praça com a Rua do Comércio: vitrine de vidro entre pilares brancos, faixa amarela com o nome em azul, totem na esquina
+  'BANCO DO BRASIL': { kind: 'banco', col: [0.93, 0.93, 0.9] },
+  // sobrado azul na esquina da Gotardi com a Rua do Comércio: aba de telha laranja na frente, letreiro escuro no andar de cima
+  'PADARIA DO PARQUE': { kind: 'padaria', two: true, col: [0.5, 0.62, 0.86], sub: 'CAFÉ', roof: [0.6, 0.27, 0.13] },
+  // casa de tijolo avermelhado com varanda de arcos brancos e três oitões na frente, mureta branca com grade
+  'POLÍCIA MILITAR': { kind: 'arcos', col: [0.6, 0.27, 0.2], roof: [0.5, 0.2, 0.1], sub: 'POSTO POLICIAL' },
+  // fachada cinza com letreiro manuscrito na platibanda e toldo de lona branca
+  'Aliança Saúde': { kind: 'simples', col: [0.78, 0.79, 0.79], toldo: [0.93, 0.92, 0.9], font: 'italic bold 60px Georgia, serif', sub: 'DROGARIA', signH: 0.95 },
+  // casa de esquina verde-bandeira (Rua Guilhermite com a Rui Barbosa), placa azul da Oquelifibra
+  'OQUELIFIBRA': { kind: 'simples', col: [0.16, 0.62, 0.3], sub: 'INTERNET FIBRA ÓPTICA', signH: 0.85, signW: 4.2 },
+  'SECRETARIA DA EDUCAÇÃO': { kind: 'simples', col: [0.94, 0.93, 0.89], sub: 'PREFEITURA DE NOVA ALIANÇA', signH: 0.8 },
+  'REDE TEM': { kind: 'simples', col: [0.86, 0.79, 0.64], toldo: [0.7, 0.32, 0.18], sub: 'MATERIAIS DE CONSTRUÇÃO', signH: 1.0 },
 };
 function cityShops() {
   const C = CITY, R = 6378137, kx = Math.cos(-21.0164 * PI / 180) * PI / 180 * R, kz = PI / 180 * R;
   C.shops = [];
-  for (const [name, lat, lon, bg, fg] of CITY_SHOPS) {
+  for (const [name, lat, lon, bg, fg, rua] of CITY_SHOPS) {
     const x = (lon + 49.4981) * kx, z = -(lat + 21.0164) * kz;
     let best = null, bd = 30 * 30;
-    for (const h of C.houses) { const d = (h.x - x) ** 2 + (h.z - z) ** 2; if (d < bd && !h.shop) { bd = d; best = h; } }
+    for (const h of C.houses) { const d = (h.x - x) ** 2 + (h.z - z) ** 2; if (d < bd && !h.shop && (!rua || C.chains[h.ch].cls.name === rua)) { bd = d; best = h; } }
     if (!best) continue;
     best.shop = name; best.comm = true; best.wall = false; best.two = false; best.signBg = bg; best.signFg = fg;
     if (name === 'MARKIN MOTOS') best.col = [0.22, 0.23, 0.24];
-    if (CITY_SHOP_STYLE[name]) { const S = CITY_SHOP_STYLE[name]; best.style = S; if (S.col) best.col = S.col; if (S.w) best.w = Math.min(best.w, S.w); }
+    if (CITY_SHOP_STYLE[name]) { const S = CITY_SHOP_STYLE[name]; best.style = S; if (S.col) best.col = S.col; if (S.w) best.w = Math.min(best.w, S.w); if (S.two) best.two = true; }
     C.shops.push(name);
   }
   // lanchonetes e bares do OpenStreetMap
@@ -6041,7 +6075,9 @@ function cityHouse(mb, h, rnd) {
   cRect(mb, -X - 0.025, yb - y0, -Zh - 0.025, 0, 0, w + 0.05, 0, 0.45 - (yb - y0), 0, -1, 0, 0);
   // fachada da rua (x = -X)
   const wcol = [0.9, 0.9, 0.88], gcol = h.seed < 0.5 ? [0.2, 0.2, 0.21] : [0.85, 0.85, 0.82];
-  if (h.comm && h.style) {
+  if (h.comm && h.style && h.style.kind) {
+    cityShopKind(mb, h, h.style, X, Zh, d, w, H1, y0, col);
+  } else if (h.comm && h.style) {
     // loja com fachada feita pelo Street View: vitrine com grades brancas de abrir, toldo em arco, letreiro e telhado de telha
     const S = h.style;
     cOpening(mb, -X, -1, 0, w - 1.6, 0, 2.7, 21, S.frame || [0.95, 0.95, 0.94]);
@@ -6113,6 +6149,130 @@ function cityHouse(mb, h, rnd) {
   }
   mb.pop();
 }
+// triângulo com normal dada (a ordem dos vértices é acertada para a face apontar para n)
+function cTriN(mb, A, B, Cc, n) {
+  const a = mb.v(A[0], A[1], A[2], n[0], n[1], n[2], A[2], A[1]), b = mb.v(B[0], B[1], B[2], n[0], n[1], n[2], B[2], B[1]), c = mb.v(Cc[0], Cc[1], Cc[2], n[0], n[1], n[2], Cc[2], Cc[1]);
+  const e1x = B[0] - A[0], e1y = B[1] - A[1], e1z = B[2] - A[2], e2x = Cc[0] - A[0], e2y = Cc[1] - A[1], e2z = Cc[2] - A[2];
+  const cx = e1y * e2z - e1z * e2y, cy = e1z * e2x - e1x * e2z, cz = e1x * e2y - e1y * e2x;
+  if (cx * n[0] + cy * n[1] + cz * n[2] > 0) mb.tri(a, b, c); else mb.tri(a, c, b);
+}
+// painel vertical no plano x (normal ±X) com um arco pleno vazado entre z0 e z1: arranque em ys, topo do painel em yt
+function cArchPanel(mb, x, nx, z0, z1, ys, yt) {
+  const r = (z1 - z0) / 2, zc = (z0 + z1) / 2, N = 12, n = [nx, 0, 0], TL = [x, yt, z0], TR = [x, yt, z1];
+  let prev = [x, ys, z0];
+  for (let k = 1; k <= N; k++) { const a = k / N * PI, p = [x, ys + Math.sin(a) * r, zc - Math.cos(a) * r]; cTriN(mb, prev, p, k <= N / 2 ? TL : TR, n); prev = p; }
+  cTriN(mb, TL, [x, ys + r, zc], TR, n);
+}
+// fachadas especiais conferidas no Street View (Centro): agência bancária, padaria de sobrado, casa de arcos, loja de platibanda
+function cityShopKind(mb, h, S, X, Zh, d, w, H1, y0, col) {
+  const C = CITY, q = (a, b) => [h.x + h.nx * a + h.fx * b, h.z + h.nz * a + h.fz * b];
+  const sign = (x, z0, z1, y, hh, extra) => { const c0 = q(x, z0), c1 = q(x, z1); C.signs.push(Object.assign({ name: h.shop, bg: h.signBg, fg: h.signFg, sub: S.sub, font: S.font, x: c0[0], y: y0 + y, z: c0[1], rx: c1[0] - c0[0], rz: c1[1] - c0[1], h: hh, nx: -h.nx, nz: -h.nz }, extra || {})); };
+  const white = [0.95, 0.94, 0.91];
+  if (S.kind === 'banco') {
+    const HT = 4.5;
+    mb.mat(19, 170).color(col[0], col[1], col[2], 1); cWalls(mb, d, w, H1 - 0.05, HT + 0.9);
+    cOpening(mb, -X, -1, 0, w - 1.0, 0.25, 3.25, 5, [1, 1, 1]);                               // vitrine de vidro
+    mb.mat(19, 210).color(...white, 1);
+    const np = Math.max(2, Math.round(w / 3.2)); for (let i = 0; i <= np; i++) mb.box(-X - 0.2, 1.65, -Zh + 0.35 + (w - 0.7) * i / np, 0.4, 3.3, 0.38);
+    mb.box(-X - 0.3, 0.12, 0, 0.6, 0.24, w);                                                  // soleira
+    mb.mat(19, 120).color(0.97, 0.82, 0.07, 1); mb.box(-X - 0.32, 3.98, 0, 0.64, 1.3, w + 0.2);  // faixa amarela
+    sign(-X - 0.66, -(w / 2 - 0.6), w / 2 - 0.6, 3.45, 1.05);
+    mb.mat(3).color(0.42, 0.41, 0.39, 1); cRect(mb, -X, HT + 0.4, -Zh, d, 0, 0, 0, 0, w, 0, 1, 0);
+    // totem amarelo na esquina (lado onde a calçada encontra a outra rua)
+    let side = 0, bj = 40; for (const J of C.juncs) { const dx = J.node.x - h.x, dz = J.node.z - h.z, t = dx * h.fx + dz * h.fz; if (Math.hypot(dx, dz) < bj) { bj = Math.hypot(dx, dz); side = Math.sign(t); } }
+    if (side) {
+      const tz = side * (Zh - 0.5), tx = -X - 1.3;
+      mb.mat(2, 150, 120).color(0.55, 0.56, 0.57, 1); mb.box(tx, 2.6, tz, 0.26, 5.2, 0.26); mbColCircle(mb, tx, tz, 0.2);
+      mb.mat(19, 120).color(0.97, 0.82, 0.07, 1); mb.box(tx, 5.75, tz, 0.3, 1.5, 1.25);
+      const c0 = q(tx - 0.16, tz - 0.6), c1 = q(tx - 0.16, tz + 0.6); C.signs.push({ name: 'BB', bg: '#f7d417', fg: '#1d3f95', font: 'bold 80px Arial, sans-serif', x: c0[0], y: y0 + 5.5, z: c0[1], rx: c1[0] - c0[0], rz: c1[1] - c0[1], h: 0.55, nx: -h.nx, nz: -h.nz });
+    }
+  } else if (S.kind === 'padaria') {
+    const nd = Math.max(2, Math.round((w - 1) / 3)), dw = (w - 1) / nd;
+    for (let i = 0; i < nd; i++) cOpening(mb, -X, -1, -Zh + 0.5 + dw * (i + 0.5), dw - 0.5, 0, 2.6, i === 0 ? 5 : 21, [0.92, 0.92, 0.9]);
+    mb.mat(19, 230).color(col[0] * 0.75, col[1] * 0.75, col[2] * 0.75, 1); cRect(mb, -X - 0.03, 0, -Zh, 0, 0, w, 0, 0.5, 0, -1, 0, 0);   // barrado
+    // aba de telha laranja ao longo da frente, forro branco e testeira
+    const ty = 3.4, tb = 1.5;
+    mb.mat(20).color(0.72, 0.36, 0.16, 1); cRect(mb, -X, ty, -Zh - 0.25, -tb, -0.5, 0, 0, 0, w + 0.5, -0.32, 0.95, 0);
+    mb.mat(19, 180).color(0.93, 0.92, 0.9, 1); cRect(mb, -X, ty - 0.04, -Zh - 0.25, -tb, -0.5, 0, 0, 0, w + 0.5, 0.32, -0.95, 0);
+    mb.mat(2, 150, 0).color(0.9, 0.9, 0.88, 1); mb.box(-X - tb, ty - 0.56, 0, 0.06, 0.14, w + 0.5);
+    for (const z of [-Zh * 0.66, Zh * 0.66]) if (w > 8) cOpening(mb, -X, -1, z, 1.1, 3.95, 5.05, 21, [0.95, 0.95, 0.94]);
+    sign(-X - 0.07, -1.9, 1.9, 4.0, 1.05);
+    mb.mat(20).color(...(S.roof || [0.55, 0.26, 0.14]), 1); cRoof(mb, d, w, H1, Math.min(d, w) * 0.27, 0.5, false);
+    mb.mat(19, 180).color(0.92, 0.91, 0.88, 1); cSoffit(mb, d, w, H1, 0.5);
+  } else if (S.kind === 'arcos') {
+    const V = 1.7, xa = -X - V, Ht = 3.15, pw = 0.36;
+    mb.mat(19, 150).color(col[0], col[1], col[2], 1); if (Ht > H1) cWalls(mb, d, w, H1 - 0.05, Ht);
+    cOpening(mb, -X, -1, -Zh * 0.4, 1.0, 0, 2.2, 2, [0.42, 0.24, 0.12]); cOpening(mb, -X, -1, Zh * 0.35, 1.6, 1.0, 2.2, 21, white);
+    const n = Math.max(3, Math.round((w - 0.4) / 2.0)), bw = (w - 0.4) / n;
+    for (let i = 0; i < n; i++) { const z0 = -Zh + 0.2 + bw * i + pw / 2, z1 = z0 + bw - pw; cArchPanel(mb, xa, -1, z0, z1, 1.75, Ht); cArchPanel(mb, xa + 0.22, 1, z0, z1, 1.75, Ht); }
+    mb.mat(19, 200).color(...white, 1);
+    for (let i = 0; i < n; i++) { const z0 = -Zh + 0.2 + bw * i + pw / 2, z1 = z0 + bw - pw, r = (z1 - z0) / 2, zc = (z0 + z1) / 2, pts = []; for (let k = 0; k <= 14; k++) { const a = k / 14 * PI; pts.push([xa - 0.05, 1.75 + Math.sin(a) * r, zc - Math.cos(a) * r]); } mb.tube(pts, 0.06, 5); }
+    for (let i = 0; i <= n; i++) { const z = -Zh + 0.2 + bw * i; mb.box(xa + 0.11, 0.9, z, 0.42, 1.8, pw + 0.06); mbColCircle(mb, xa + 0.11, z, 0.22); }
+    mb.box(xa + 0.11, Ht - 0.06, 0, 0.44, 0.12, w); mb.box(xa + 0.11, 0.06, 0, 0.5, 0.12, w + 0.1);
+    mb.mat(19, 180).color(0.93, 0.92, 0.9, 1); cRect(mb, xa + 0.22, Ht - 0.12, -Zh, -xa - X - 0.22, 0, 0, 0, 0, w, 0, -1, 0);   // forro da varanda
+    mb.mat(3).color(0.6, 0.58, 0.54, 1); cRect(mb, xa, 0.03, -Zh, V, 0, 0, 0, 0, w, 0, 1, 0);                                       // piso
+    mb.mat(19, 150).color(col[0], col[1], col[2], 1); cRect(mb, xa, Ht, -Zh, 0, 0.0, 0, 0, 0, w, -1, 0, 0);
+    // três oitões na frente, com friso branco
+    for (const k of [-1, 0, 1]) { const zc = k * w / 3, gw = Math.min(3.2, w / 3 - 0.25); mb.mat(19, 150).color(col[0], col[1], col[2], 1); cTriN(mb, [xa - 0.01, Ht, zc - gw / 2], [xa - 0.01, Ht, zc + gw / 2], [xa - 0.01, Ht + 1.05, zc], [-1, 0, 0]);
+      mb.mat(19, 200).color(...white, 1); mb.tube([[xa - 0.05, Ht, zc - gw / 2 - 0.1], [xa - 0.05, Ht + 1.1, zc], [xa - 0.05, Ht, zc + gw / 2 + 0.1]], 0.06, 5); }
+    mb.push(m4basis(m4(), 1, 0, 0, 0, 1, 0, 0, 0, 1, -V / 2, 0, 0));
+    mb.mat(20).color(...(S.roof || [0.5, 0.2, 0.1]), 1); cRoof(mb, d + V + 0.2, w, Ht, Math.min(d, w) * 0.26, 0.45, false);
+    mb.mat(19, 180).color(0.92, 0.91, 0.88, 1); cSoffit(mb, d + V + 0.2, w, Ht, 0.45);
+    mb.pop();
+    sign(-X - 0.07, -Zh * 0.9 + 0.2, -Zh * 0.9 + 2.6, 2.35, 0.55);
+    // mureta branca com gradil na divisa da calçada
+    if (h.set > V + 0.7) {
+      const xw = -X - h.set + 0.1; mb.mat(19, 200).color(...white, 1);
+      for (const [z0, z1] of [[-Zh, -0.8], [0.8, Zh]]) { mb.box(xw, 0.35, (z0 + z1) / 2, 0.2, 0.7, z1 - z0); mb.mat(2, 140, 150).color(...white, 1); for (let z = z0 + 0.1; z < z1; z += 0.16) mb.box(xw, 1.05, z, 0.03, 0.7, 0.03); mb.box(xw, 1.42, (z0 + z1) / 2, 0.05, 0.05, z1 - z0); mb.mat(19, 200).color(...white, 1); }
+      for (const z of [-Zh, -0.8, 0.8, Zh]) mb.box(xw, 0.75, z, 0.3, 1.5, 0.3);
+    }
+  } else {
+    // loja simples de platibanda: porta de vidro, vitrine, toldo de lona opcional e letreiro na platibanda
+    const HT = Math.max(H1, 3.3);
+    mb.mat(19, 170).color(col[0], col[1], col[2], 1); cWalls(mb, d, w, H1 - 0.05, HT + 1.0);
+    mb.mat(19, 230).color(col[0] * 0.7, col[1] * 0.7, col[2] * 0.7, 1); cRect(mb, -X - 0.03, 0, -Zh, 0, 0, w, 0, 0.45, 0, -1, 0, 0);
+    cOpening(mb, -X, -1, w > 6 ? -Zh * 0.35 : 0, Math.min(2.2, w * 0.32), 0, 2.6, 5, [1, 1, 1]);
+    if (w > 6) cOpening(mb, -X, -1, Zh * 0.42, Math.min(2.4, w * 0.32), 0.9, 2.4, 21, white);
+    mb.mat(19, 200).color(...white, 1); mb.box(-X - 0.05, HT + 0.95, 0, 0.12, 0.1, w + 0.02);   // pingadeira
+    if (S.toldo) { mb.mat(10).color(...S.toldo, 1); cRect(mb, -X, 2.95, -Zh + 0.3, -1.2, -0.45, 0, 0, 0, w - 0.6, -0.35, 0.94, 0); mb.mat(19, 200).color(...S.toldo, 1); cRect(mb, -X - 1.2, 2.5, -Zh + 0.3, 0, 0.0, 0, 0, 0, w - 0.6, -1, 0, 0); cRect(mb, -X - 1.2, 2.5, -Zh + 0.3, 0, -0.22, 0, 0, 0, w - 0.6, -1, 0, 0); }
+    const sw = Math.min(w - 0.8, S.signW || w - 1); sign(-X - 0.07, -sw / 2, sw / 2, HT - 0.05, S.signH || 0.95);
+    mb.mat(3).color(0.42, 0.41, 0.39, 1); cRect(mb, -X + 0.2, HT + 0.55, -Zh, d - 0.4, 0, 0, 0, 0, w, 0, 1, 0);
+  }
+}
+// Paço Municipal "Waldemar Pala" (Praça Padre João Nolte, 22), pelo Street View (out/2024): dois pavimentos revestidos de pedra bege,
+// faixa cinza-escura no alto, panos de vidro fumê entre montantes de pedra, marquise escura sobre a entrada, degraus, rampa de piso vermelho e vasos
+function cityPaco(mb, x, z, yaw) {
+  const D = 14, W = 20, H = 7.0, c = Math.cos(yaw), s = Math.sin(yaw);
+  let ymin = 1e9, ymax = -1e9; for (const [a, b] of [[-D / 2, -W / 2], [D / 2, -W / 2], [D / 2, W / 2], [-D / 2, W / 2]]) { const yy = hfAt(x + c * a - s * b, z + s * a + c * b); ymin = Math.min(ymin, yy); ymax = Math.max(ymax, yy); }
+  const fg = cityGroundY(x - c * (D / 2 + 3.2), z - s * (D / 2 + 3.2)), y = Math.max(fg + 0.45, ymax + 0.15), rise = y - fg;
+  mb.push(m4basis(m4(), c, 0, s, 0, 1, 0, -s, 0, c, x, y, z));
+  const stone = [0.83, 0.78, 0.67], dark = [0.21, 0.22, 0.24], X = -D / 2;
+  mb.mat(19, 110).color(...stone, 1); cWalls(mb, D, W, ymin - y - 0.6, H);
+  // bloco de vidro fumê à esquerda (dois pavimentos) com montantes e faixa de pedra
+  const g0 = -W / 2 + 0.8, g1 = 1.2;
+  cOpening(mb, X, -1, (g0 + g1) / 2, g1 - g0, 0.45, 3.05, 5, [1, 1, 1]); cOpening(mb, X, -1, (g0 + g1) / 2, g1 - g0, 3.85, 6.35, 5, [1, 1, 1]);
+  mb.mat(19, 110).color(stone[0] * 1.03, stone[1] * 1.03, stone[2] * 1.03, 1);
+  for (let k = 0; k <= 4; k++) mb.box(X - 0.14, H / 2, g0 + (g1 - g0) * k / 4, 0.28, H, 0.4);
+  mb.box(X - 0.16, 3.45, (g0 + g1) / 2, 0.32, 0.8, g1 - g0 + 0.4); mb.box(X - 0.12, 0.22, (g0 + g1) / 2, 0.24, 0.44, g1 - g0 + 0.4);
+  // entrada à direita: porta de vidro sob a marquise escura, nome em letras de metal na pedra
+  cOpening(mb, X, -1, 5.6, 3.6, 0, 2.85, 5, [1, 1, 1]);
+  mb.mat(2, 70, 40).color(...dark, 1); mb.box(X - 1.3, 3.2, 5.6, 2.6, 0.32, 6.2); for (const zz of [2.75, 8.45]) { mb.box(X - 2.45, 1.55, zz, 0.2, 3.1, 0.2); mbColCircle(mb, X - 2.45, zz, 0.16); }
+  const q = (a, b) => [x + c * a - s * b, z + s * a + c * b], c0 = q(X - 0.06, 2.3), c1 = q(X - 0.06, 9.4);
+  CITY.signs.push({ name: 'PAÇO MUNICIPAL', sub: 'WALDEMAR PALA', bg: '#d4c9b0', fg: '#3b3b3b', font: 'bold 54px Georgia, serif', x: c0[0], y: y + 4.25, z: c0[1], rx: c1[0] - c0[0], rz: c1[1] - c0[1], h: 1.45, nx: -c, nz: -s });
+  // faixa escura no alto, avançando sobre a fachada
+  mb.mat(2, 70, 40).color(...dark, 1); mb.box(-0.15, H + 0.55, 0, D + 0.5, 1.1, W + 0.5);
+  mb.mat(3).color(0.4, 0.39, 0.37, 1); cRect(mb, -D / 2, H + 0.6, -W / 2, D, 0, 0, 0, 0, W, 0, 1, 0);
+  // degraus diante da entrada e rampa de piso vermelho ao lado
+  const ns = Math.max(2, Math.round(rise / 0.17)), sh = rise / ns;
+  mb.mat(3).color(0.66, 0.64, 0.6, 1); mb.box(X - 0.75, -rise / 2, 5.6, 1.5, rise, 6.4);   // patamar sob a marquise
+  for (let k = 1; k < ns; k++) mb.box(X - 1.5 - (k - 0.5) * 0.32, (-rise - k * sh) / 2, 5.6, 0.32, rise - k * sh, 6.4);
+  const rl = Math.max(2.5, rise * 9); mb.mat(23).color(0.62, 0.3, 0.24, 1); cRect(mb, X - 0.05, 0, 0.1, -rl, -rise, 0, 0, 0, 2.2, -rise / rl, 1, 0);
+  // vasos com arbustos
+  for (const zz of [1.9, 9.3]) { mb.mat(2, 120, 0).color(0.3, 0.3, 0.31, 1); mb.box(X - 2.0, 0.35, zz, 0.7, 0.7, 0.7); mb.mat(19, 255).color(0.22, 0.38, 0.16, 1); mb.cyl(X - 2.0, 0.7, zz, 0.42, 1.5, 0.15, 8, false, true); }
+  mb.pop();
+  CITY.addBox({ x, z, ux: c, uz: s, hd: D / 2, hw: W / 2 });
+  CITY.paco = { fx: x - c * D / 2, fz: z - s * D / 2, nx: c, nz: s, tx: -s, tz: c };
+}
 // prédio genérico (público): caixa de 1–2 andares, telhado de fibrocimento ou laje, janelas em fila
 function cityBuilding(mb, x, z, yaw, d, w, floors, col, opt) {
   opt = opt || {};
@@ -6180,8 +6340,8 @@ function cityPropsBuild() {
     const t = p.tags, f = cityFaceRoad(p.x, p.z), yaw = f.ang + PI;   // eixo local X: da via para dentro do lote
     const off = (dd) => [p.x - Math.cos(f.ang) * Math.max(0, dd - f.dist), p.z - Math.sin(f.ang) * Math.max(0, dd - f.dist)];
     if (t.am === 'place_of_worship') { if (MARCOS.matriz) continue; const [x, z] = off(C.SW + 4.2 + 20); cityChurch(mb, x, z, yaw); }
-    else if (t.am === 'school' || t.am === 'kindergarten') { const [x, z] = off(4.2 + C.SW + 8); cityBuilding(mb, x, z, yaw, 12, t.am === 'school' ? 34 : 18, 1, [0.92, 0.88, 0.72], { gable: false, sign: (p.name || (t.am === 'school' ? 'Escola' : 'Creche')).replace(/^Escola Estadual /, 'E. E. ').replace(/^Escola M+unicipal /, 'E. M. ').toUpperCase(), bg: '#f4f4f0', fg: '#1a4d8f' }); }
-    else if (t.am === 'townhall') { const [x, z] = off(4.2 + C.SW + 9); cityBuilding(mb, x, z, yaw, 14, 22, 2, [0.94, 0.92, 0.84], { flat: true, sign: 'PREFEITURA MUNICIPAL DE NOVA ALIANÇA', bg: '#f4f4f0', fg: '#0d3b66' }); }
+    else if (t.am === 'school' || t.am === 'kindergarten') { const [x, z] = off(4.2 + C.SW + 8); cityBuilding(mb, x, z, yaw, 12, t.am === 'school' ? 34 : 18, 1, [0.92, 0.88, 0.72], { gable: false, sign: (p.name || (t.am === 'school' ? 'Escola' : 'Creche')).replace(/^Escola Estadual /, 'E. E. ').replace(/^Escola M+unicipal /i, 'E. M. ').toUpperCase(), bg: '#f4f4f0', fg: '#1a4d8f' }); }
+    else if (t.am === 'townhall') { const [x, z] = off(4.2 + C.SW + 7 + 3.2); cityPaco(mb, x, z, yaw); }
     else if (t.am === 'post_office') { const [x, z] = off(4.2 + C.SW + 7); cityBuilding(mb, x, z, yaw, 11, 12, 1, [0.95, 0.8, 0.15], { flat: true, sign: 'CORREIOS', bg: '#ffd400', fg: '#0052a5' }); }
     else if (t.am === 'police') { const [x, z] = off(4.2 + C.SW + 7); cityBuilding(mb, x, z, yaw, 11, 14, 1, [0.82, 0.84, 0.86], { flat: true, sign: (p.name || 'POLÍCIA').toUpperCase(), bg: '#5d4037', fg: '#fff' }); }
     else if (t.am === 'clinic' || t.am === 'nursing_home' || t.am === 'funeral_hall' || t.am === 'library') { const [x, z] = off(4.2 + C.SW + 7); cityBuilding(mb, x, z, yaw, 11, 16, 1, [0.9, 0.9, 0.86], { sign: (p.name || (t.am === 'library' ? 'Biblioteca Municipal' : t.am === 'clinic' ? 'Unidade Básica de Saúde' : '')).toUpperCase().replace('UNIDADE BÁSICA DE SAÚDE DE NOVA ALIANÇA', 'UBS NOVA ALIANÇA') || null, bg: t.am === 'clinic' ? '#0277bd' : '#f4f4f0', fg: t.am === 'clinic' ? '#fff' : '#333' }); }
@@ -6294,6 +6454,13 @@ function cityPave() {
     const t = p.tags;
     if (t.am === 'fuel') { const s = poiSite(p, 4.2 + C.SW + 9); C.pave.push(s.x, s.z, 15); }
     else if (t.bd === 'transportation') { const s = poiSite(p, 4.2 + C.SW + 6); C.pave.push(s.x, s.z, 14); }
+    else if (t.am === 'townhall') { const s = poiSite(p, 4.2 + C.SW + 10.2), c = Math.cos(s.yaw), sn = Math.sin(s.yaw); for (let b = -9; b <= 9; b += 3) C.pave.push(s.x - c * 9 - sn * b, s.z - sn * 9 + c * b, 2.6); }
+  }
+  // comércio: frente cimentada da calçada até a fachada (sem grama na porta da loja)
+  for (const h of C.houses) {
+    if (!h.comm || h.set < 0.4) continue;
+    const r = Math.max(1.0, h.set / 2 + 0.5), xf = -h.d / 2 - h.set / 2;
+    for (let b = -h.w / 2 + r * 0.7; b <= h.w / 2 - r * 0.7 + 1e-6; b += r) C.pave.push(h.x + h.nx * xf + h.fx * b, h.z + h.nz * xf + h.fz * b, r);
   }
   for (const B of C.blocks) {
     if (B.kind !== 'park' || B.matriz) continue;
@@ -6407,9 +6574,9 @@ function marcosLayout(reserved) {
 }
 // ---------- atlas próprio dos letreiros da cidade ----------
 function marcosAtlas() {
-  const cv = document.createElement('canvas'); cv.width = 2048; cv.height = 2048; const g = cv.getContext('2d');
-  const REG = {}, reg = (n, x, y, w, h) => { REG[n] = [x / 2048, y / 2048, (x + w) / 2048, (y + h) / 2048]; };
-  g.fillStyle = '#888'; g.fillRect(0, 0, 2048, 2048);
+  const cv = document.createElement('canvas'); cv.width = 2048; cv.height = 3072; const g = cv.getContext('2d');
+  const REG = {}, reg = (n, x, y, w, h) => { REG[n] = [x / 2048, y / 3072, (x + w) / 2048, (y + h) / 3072]; };
+  g.fillStyle = '#888'; g.fillRect(0, 0, 2048, 3072);
   // Sacoi: letras arredondadas coloridas sobre o reboco bege, "SUPERMERCADOS" em verde
   g.fillStyle = '#cbbf9f'; g.fillRect(0, 0, 1024, 384);
   g.textBaseline = 'alphabetic'; g.font = '900 250px "Arial Rounded MT Bold", "Nunito", "Arial Black", Arial, sans-serif';
@@ -6447,10 +6614,10 @@ function marcosAtlas() {
     g.textAlign = 'left'; g.textBaseline = 'alphabetic';
     reg('rua' + i, x, y, 256, 48); CITY.plates[nm] = 'rua' + i;
   });
-  // letreiros dos comércios e prédios públicos (512 x 96 cada, a partir de y = 1600)
+  // letreiros dos comércios e prédios públicos (512 x 96 cada): 16 a partir de y = 1600 e mais 40 a partir de y = 2048
   const sn = [...new Map(CITY.signs.map(s => [s.name, s])).values()];
-  sn.slice(0, 16).forEach((sg, i) => {
-    const x = (i % 4) * 512, y = 1600 + Math.floor(i / 4) * 96;
+  sn.slice(0, 56).forEach((sg, i) => {
+    const x = (i % 4) * 512, y = i < 16 ? 1600 + Math.floor(i / 4) * 96 : 2048 + Math.floor((i - 16) / 4) * 96;
     g.fillStyle = sg.bg; g.fillRect(x, y, 512, 96);
     if (sg.name === 'Prisma') {   // painel azul de "galáxia" com brilhos, como o letreiro da papelaria
       const gr = g.createRadialGradient(x + 200, y + 40, 10, x + 256, y + 48, 300); gr.addColorStop(0, '#3d6fd6'); gr.addColorStop(0.5, '#1a2f7a'); gr.addColorStop(1, '#0b1436'); g.fillStyle = gr; g.fillRect(x, y, 512, 96);
@@ -6458,8 +6625,9 @@ function marcosAtlas() {
     }
     g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(x, y + 88, 512, 8);
     g.fillStyle = sg.fg; g.textAlign = 'center'; g.textBaseline = 'middle';
-    if (sg.sub) { g.font = (sg.name === 'Prisma' ? 'italic bold 56px Georgia, serif' : 'bold 48px Arial, sans-serif'); g.fillText(sg.name, x + 256, y + 38, 490); g.font = 'bold 19px Arial, sans-serif'; g.fillText(sg.sub, x + 256, y + 78, 490); }
-    else { g.font = 'bold 50px Arial, sans-serif'; g.fillText(sg.name, x + 256, y + 46, 490); }
+    if (sg.band) { g.fillStyle = sg.band; g.fillRect(x, y + 70, 512, 18); g.fillStyle = sg.fg; }
+    if (sg.sub) { g.font = sg.font || (sg.name === 'Prisma' ? 'italic bold 56px Georgia, serif' : 'bold 48px Arial, sans-serif'); g.fillText(sg.name, x + 256, y + 38, 490); g.font = 'bold 19px Arial, sans-serif'; g.fillText(sg.sub, x + 256, y + 78, 490); }
+    else { g.font = sg.font || 'bold 50px Arial, sans-serif'; g.fillText(sg.name, x + 256, y + (sg.band ? 38 : 46), 490); }
     g.textAlign = 'left'; g.textBaseline = 'alphabetic'; reg('sg' + i, x, y, 512, 96); CITY.signReg = CITY.signReg || {}; CITY.signReg[sg.name] = 'sg' + i;
   });
   // mural da lateral da Borghi (Rua Francisco Coco): serviços à esquerda, logo no meio, telefones à direita
@@ -6475,8 +6643,8 @@ function marcosAtlas() {
     g.fillStyle = '#f2f2f2'; g.beginPath(); g.arc(x0 + 1250, 746, 26, 0, TAU); g.fill(); g.fillStyle = '#121315'; g.beginPath(); g.arc(x0 + 1250, 746, 18, 0, TAU); g.fill();
     g.textBaseline = 'alphabetic'; reg('borghiwall', x0, 660, 1536, 360); void y0; void H;
   }
-  const tex = mkTex(2048, 2048, 'rgba8unorm-srgb', TU.RT | TU.TB | TU.CD, { mipLevelCount: 12 });
-  G.dev.queue.copyExternalImageToTexture({ source: cv }, { texture: tex }, [2048, 2048]);
+  const tex = mkTex(2048, 3072, 'rgba8unorm-srgb', TU.RT | TU.TB | TU.CD, { mipLevelCount: 12 });
+  G.dev.queue.copyExternalImageToTexture({ source: cv }, { texture: tex }, [2048, 3072]);
   genMips(tex, 'rgba8unorm-srgb');
   return { tex, REG };
 }
@@ -12138,6 +12306,12 @@ function fotoCams() {
   if (MARCOS.petrus) L.push(fotoCamLugar('Casa do Petrus', MARCOS.petrus, 13, 1.8, 2.2));
   { const h = CITY.houses.find(h => h.shop === 'Prisma'); if (h) { const fx = h.x - h.nx * h.d / 2, fz = h.z - h.nz * h.d / 2, ex = fx - h.nx * 13 + h.fx * 4, ez = fz - h.nz * 13 + h.fz * 4;
     L.push({ nome: 'Papelaria Prisma', eye: [ex, terrainH(ex, ez) + 1.7, ez], alvo: [fx, terrainH(fx, fz) + 2.6, fz], fov: 0.8 }); } }
+  // Centro (etapa 1 da conferência pelo Street View)
+  const loja = (nome, shop, rec, lado, ay) => { const h = CITY.houses.find(h => h.shop === shop); if (!h) return; const fx = h.x - h.nx * h.d / 2, fz = h.z - h.nz * h.d / 2, ex = fx - h.nx * rec + h.fx * (lado || 0), ez = fz - h.nz * rec + h.fz * (lado || 0);
+    L.push({ nome, eye: [ex, terrainH(ex, ez) + 1.7, ez], alvo: [fx, terrainH(fx, fz) + (ay || 2.6), fz], fov: 0.85 }); };
+  if (CITY.paco) { const P = CITY.paco, ex = P.fx - P.nx * 22 + P.tx * 5, ez = P.fz - P.nz * 22 + P.tz * 5; L.push({ nome: 'Paço Municipal', eye: [ex, terrainH(ex, ez) + 1.7, ez], alvo: [P.fx, terrainH(P.fx, P.fz) + 4, P.fz], fov: 0.9 }); }
+  loja('Banco do Brasil', 'BANCO DO BRASIL', 15, -5); loja('Padaria do Parque', 'PADARIA DO PARQUE', 15, 3, 3.4); loja('Posto PM', 'POLÍCIA MILITAR', 14, 4);
+  loja('Aliança Saúde', 'Aliança Saúde', 11, 2); loja('Oquelifibra', 'OQUELIFIBRA', 12, -3);
   if (MARCOS.entrada) {   // pórtico de quem chega pela rodovia e as letras no campo
     const E = MARCOS.entrada, P = E.P, ex = P.x - P.ux * 38 - P.vx * P.dl, ez = P.z - P.uz * 38 - P.vz * P.dl;
     L.push({ nome: 'Entrada (pórtico)', eye: [ex, terrainH(ex, ez) + 1.7, ez], alvo: [P.x, terrainH(P.x, P.z) + 4.5, P.z], fov: 0.95 });
@@ -12312,6 +12486,7 @@ window.__cap = {
   vehicle: id => vehicleChoice(id, true),
   music: () => ({tracks: MUSIC.tracks.slice(), index: MUSIC.index, paused: MUSIC.audio?.paused, wanted: MUSIC.wanted, currentTime: MUSIC.audio?.currentTime, error: MUSIC.audio?.error?.code || null}),
   ready: () => GAME.ready, error: () => GAME.error || G.lastErr || null,
+  fotoCams() { return typeof fotoCams === 'function' ? fotoCams() : null; }, hora(h) { todSet(h, true); }, clima(k) { climaSet(k); },
   cam(ex, ey, ez, tx, ty, tz, fov) { if (typeof GS !== 'undefined') { GS.freeCam = true; GS.cut = true; } setCamera(ex, ey, ez, tx, ty, tz, fov); },
   // avança n quadros com passo fixo e renderiza cada um
   frames(n, dt) {

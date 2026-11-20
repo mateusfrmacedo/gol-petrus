@@ -95,6 +95,7 @@ window.__cap = {
   vehicle: id => vehicleChoice(id, true),
   music: () => ({tracks: MUSIC.tracks.slice(), index: MUSIC.index, paused: MUSIC.audio?.paused, wanted: MUSIC.wanted, currentTime: MUSIC.audio?.currentTime, error: MUSIC.audio?.error?.code || null}),
   ready: () => GAME.ready, error: () => GAME.error || G.lastErr || null,
+  fotoCams() { return typeof fotoCams === 'function' ? fotoCams() : null; }, hora(h) { todSet(h, true); }, clima(k) { climaSet(k); },
   cam(ex, ey, ez, tx, ty, tz, fov) { if (typeof GS !== 'undefined') { GS.freeCam = true; GS.cut = true; } setCamera(ex, ey, ez, tx, ty, tz, fov); },
   // avança n quadros com passo fixo e renderiza cada um
   frames(n, dt) {
