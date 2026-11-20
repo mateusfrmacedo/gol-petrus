@@ -40,9 +40,9 @@ function hudLayout() {
   const A = H.A = hudAtlas(Math.round(r * 0.33)), B = H.B = hudAtlas(Math.round(r * 0.23)), C = H.C = hudAtlas(Math.round(r * 0.17));
   const c = H.cg; c.width = W; c.height = Hh; c.style.width = W / dpr + 'px'; c.style.height = Hh / dpr + 'px';
   const cx1 = Math.round(r * 1.12), cy = Math.round(r * 1.12), cx2 = W - cx1; L[0] = cx1; L[1] = cy; L[2] = cx2; L[3] = r; L[4] = W; L[5] = Hh;
-  // Faixa compacta de luzes e setas centralizada acima do velocímetro; acompanha o resize do HUD.
+  // Faixa compacta junto à borda direita, acima dos mostradores; acompanha o resize do HUD.
   const controls = document.getElementById('gol-controls');
-  if (controls) { controls.style.right = 'calc(1.6vh + ' + (W - cx1) / dpr + 'px)'; controls.style.bottom = 'calc(1.6vh + ' + (Hh / dpr + 7) + 'px)'; }
+  if (controls) { controls.style.bottom = 'calc(1.6vh + ' + (Hh / dpr + 7) + 'px)'; }
   const fc = H.face = document.createElement('canvas'); fc.width = W; fc.height = Hh; const f = fc.getContext('2d');
   f.textAlign = 'center'; f.textBaseline = 'middle';
   const dial = (cx, max, step, minor, red0, unit) => {

@@ -71,7 +71,7 @@ As referências orientam a forma e os materiais, mas o modelo continua sendo uma
 
 ### Luzes, setas e buzina do Gol
 
-Farol baixo e alto com fachos, luz forte de placa com comando independente, setas âmbar sincronizadas na frente, nas células superiores traseiras e nos retrovisores. A luz branca de ré permanece separada. A buzina toca enquanto a tecla ou o botão está pressionado e para ao soltar, pausar ou perder o foco; respeita o comando de mudo. Os comandos estão disponíveis por teclado e por uma faixa compacta de ícones acima do velocímetro. Os atalhos continuam indicados nas descrições dos botões.
+Farol baixo e alto com fachos, luz forte de placa com comando independente, setas âmbar sincronizadas na frente, nas células superiores traseiras e nos retrovisores. A luz branca de ré permanece separada. A buzina toca enquanto a tecla ou o botão está pressionado e para ao soltar, pausar ou perder o foco; respeita o comando de mudo. Os comandos estão disponíveis por teclado e por uma faixa compacta de ícones acima dos mostradores, junto à borda direita. Os atalhos continuam indicados nas descrições dos botões.
 
 ### Teto solar articulado
 
