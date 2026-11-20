@@ -259,7 +259,18 @@ As revisões atuais se concentram no Gol. Os arquivos do Civic são mantidos sep
 
 Adicione MP3 à pasta [`musica/`](musica/), respeitando os direitos de publicação. **P** toca/pausa, **0** avança, **9** volta e **8** alterna a ordem aleatória. Fora do modo aleatório, as faixas seguem a ordem dos nomes e avançam automaticamente. **M** controla o áudio sintetizado do jogo separadamente. A lista é consultada pela API pública do GitHub, com `playlist.json` como reserva.
 
-O GitHub Pages publica a branch **main**, a partir da raiz. Antes de enviar mudanças de código, gere o `index.html` e execute as verificações pertinentes. Alterações de documentação não exigem reconstruir o HTML.
+O GitHub Pages é publicado pelo workflow [`.github/workflows/pages.yml`](.github/workflows/pages.yml) a cada envio à branch **main**. Ele gera o build padrão com apenas o Gol, executa os testes e prepara uma pasta de publicação contendo somente `index.html`, músicas, manifesto de versão, licença e `.nojekyll`.
+
+**O Civic permanece apenas no repositório:** seus arquivos JavaScript, GLB e texturas não são incluídos no pacote do site, e o HTML publicado não incorpora sua geometria. Os modelos Blender, ferramentas, testes e prévias também ficam fora da publicação. A pasta `musica/` continua disponível para a rádio.
+
+Para conferir o mesmo pacote localmente:
+
+```sh
+node source/build.mjs
+node scripts/prepare-site.mjs /tmp/gol-petrus-site
+```
+
+O empacotador recusa um HTML com o Civic incorporado. Builds locais com `--civic` continuam possíveis para revisão, mas não são publicados por esse workflow. Antes de enviar mudanças de código, gere o `index.html` e execute as verificações pertinentes. Alterações de documentação não exigem reconstruir o HTML.
 
 ## Controles
 

@@ -1,0 +1,48 @@
+name: Publicar jogo sem Civic
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Gerar jogo apenas com o Gol
+        run: node source/build.mjs
+      - name: Executar testes
+        run: |
+          for test in tests/*.cjs; do node "$test"; done
+          node --test source/tests/musica.test.mjs
+      - name: Preparar arquivos do site
+        run: node scripts/prepare-site.mjs "$RUNNER_TEMP/site"
+      - name: Enviar pacote do site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ${{ runner.temp }}/site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
