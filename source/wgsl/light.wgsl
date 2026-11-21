@@ -19,6 +19,7 @@
 #include shadow
 #include fog
 #include skyfn
+#include plate_light
 
 fn worldAt(uv: vec2f, d: f32) -> vec3f { let p = F.invViewProjJ * vec4f(uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0, d, 1.0); return p.xyz / p.w; }
 // oclusão analítica do carro sobre o chão: caixa arredondada da carroceria + contato de cada pneu.
@@ -173,14 +174,14 @@ struct LOut { @location(0) col: vec4f }
       }
     }
   }
-  // névoa
+  // Luz da placa: moldura preta iluminada para baixo e mancha suave atrás do para-choque.
   if(F.car2.z>0.5) {
     let lp=(F.carInv*vec4f(wp,1.0)).xyz;
-    if(lp.x< -1.78 && lp.x> -2.5 && lp.y<0.53 && lp.y>0.12 && abs(lp.z)<0.34) {
-      let fall=exp(-pow(lp.z/0.29,4.0))*exp(-pow((lp.y-0.42)/0.19,2.0));
-      col+=diffC*vec3f(0.90,0.96,1.0)*fall*2.8;
-    }
+    let ln=normalize((F.carInv*vec4f(N,0.0)).xyz);
+    let masks=plateLampMask(lp,ln);
+    col+=diffC*vec3f(0.90,0.96,1.0)*(masks.x*2.0+masks.y*18.0);
   }
+  // névoa
   let dir = -V; let od = fogOD(F.camPos.xyz, dir, dist); let T = exp(-od);
   let nearD = min(dist, VOL_DIST); let Tn = exp(-fogOD(F.camPos.xyz, dir, nearD));
   let sunIn = fogSunCol(dir) * max(0.0, (1.0 - T) - (1.0 - Tn) * (1.0 - hv.g));

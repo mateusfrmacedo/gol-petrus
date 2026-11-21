@@ -425,7 +425,7 @@ fn surf(in: V2F, ff: bool) -> Surface {
       s.rough=0.24;s.metal=0.0;s.coat=0.35;s.emissive=1.30*blink;return s;
     }
     case 29u: { // LEDs brancos que iluminam a placa traseira
-      s.albedo=vec3f(0.92,0.96,1.0);s.rough=0.2;s.metal=0.0;s.emissive=2.2*sat(O.p2.x);return s;
+      s.albedo=vec3f(0.92,0.96,1.0);s.rough=0.2;s.metal=0.0;s.emissive=0.85*sat(O.p2.x);return s;
     }
     case 27u: { s.albedo=in.col.rgb; s.rough=0.8; s.emissive=0.18; return s; }
     case 26u: { // plástico granulado real, com cor, microrrelevo e rugosidade
@@ -501,7 +501,7 @@ fn surf(in: V2F, ff: bool) -> Surface {
       if (O.p0.w > 0.5 && lp.y > 1.15 && lp.x < 0.75 && abs(lp.z) < 0.72) {
         s.rough = 0.95; s.metal = 0.0; s.coat = 0.0; s.albedo = min(s.albedo, vec3f(0.04));
       }
-      if(lp.x< -1.87 && abs(lp.z)<0.207 && lp.y>0.347 && lp.y<0.487){s.emissive=max(s.emissive,0.65*sat(O.p2.x));}
+      if(lp.x< -1.87 && abs(lp.z)<0.207 && lp.y>0.347 && lp.y<0.487){s.emissive=max(s.emissive,0.12*sat(O.p2.x));}
       return golLampSurface(s,lp);
     }
     case 21u: { // cor sólida do Blender, incluindo a faixa preta do aerofólio

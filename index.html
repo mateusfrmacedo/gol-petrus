@@ -839,6 +839,7 @@ WGSL["light"] = `// Passe de iluminação diferida: sol + sombras + ambiente (SH
 #include shadow
 #include fog
 #include skyfn
+#include plate_light
 
 fn worldAt(uv: vec2f, d: f32) -> vec3f { let p = F.invViewProjJ * vec4f(uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0, d, 1.0); return p.xyz / p.w; }
 // oclusão analítica do carro sobre o chão: caixa arredondada da carroceria + contato de cada pneu.
@@ -993,14 +994,14 @@ struct LOut { @location(0) col: vec4f }
       }
     }
   }
-  // névoa
+  // Luz da placa: moldura preta iluminada para baixo e mancha suave atrás do para-choque.
   if(F.car2.z>0.5) {
     let lp=(F.carInv*vec4f(wp,1.0)).xyz;
-    if(lp.x< -1.78 && lp.x> -2.5 && lp.y<0.53 && lp.y>0.12 && abs(lp.z)<0.34) {
-      let fall=exp(-pow(lp.z/0.29,4.0))*exp(-pow((lp.y-0.42)/0.19,2.0));
-      col+=diffC*vec3f(0.90,0.96,1.0)*fall*2.8;
-    }
+    let ln=normalize((F.carInv*vec4f(N,0.0)).xyz);
+    let masks=plateLampMask(lp,ln);
+    col+=diffC*vec3f(0.90,0.96,1.0)*(masks.x*2.0+masks.y*18.0);
   }
+  // névoa
   let dir = -V; let od = fogOD(F.camPos.xyz, dir, dist); let T = exp(-od);
   let nearD = min(dist, VOL_DIST); let Tn = exp(-fogOD(F.camPos.xyz, dir, nearD));
   let sunIn = fogSunCol(dir) * max(0.0, (1.0 - T) - (1.0 - Tn) * (1.0 - hv.g));
@@ -1436,7 +1437,7 @@ fn surf(in: V2F, ff: bool) -> Surface {
       s.rough=0.24;s.metal=0.0;s.coat=0.35;s.emissive=1.30*blink;return s;
     }
     case 29u: { // LEDs brancos que iluminam a placa traseira
-      s.albedo=vec3f(0.92,0.96,1.0);s.rough=0.2;s.metal=0.0;s.emissive=2.2*sat(O.p2.x);return s;
+      s.albedo=vec3f(0.92,0.96,1.0);s.rough=0.2;s.metal=0.0;s.emissive=0.85*sat(O.p2.x);return s;
     }
     case 27u: { s.albedo=in.col.rgb; s.rough=0.8; s.emissive=0.18; return s; }
     case 26u: { // plástico granulado real, com cor, microrrelevo e rugosidade
@@ -1512,7 +1513,7 @@ fn surf(in: V2F, ff: bool) -> Surface {
       if (O.p0.w > 0.5 && lp.y > 1.15 && lp.x < 0.75 && abs(lp.z) < 0.72) {
         s.rough = 0.95; s.metal = 0.0; s.coat = 0.0; s.albedo = min(s.albedo, vec3f(0.04));
       }
-      if(lp.x< -1.87 && abs(lp.z)<0.207 && lp.y>0.347 && lp.y<0.487){s.emissive=max(s.emissive,0.65*sat(O.p2.x));}
+      if(lp.x< -1.87 && abs(lp.z)<0.207 && lp.y>0.347 && lp.y<0.487){s.emissive=max(s.emissive,0.12*sat(O.p2.x));}
       return golLampSurface(s,lp);
     }
     case 21u: { // cor sólida do Blender, incluindo a faixa preta do aerofólio
@@ -2499,6 +2500,24 @@ fn shade(in: V2F, ff: bool) -> vec4f {
   let zs = F.camFwd.w / max(textureLoad(gD, vec2i(in.pos.xy), 0), 1e-6); let zf = F.camFwd.w / in.pos.z;
   a *= smoothstep(0.0, 1.1, zs - zf) * smoothstep(1.2, 7.0, zf);
   return vec4f(in.col.rgb * lit * a, a);
+}
+`;
+WGSL["plate_light"] = `// Máscaras locais do Gol: recorte trapezoidal da moldura preta e facho sobre o asfalto.
+// A aba acima da placa bloqueia a luz para cima; superfícies inferiores recebem o clarão.
+fn plateLampMask(lp: vec3f, ln: vec3f) -> vec2f {
+  if (lp.x >= -1.78 || lp.x <= -4.6 || lp.y >= 0.505 || abs(lp.z) > 1.6) { return vec2f(0.0, 0.0); }
+  let width = 0.23 + 0.65 * clamp(0.485 - lp.y, 0.0, 0.24);
+  let pocket = (1.0 - smoothstep(width - 0.025, width, abs(lp.z)))
+    * smoothstep(0.20, 0.26, lp.y) * (1.0 - smoothstep(0.485, 0.505, lp.y))
+    * smoothstep(-2.16, -2.05, lp.x) * (1.0 - smoothstep(-1.87, -1.78, lp.x))
+    * smoothstep(0.25, 0.70, -ln.x) * (0.7 + 0.5 * clamp((0.485 - lp.y) / 0.24, 0.0, 1.0));
+  let rear = -lp.x - 1.98;
+  let spread = 0.28 + max(rear, 0.0) * 0.48;
+  let pool = (1.0 - smoothstep(0.76, 1.0, abs(lp.z) / spread))
+    * smoothstep(0.06, 0.28, rear) * (1.0 - smoothstep(1.35, 2.45, rear))
+    * (1.0 - smoothstep(0.06, 0.16, lp.y)) * smoothstep(0.45, 0.9, ln.y)
+    * smoothstep(0.28, 0.42, 0.505 - lp.y) / (1.0 + 0.55 * rear * rear);
+  return vec2f(pocket, pool);
 }
 `;
 WGSL["shadow"] = `// Amostragem de sombras: 3 cascatas dinâmicas + mapa estático do mundo. Requer tShadow, tShadowS, sCmp e F.
