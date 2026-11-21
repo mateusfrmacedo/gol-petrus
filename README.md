@@ -283,7 +283,7 @@ node scripts/prepare-site.mjs /tmp/gol-petrus-site
 
 O empacotador recusa um HTML com o Civic incorporado. Builds locais com `--civic` continuam possíveis para revisão, mas não são publicados por esse workflow. Antes de enviar mudanças de código, gere o `index.html` e execute as verificações pertinentes. Alterações de documentação não exigem reconstruir o HTML.
 
-O botão de centralizar a câmera externa fica junto aos controles de luzes e teto solar. O indicador de marcha nesse grupo mostra **M** (manual) ou **A** (automático), seguido da marcha atual; clicar nele alterna o modo de câmbio. A luz da placa acompanha o farol alto, além do acionamento manual. Seu facho segue para baixo, recortado pela moldura preta, e forma uma mancha suave no asfalto atrás do carro.
+O botão de centralizar a câmera externa e o botão de tela cheia ficam junto aos controles de luzes e teto solar. Em tela cheia, clique novamente no botão ou pressione Esc para sair. O indicador de marcha nesse grupo mostra **M** (manual) ou **A** (automático), seguido da marcha atual; clicar nele alterna o modo de câmbio. A luz da placa acompanha o farol alto, além do acionamento manual. Seu facho segue para baixo, recortado pela moldura preta, e forma uma mancha suave no asfalto atrás do carro.
 
 A tela inicial reúne clima, horário e ritmo do tempo em um painel compacto; a lista de atalhos fica em **Controles e atalhos**.
 
