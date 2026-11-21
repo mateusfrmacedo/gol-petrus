@@ -19,6 +19,9 @@ ${read('12_city1_core.js')}
 ${read('12_city3_mesh.js')}
 ${read('12_city4_marcos.js')}
 ${read('12_city5_borghi.js')}
+${read('12_city6_sul.js')}
+${read('12_city7_centro.js')}
+${fs.existsSync(path.join(__dirname,'../source/js/12_city8_petrus.js'))?read('12_city8_petrus.js'):''}
 assert(CITY.on,'?mapa=nova-alianca liga a cidade');
 cityBuild();
 const C=CITY, q=new Float64Array(12), o=new Float64Array(5);
@@ -63,5 +66,12 @@ for (const mb of [WORLD.ribbon.mb, ...R.drawables.map(d=>d.mb).filter(Boolean)])
 for (const P of C.poles) assert(Math.abs(P.y-cityGroundY(P.x,P.z))<0.03,'poste fora do chão '+P.x.toFixed(0)+','+P.z.toFixed(0));
 // asfalto voltado para cima (a face da frente é a de cima)
 { const mb=WORLD.ribbon.mb, f=mb.f32, ix=mb.idx; let up=0, tot=0; for (let t=0;t<mb.ni;t+=3){ const a=ix[t]*9,b=ix[t+1]*9,c=ix[t+2]*9; if(mb.u8[ix[t]*36+28]!==0) continue; const ux=f[b]-f[a],uz=f[b+2]-f[a+2],vx=f[c]-f[a],vz=f[c+2]-f[a+2]; const cy=uz*vx-ux*vz; tot++; if(cy>0) up++; } assert(up/tot>0.999,'triângulos do asfalto virados para cima '+up+'/'+tot); }
+// setor Sul (12_city6_sul.js): comércios do Google no lote certo, fachada da UBS e caixas d'água sólidas
+for (const sh of SUL_SHOPS) assert(C.shops.includes(sh[0]),'comércio do Sul sem lote: '+sh[0]);
+assert(C.signs.some(s=>s.name==='UBS NOVA ALIANÇA'),'letreiro da UBS');
+{ const [x,z]=llToXZ(...SUL_CAIXAS_LL); assert(C.circles.filter(c=>Math.hypot(c.x-x,c.z-z)<9&&c.r>1.9).length===2,"duas caixas de água com colisão"); }
+// Centro (12_city7_centro.js): galpão no lote certo e torres sólidas, sem casa em cima da base
+assert(CENTRO.lotes.length===CENTRO_LOTES.length,'lotes de referência do Centro'); assert(CENTRO.escola && C.signs.some(s=>s.name==='E. M. ABDO AYRUTH'),'escola Abdo Ayruth na Rui Barbosa');
+for (const T of CENTRO_TORRES) { assert(C.circles.some(c=>Math.hypot(c.x-T.xz[0],c.z-T.xz[1])<0.1&&c.r>2),'torre com colisão'); assert(!C.houses.some(h=>!h.centroRef&&Math.hypot(h.x-T.xz[0],h.z-T.xz[1])<Math.max(h.d,h.w)/2),'casa em cima da torre'); }
 console.log('PASS: Nova Aliança — '+C.chains.length+' vias, '+C.juncs.length+' cruzamentos, '+C.houses.length+' casas; perfis, rasters, calçadas, partida, lugares modelados e malhas.');
 `,ctx);

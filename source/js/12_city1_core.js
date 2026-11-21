@@ -556,6 +556,8 @@ function cityLots() {
     }
   }
   borghiNeighborhoodLayout(houses, occ);
+  if (typeof sulLayout === 'function') sulLayout(houses);   // setor Sul (12_city6_sul.js): UBS e caixas de água
+  if (typeof centroLayout === 'function') centroLayout(houses);   // Centro (12_city7_centro.js): galpão e torres
   // grade para colisão: caixas orientadas (casas com o muro e o quintal da frente, prédios, lugares modelados)
   // e círculos (troncos de árvore, postes, placas, frades). Cada obstáculo entra em todas as células que toca.
   const cell = 32, nx = Math.ceil(C.W / cell), nz = Math.ceil(C.H / cell), grid = Array.from({ length: nx * nz }, () => []);

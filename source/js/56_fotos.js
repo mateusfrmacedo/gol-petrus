@@ -50,6 +50,8 @@ function fotoCams() {
   // rua: vista do alto de um cruzamento urbano (postes, calçadas, placas)
   const c = CITY.cams[Math.floor(CITY.cams.length / 3)];
   if (c) { const s = CITY.spawn, o = new Float64Array(5); chainAt(s.ch, s.s, o); L.push({ nome: 'Rua (partida)', eye: [o[0] - o[2] * 14, o[4] + 3.2, o[1] - o[3] * 14], alvo: [o[0] + o[2] * 30, o[4] + 1, o[1] + o[3] * 30], fov: 1.0 }); }
+  if (typeof sulFotos === 'function') sulFotos(L);   // setor Sul (12_city6_sul.js)
+  if (typeof centroFotos === 'function') centroFotos(L);   // Centro (12_city7_centro.js)
   return Q.get('fotos') === 'borghi' ? L.filter(c => c.nome.startsWith('Borghi')) : L;
 }
 const fotoEspera = ms => new Promise(r => setTimeout(r, ms));

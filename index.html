@@ -5361,6 +5361,8 @@ function cityLots() {
     }
   }
   borghiNeighborhoodLayout(houses, occ);
+  if (typeof sulLayout === 'function') sulLayout(houses);   // setor Sul (12_city6_sul.js): UBS e caixas de água
+  if (typeof centroLayout === 'function') centroLayout(houses);   // Centro (12_city7_centro.js): galpão e torres
   // grade para colisão: caixas orientadas (casas com o muro e o quintal da frente, prédios, lugares modelados)
   // e círculos (troncos de árvore, postes, placas, frades). Cada obstáculo entra em todas as células que toca.
   const cell = 32, nx = Math.ceil(C.W / cell), nz = Math.ceil(C.H / cell), grid = Array.from({ length: nx * nz }, () => []);
@@ -6075,6 +6077,7 @@ function cOpeningZ(mb, zw, nz, x, w, y0, y1, mat, col) {
 // uma casa (ou loja) no seu lote; quadro local: X da rua para o fundo, Z ao longo da rua
 function cityHouse(mb, h, rnd) {
   if (h.borghiRef) { borghiReferenceHouse(mb, h); return; }
+  if (h.centroRef && typeof centroHouse === 'function' && centroHouse(mb, h)) return;   // Centro (12_city7_centro.js)
   const C = CITY, d = h.d, w = h.w, set = h.set, X = d / 2, Zh = w / 2;
   // chão: maior altura sob a frente; paredes descem até abaixo do terreno mais baixo
   let ymin = 1e9, ymax = -1e9;
@@ -6353,6 +6356,8 @@ function cityPropsBuild() {
   for (const p of C.pois) {
     const t = p.tags, f = cityFaceRoad(p.x, p.z), yaw = f.ang + PI;   // eixo local X: da via para dentro do lote
     const off = (dd) => [p.x - Math.cos(f.ang) * Math.max(0, dd - f.dist), p.z - Math.sin(f.ang) * Math.max(0, dd - f.dist)];
+    if (typeof sulPoi === 'function' && sulPoi(mb, p)) continue;   // fachadas próprias do setor Sul (12_city6_sul.js)
+    if (typeof centroPoi === 'function' && centroPoi(mb, p)) continue;   // fachadas próprias do Centro (12_city7_centro.js)
     if (t.am === 'place_of_worship') { if (MARCOS.matriz) continue; const [x, z] = off(C.SW + 4.2 + 20); cityChurch(mb, x, z, yaw); }
     else if (t.am === 'school' || t.am === 'kindergarten') { const [x, z] = off(4.2 + C.SW + 8); cityBuilding(mb, x, z, yaw, 12, t.am === 'school' ? 34 : 18, 1, [0.92, 0.88, 0.72], { gable: false, sign: (p.name || (t.am === 'school' ? 'Escola' : 'Creche')).replace(/^Escola Estadual /, 'E. E. ').replace(/^Escola M+unicipal /i, 'E. M. ').toUpperCase(), bg: '#f4f4f0', fg: '#1a4d8f' }); }
     else if (t.am === 'townhall') { const [x, z] = off(4.2 + C.SW + 7 + 3.2); cityPaco(mb, x, z, yaw); }
@@ -6456,6 +6461,8 @@ function cityPropsBuild() {
   j0 = mm.ni; marcoSacoi(mm, MA.REG); SM.add(mm, j0, 7, 1600);
   j0 = mm.ni; marcoPetrus(mm, MA.REG); SM.add(mm, j0, 7, 900);
   j0 = mm.ni; marcoEntrada(mm); SM.add(mm, j0, 7, 1400);
+  if (typeof sulMarcos === 'function') { j0 = mm.ni; sulMarcos(mm); SM.add(mm, j0, 7, 1400); }
+  if (typeof centroMarcos === 'function') { j0 = mm.ni; centroMarcos(mm); SM.add(mm, j0, 7, 1600); }
   j0 = mm.ni; citySigns(mm, MA.REG); SM.add(mm, j0, 7, 300);
   SM.upload(mm); R.drawables.push(SM);
   WORLD.stats.tris.props = mb.ni / 3 + mm.ni / 3;
@@ -6469,6 +6476,7 @@ function poiSite(p, depth) { const f = cityFaceRoad(p.x, p.z); return { x: p.x -
 // pisos de concreto (antes dos mapas do mundo)
 function cityPave() {
   const C = CITY; C.pave = [];
+  if (typeof sulPave === 'function') sulPave();
   for (const p of C.pois) {
     const t = p.tags;
     if (t.am === 'fuel') { const s = poiSite(p, 4.2 + C.SW + 9); C.pave.push(s.x, s.z, 15); }
@@ -7428,6 +7436,291 @@ function borghiNorthDetails(mb) {
     mb.pop();
     const post = at(a + 0.11, b + 1.18); CITY.addCircle(post[0], post[1], 0.10);
     M.northDrain = { x: p[0], z: p[1], y: ground };
+  }
+}
+
+// ---- 12_city6_sul.js
+// Setor Sul de Nova Aliança (ao sul da Rua Jorge Galvão até a Av. Francisco Pereira dos Santos e Rua Egilio Darim).
+// Levantamento de 20/nov/2026: posição pelo ponto do Google Maps, fachada pelo Street View (set/2024 e dez/2023).
+// Arquivo do Claude (ver COORDENACAO.md). Ganchos: 12_city3_mesh.js chama sulPoi() no laço dos pontos públicos e sulMarcos().
+
+// comércios do Sul: nome, lat, lon, fundo do letreiro, letra, rua (para cair no lote certo)
+const SUL_SHOPS = [
+  ['LANCHONETE DO TIO', -21.0184414, -49.4999280, '#2e7d32', '#ffffff', 'Rua Jorge Galvão'],
+  ['EXPRESSO LANCHES', -21.0200287, -49.4986804, '#e65100', '#ffffff', 'Rua Jorge Tibiriça'],
+  ['LARISSA TRIGOLO STUDIO', -21.0199683, -49.4986245, '#f3e5f5', '#6a1b9a', 'Rua Sete de Setembro'],
+  ['BAR DO ROLO', -21.0194374, -49.5000036, '#4e342e', '#ffffff'],
+  ['BAR UFC', -21.0201006, -49.5022252, '#1b1b1b', '#ffd54f', 'Rua Etore Zafalon'],
+  ['CENTER CAR ALIANÇA', -21.0193069, -49.5023895, '#0d47a1', '#ffffff', 'Rua Felicio Helu'],
+  ['GMS AUTOMOTIVA', -21.0207140, -49.5011859, '#212121', '#ef5350', 'Rua Hene Ayruth'],
+  ['PLATO CAR EMBREAGEM', -21.0209712, -49.5017633, '#c62828', '#ffffff', 'Rua Manoel Pereira dos Santos'],
+  ['OMNIPACK', -21.0203855, -49.4995141, '#37474f', '#ffffff', 'Rua São Paulo'],
+  ['SACOLÃO DO MINEIRINHO', -21.0180393, -49.4989792, '#388e3c', '#fff59d'],
+  ['ASSEMBLEIA DE DEUS', -21.0192600, -49.5011988, '#f4f4f0', '#1a237e', 'Rua Rio Preto'],
+  ['AVENIDA MATERIAIS', -21.0182527, -49.5016184, '#1565c0', '#ffeb3b'],
+  ['LOLOS BAR E ESPETINHO', -21.0181032, -49.5016087, '#3e2723', '#ffb74d'],
+];
+const SUL_SHOP_STYLE = {
+  // parede verde-oliva lisa com antenas parabólicas, toldo verde na frente
+  'LANCHONETE DO TIO': { kind: 'simples', col: [0.58, 0.6, 0.38], toldo: [0.16, 0.5, 0.36], sub: 'LANCHES', signH: 0.9 },
+  'ASSEMBLEIA DE DEUS': { kind: 'simples', col: [0.94, 0.93, 0.9], sub: 'MINISTÉRIO DO BELÉM', signH: 0.85 },
+  'PLATO CAR EMBREAGEM': { kind: 'simples', col: [0.9, 0.9, 0.88], sub: 'EMBREAGEM · MECÂNICA', signH: 0.9 },
+  'AVENIDA MATERIAIS': { kind: 'simples', col: [0.92, 0.9, 0.84], toldo: [0.13, 0.4, 0.75], sub: 'MATERIAIS PARA CONSTRUÇÃO', signH: 1.0 },
+};
+for (const s of SUL_SHOPS) CITY_SHOPS.push(s);
+Object.assign(CITY_SHOP_STYLE, SUL_SHOP_STYLE);
+
+// UBS (R. Felício Helú, 105): o ponto do OSM fica 30 m a oeste e voltado para outra rua. Posição e frente pela foto do
+// Street View (dez/2023), tirada de -21.0192345, -49.5023267 olhando a 343 graus: térrea branca de frente para a Felício Helú.
+const SUL = {};
+const SUL_UBS = { pano: [-21.0192345, -49.5023267], rumo: 343, d: 12, w: 18, recuo: 3.2 };
+// chamado em cityBuild antes da grade de colisão: fixa a UBS e as caixas de água e tira as casas genéricas desses lotes
+function sulLayout(houses) {
+  const C = CITY, U = SUL_UBS, [px, pz] = llToXZ(...U.pano), a = U.rumo * PI / 180, gx = px + Math.sin(a) * 12, gz = pz - Math.cos(a) * 12;
+  const r = nearestChain(gx, gz, /Felicio Helu/); if (!r) return;
+  let nx = -r.tz, nz = r.tx; if ((gx - r.x) * nx + (gz - r.z) * nz < 0) { nx = -nx; nz = -nz; }   // n: da rua para dentro do lote
+  const front = r.ch.hw + C.SW + U.recuo, cx = r.x + nx * (front + U.d / 2), cz = r.z + nz * (front + U.d / 2);
+  SUL.ubs = { x: cx, z: cz, nx, nz, yr: r.ch.y[0] };
+  const [kx, kz] = llToXZ(...SUL_CAIXAS_LL);
+  const areas = [{ x: cx - nx * U.recuo / 2, z: cz - nz * U.recuo / 2, nx, nz, d: U.d + U.recuo + 1, w: U.w + 3 }, { x: kx, z: kz, nx: 1, nz: 0, d: 17, w: 17 }];
+  const hit = (h, b) => { const A = { x: h.x, z: h.z, nx: h.nx, nz: h.nz, d: h.d + (h.wall ? h.set : 0), w: h.w };
+    for (const [x, z] of [[A.nx, A.nz], [-A.nz, A.nx], [b.nx, b.nz], [-b.nz, b.nx]]) {
+      const ra = A.d / 2 * Math.abs(A.nx * x + A.nz * z) + A.w / 2 * Math.abs(-A.nz * x + A.nx * z), rb = b.d / 2 * Math.abs(b.nx * x + b.nz * z) + b.w / 2 * Math.abs(-b.nz * x + b.nx * z);
+      if (Math.abs((A.x - b.x) * x + (A.z - b.z) * z) >= ra + rb) return false; }
+    return true; };
+  const keep = houses.filter(h => h.borghiRef || !areas.some(b => hit(h, b)));
+  SUL.removidas = houses.length - keep.length; houses.length = 0; houses.push(...keep);
+}
+
+// construções públicas do Sul com fachada própria. Devolve true quando desenhou (o laço genérico pula o ponto).
+// UBS: barrado azul até 1,3 m com faixa amarela, janelas com grade, mureta azul com grade branca, telhado de telha em quatro águas
+function sulPoi(mb, p) {
+  if (p.tags.am !== 'clinic' || !/Saúde/.test(p.name) || !SUL.ubs) return false;
+  const C = CITY, { d, w } = SUL_UBS, H = 3.3, U = SUL.ubs, x = U.x, z = U.z, y = hfAt(x, z) + 0.15;   // eixo local +X: da rua para os fundos
+  const yaw = Math.atan2(U.nz, U.nx); const cy = Math.cos(yaw), sy = Math.sin(yaw);
+  let ymin = 1e9; for (const [a, b] of [[-d / 2, -w / 2], [d / 2, -w / 2], [d / 2, w / 2], [-d / 2, w / 2]]) ymin = Math.min(ymin, hfAt(x + cy * a - sy * b, z + sy * a + cy * b));
+  const blue = [0.12, 0.36, 0.78], yellow = [0.95, 0.78, 0.18], white = [0.95, 0.95, 0.93];
+  mb.push(m4basis(m4(), cy, 0, sy, 0, 1, 0, -sy, 0, cy, x, y, z));
+  mb.mat(19, 170).color(...white, 1); cWalls(mb, d, w, 1.45, H);
+  mb.mat(19, 170).color(...blue, 1); cWalls(mb, d + 0.02, w + 0.02, ymin - y - 0.6, 1.3);
+  mb.mat(19, 170).color(...yellow, 1); cWalls(mb, d + 0.03, w + 0.03, 1.3, 1.45);
+  for (let zz = -w / 2 + 2.2; zz <= w / 2 - 1.8; zz += 3.2) if (Math.abs(zz) > 1.6) { cOpening(mb, -d / 2, -1, zz, 1.5, 1.5, 2.5, 21, white); cOpening(mb, d / 2, 1, zz, 1.5, 1.5, 2.5, 21, white); }
+  cOpening(mb, -d / 2, -1, 0, 2.0, 0, 2.6, 5, [1, 1, 1]);
+  mb.mat(20).color(0.62, 0.3, 0.17, 1); cRoof(mb, d, w, H, 2.2, 0.6, false); mb.mat(19, 180).color(...white, 1); cSoffit(mb, d, w, H, 0.6);
+  // mureta azul com grade branca no alinhamento da calçada, portão aberto no meio
+  const fx = -d / 2 - SUL_UBS.recuo + 0.15;
+  for (const [z0, z1] of [[-w / 2 - 1, -1.6], [1.6, w / 2 + 1]]) {
+    const L = z1 - z0, zm = (z0 + z1) / 2, g = mbGroundY(mb, fx, zm);
+    mb.mat(19, 170).color(...blue, 1); mb.box(fx, g + 0.4, zm, 0.22, 0.8, L);
+    mb.mat(19, 170).color(...yellow, 1); mb.box(fx, g + 0.82, zm, 0.24, 0.05, L);
+    mb.mat(2, 140, 200).color(...white, 1); mb.box(fx, g + 2.0, zm, 0.05, 0.05, L); mb.box(fx, g + 0.9, zm, 0.05, 0.05, L);
+    for (let b = z0 + 0.12; b < z1; b += 0.14) mb.box(fx, g + 1.45, b, 0.025, 1.1, 0.025);
+    mbColBox(mb, fx, zm, 0.15, L / 2);
+  }
+  mb.pop();
+  const q = (a, b) => [x + cy * a - sy * b, z + sy * a + cy * b], c0 = q(-d / 2 - 0.06, -3.2), c1 = q(-d / 2 - 0.06, 3.2);
+  C.signs.push({ name: 'UBS NOVA ALIANÇA', sub: 'UNIDADE BÁSICA DE SAÚDE', bg: '#f4f4f0', fg: '#0d47a1', x: c0[0], y: y + 2.4, z: c0[1], rx: c1[0] - c0[0], rz: c1[1] - c0[1], h: 0.85, nx: -cy, nz: -sy });
+  C.addBox({ x, z, ux: cy, uz: sy, hd: d / 2, hw: w / 2 });
+  return true;
+}
+
+// marcos do Sul que não são lotes: as duas caixas d'água de concreto da Sabesp na esquina da Rua 13 de Maio com a Rio Preto
+// (Street View de set/2024, 490 R. Treze de Maio: dois cilindros brancos de ~15 m num terreno de terra vermelha com alambrado)
+const SUL_CAIXAS_LL = [-21.019205, -49.500905];
+function sulMarcos(mb) {
+  const C = CITY; if (!C.on) return;
+  const [cx, cz] = llToXZ(...SUL_CAIXAS_LL);
+  const f = cityFaceRoad(cx, cz), ux = Math.cos(f.ang), uz = Math.sin(f.ang), vx = -uz, vz = ux;   // u: do lote para a via
+  const base = hfAt(cx, cz), concrete = [0.9, 0.9, 0.87];
+  for (const [k, r, h] of [[-3.2, 2.3, 15.5], [3.0, 2.0, 13.2]]) {
+    const x = cx + vx * k, z = cz + vz * k, y = Math.min(hfAt(x, z), base) - 0.3;
+    mb.mat(3, 220).color(...concrete, 1); mb.cyl(x, y, z, r, y + h + 0.3, r, 20, false, true);
+    mb.mat(3, 220).color(0.82, 0.82, 0.8, 1); mb.cyl(x, y + h + 0.3, z, r + 0.12, y + h + 0.6, r + 0.12, 20, true, true);
+    mb.mat(3, 220).color(0.6, 0.6, 0.58, 1); mb.cyl(x, y + 0.3, z, r + 0.02, y + 1.0, r + 0.02, 20, false, false);   // mancha de terra na base
+    // escada de marinheiro do lado da rua
+    const lx = x + ux * (r + 0.18), lz = z + uz * (r + 0.18);
+    mb.mat(2, 140, 200).color(0.45, 0.46, 0.48, 1);
+    for (const e of [-0.22, 0.22]) mb.cyl(lx + vx * e, y + 1.2, lz + vz * e, 0.025, y + h + 0.9, 0.025, 5, false, false);
+    for (let t = y + 1.5; t < y + h + 0.6; t += 0.35) { mb.push(m4basis(m4(), vx, 0, vz, 0, 1, 0, -ux, 0, -uz, lx, t, lz)); mb.box(0, 0, 0, 0.46, 0.03, 0.03); mb.pop(); }
+    mb.mat(2, 140, 200).color(0.45, 0.46, 0.48, 1); mb.cyl(x, y + h + 0.6, z, r + 0.1, y + h + 1.5, r + 0.1, 20, false, false);   // guarda-corpo do topo (aro)
+    C.addCircle(x, z, r);
+  }
+  // alambrado em volta do terreno (16 x 16 m), postes a cada 2,5 m
+  const S = 8, cor = [0.5, 0.52, 0.53];
+  for (const [a0, b0, a1, b1] of [[-S, -S, -S, S], [-S, S, S, S], [S, S, S, -S], [S, -S, -S, -S]]) {
+    const L = Math.hypot(a1 - a0, b1 - b0), n = Math.ceil(L / 2.5);
+    for (let i = 0; i <= n; i++) {
+      const t = i / n, a = a0 + (a1 - a0) * t, b = b0 + (b1 - b0) * t, x = cx + ux * a + vx * b, z = cz + uz * a + vz * b;
+      _cq[0] = x; _cq[1] = z; cityRasterQ(_cq); if (_cq[9] < C.SW + 0.2) continue;   // não invade calçada nem rua
+      const g = cityGroundY(x, z); mb.mat(2, 140, 200).color(...cor, 1); mb.cyl(x, g - 0.2, z, 0.035, g + 1.9, 0.035, 6, false, true);
+      if (i < n) { const x2 = cx + ux * (a0 + (a1 - a0) * (i + 1) / n) + vx * (b0 + (b1 - b0) * (i + 1) / n), z2 = cz + uz * (a0 + (a1 - a0) * (i + 1) / n) + vz * (b0 + (b1 - b0) * (i + 1) / n), dx = x2 - x, dz = z2 - z, l = Math.hypot(dx, dz);
+        mb.push(m4basis(m4(), dx / l, 0, dz / l, 0, 1, 0, -dz / l, 0, dx / l, (x + x2) / 2, g, (z + z2) / 2));
+        mb.mat(2, 140, 200).color(...cor, 1); for (const h of [0.15, 0.6, 1.05, 1.5, 1.85]) mb.box(0, h, 0, l, 0.018, 0.018);   // fios do alambrado
+        for (let t = -l / 2 + 0.3; t < l / 2; t += 0.3) { mb.push(m4basis(m4(), 0.7071, 0.7071, 0, -0.7071, 0.7071, 0, 0, 0, 1, t, 1.0, 0)); mb.box(0, 0, 0, 2.5, 0.008, 0.008); mb.pop(); }   // malha em losango
+        mb.pop();
+        C.addBox({ x: (x + x2) / 2, z: (z + z2) / 2, ux: dx / l, uz: dz / l, hd: l / 2, hw: 0.08 }); }
+    }
+  }
+}
+// piso sem grama nem árvores no terreno das caixas d'água (chamado por cityPave)
+function sulPave() { const [cx, cz] = llToXZ(...SUL_CAIXAS_LL); CITY.pave.push(cx, cz, 9); }
+
+// câmeras do modo ?fotos=1 no mesmo ponto e direção das fotos do Street View usadas como referência
+const SUL_FOTOS = [
+  ['Sul · UBS (R. Felício Helú, 105)', -21.0192345, -49.5023267, 343],
+  ['Sul · caixas de água (R. 13 de Maio)', -21.0192821, -49.5011343, 98],
+  ['Sul · Lanchonete do Tio (R. Jorge Galvão)', -21.0183070, -49.4999281, 167],
+];
+function sulFotos(L) {
+  for (const [nome, lat, lon, hd] of SUL_FOTOS) {
+    const [x, z] = llToXZ(lat, lon), a = hd * PI / 180, tx = x + Math.sin(a) * 20, tz = z - Math.cos(a) * 20;
+    L.push({ nome, eye: [x, terrainH(x, z) + 2.5, z], alvo: [tx, terrainH(tx, tz) + 2.6, tz], fov: 1.1 });
+  }
+}
+
+// ---- 12_city7_centro.js
+// Centro de Nova Aliança, segunda passada (20/nov/2026): marcos vistos no Street View em volta da Praça Padre João Nolte.
+// Arquivo do Claude (ver COORDENACAO.md). Ganchos de uma linha: centroLayout em 12_city1_core.js; centroHouse, centroPoi e
+// centroMarcos em 12_city3_mesh.js; centroFotos em 56_fotos.js.
+
+// Secretaria da Educação (R. Gotardi, 220): paredes amarelas com barrado azul da prefeitura, não brancas (Street View out/2024)
+if (CITY_SHOP_STYLE['SECRETARIA DA EDUCAÇÃO']) Object.assign(CITY_SHOP_STYLE['SECRETARIA DA EDUCAÇÃO'], { col: [0.96, 0.83, 0.4] });
+
+// lotes que viram construções próprias: o lote mais próximo do ponto, na rua indicada
+const CENTRO_LOTES = [
+  // galpão da R. Gotardi, 266 (lado sul, perto da 25 de Março): fachada de tijolo laranja, três portas de enrolar brancas,
+  // painel branco no meio e telhado em arco de telha metálica. Foto de -21.0170462, -49.4983303 olhando a 168 graus.
+  { kind: 'galpao', ll: [-21.0171340, -49.4983100], rua: /Gotardi/ },
+];
+// torres de telefonia, posição cruzando as direções vistas de dois pontos do Street View (R. Rui Barbosa, 130 e R. 25 de Março, 334)
+const CENTRO_TORRES = [
+  { xz: [-32.4, -71.4], h: 40, base: 3.0, cores: true },       // treliçada vermelha e branca
+  { xz: [-10.9, -91.3], h: 31, base: 2.2, cores: false },                                                    // treliçada galvanizada
+];
+const CENTRO = {};
+
+function centroLayout(houses) {
+  const C = CITY; CENTRO.lotes = [];
+  for (const L of CENTRO_LOTES) {
+    const [x, z] = llToXZ(...L.ll); let best = null, bd = 25 * 25;
+    for (const h of houses) { if (h.borghiRef || h.centroRef || h.shop) continue; if (L.rua && !L.rua.test(C.chains[h.ch].cls.name)) continue; const d = (h.x - x) ** 2 + (h.z - z) ** 2; if (d < bd) { bd = d; best = h; } }
+    if (!best) continue;
+    best.centroRef = L.kind; best.wall = false; best.two = false; best.comm = true; CENTRO.lotes.push(best);
+  }
+  // casas em cima da base das torres saem (a torre fica num terreno cercado de 7 x 7 m)
+  const keep = houses.filter(h => h.borghiRef || h.centroRef || !CENTRO_TORRES.some(T => {
+    const dx = T.xz[0] - h.x, dz = T.xz[1] - h.z, a = Math.abs(dx * h.nx + dz * h.nz), b = Math.abs(-dx * h.nz + dz * h.nx);
+    return a < h.d / 2 + (h.wall ? h.set : 0) + 4 && b < h.w / 2 + 4; }));
+  const keep2 = centroEscolaLayout(keep);
+  CENTRO.removidas = houses.length - keep2.length; houses.length = 0; houses.push(...keep2);
+}
+
+// casa de referência no lote: quadro local com x da rua para dentro do lote e z ao longo da fachada
+function centroHouse(mb, h) {
+  if (h.centroRef !== 'galpao') return false;
+  const X = h.d / 2, Z = h.w / 2, front = [h.x - h.nx * X, h.z - h.nz * X], y = Math.max(h.yr, hfAt(...front)) + 0.08, H = 6.2;
+  mb.push(m4basis(m4(), h.nx, 0, h.nz, 0, 1, 0, h.fx, 0, h.fz, h.x, y, h.z));
+  // paredes laterais e do fundo em reboco cinza; fachada em tijolo aparente laranja
+  mb.mat(19, 200).color(0.78, 0.78, 0.76, 1); cWalls(mb, h.d, h.w, -1.5, H - 1.2);
+  mb.mat(22).color(0.82, 0.42, 0.2, 1); mb.box(-X - 0.05, (H - 1.5) / 2 - 0.25, 0, 0.12, H - 1.0, h.w + 0.1);
+  // três portas de enrolar brancas, verga de concreto
+  const n = 3, gap = 0.55, dw = (h.w - gap * (n + 1)) / n;
+  for (let i = 0; i < n; i++) { const zc = -Z + gap + dw / 2 + i * (dw + gap); cOpening(mb, -X - 0.12, -1, zc, dw, 0, 3.0, 13, [0.93, 0.93, 0.91]); mb.mat(3).color(0.86, 0.86, 0.84, 1); mb.box(-X - 0.14, 3.12, zc, 0.06, 0.24, dw + 0.3); }
+  // painel branco central com frisos horizontais (ali vai o nome do galpão)
+  mb.mat(19, 230).color(0.95, 0.95, 0.93, 1); mb.box(-X - 0.16, 4.25, 0, 0.1, 1.5, h.w * 0.45);
+  mb.mat(19, 200).color(0.82, 0.82, 0.8, 1); for (const yy of [3.75, 4.25, 4.75]) mb.box(-X - 0.22, yy, 0, 0.03, 0.06, h.w * 0.45);
+  // oitão em arco na frente e telhado de telha metálica curvo, em gomos
+  const seg = 10, rise = 1.8, yb = H - 1.2;
+  for (let i = 0; i < seg; i++) {
+    const a0 = -Z + h.w * i / seg, a1 = -Z + h.w * (i + 1) / seg, f = t => yb + rise * (1 - ((t / Z) ** 2)), y0 = f(a0), y1 = f(a1);
+    mb.mat(22).color(0.82, 0.42, 0.2, 1); mb.push(m4basis(m4(), 1, 0, 0, 0, 1, 0, 0, 0, 1, -X - 0.05, (Math.min(y0, y1) + yb) / 2, (a0 + a1) / 2)); mb.box(0, 0, 0, 0.12, Math.min(y0, y1) - yb + 0.02, a1 - a0 + 0.01); mb.pop();
+    const dz = a1 - a0, dy = y1 - y0, l = Math.hypot(dz, dy);
+    mb.push(m4basis(m4(), 1, 0, 0, 0, dz / l, -dy / l, 0, dy / l, dz / l, 0, (y0 + y1) / 2 + 0.06, (a0 + a1) / 2));
+    mb.mat(9).color(0.66, 0.67, 0.66, 1); mb.box(0, 0, 0, h.d + 0.5, 0.06, l + 0.02); mb.pop();
+  }
+  mb.pop();
+  return true;
+}
+
+// Escola Municipal Abdo Ayruth (R. Rui Barbosa, 320): o ponto do OSM fica 40 m a sudoeste, de frente para outra rua. Pelo
+// Street View (dez/2023, de -21.0172503, -49.4974349 olhando a 257 graus) ela fica no lado oeste da Rui Barbosa, atrás de um
+// muro comprido da prefeitura: barrado azul, faixa amarela e parte de cima branca, portão de grade no meio.
+const CENTRO_ESCOLA = { pano: [-21.0172503, -49.4974349], rumo: 257, d: 12, w: 34, recuo: 2.4 };
+function centroEscolaLayout(houses) {
+  const C = CITY, E = CENTRO_ESCOLA, [px, pz] = llToXZ(...E.pano), a = E.rumo * PI / 180, gx = px + Math.sin(a) * 14, gz = pz - Math.cos(a) * 14;
+  const r = nearestChain(gx, gz, /Rui Barbosa/); if (!r) return houses;
+  let nx = -r.tz, nz = r.tx; if ((gx - r.x) * nx + (gz - r.z) * nz < 0) { nx = -nx; nz = -nz; }
+  const front = r.ch.hw + C.SW + E.recuo, cx = r.x + nx * (front + E.d / 2), cz = r.z + nz * (front + E.d / 2);
+  CENTRO.escola = { x: cx, z: cz, nx, nz };
+  const bx = cx - nx * E.recuo / 2, bz = cz - nz * E.recuo / 2, bd = E.d + E.recuo + 1, bw = E.w + 2;
+  return houses.filter(h => { if (h.borghiRef || h.centroRef) return true;
+    const A = { d: h.d + (h.wall ? h.set : 0), w: h.w };
+    for (const [x, z] of [[h.nx, h.nz], [-h.nz, h.nx], [nx, nz], [-nz, nx]]) {
+      const ra = A.d / 2 * Math.abs(h.nx * x + h.nz * z) + A.w / 2 * Math.abs(-h.nz * x + h.nx * z), rb = bd / 2 * Math.abs(nx * x + nz * z) + bw / 2 * Math.abs(-nz * x + nx * z);
+      if (Math.abs((h.x - bx) * x + (h.z - bz) * z) >= ra + rb) return true; }
+    return false; });
+}
+function centroPoi(mb, p) {
+  if (!/Abdo Ayruth/.test(p.name) || !CENTRO.escola) return false;
+  const E = CENTRO_ESCOLA, S = CENTRO.escola, yaw = Math.atan2(S.nz, S.nx), c = Math.cos(yaw), s = Math.sin(yaw), x = S.x, z = S.z;
+  cityBuilding(mb, x, z, yaw, E.d, E.w, 1, [0.95, 0.94, 0.9], { gable: false, tile: true, sign: 'E. M. ABDO AYRUTH', bg: '#f4f4f0', fg: '#1a4d8f' });
+  const y = hfAt(x, z) + 0.15, W = E.w + 2, fx = -E.d / 2 - E.recuo;
+  mb.push(m4basis(m4(), c, 0, s, 0, 1, 0, -s, 0, c, x, y, z));
+  const blue = [0.12, 0.36, 0.78], yellow = [0.95, 0.78, 0.18], white = [0.95, 0.95, 0.93];
+  for (const [z0, z1] of [[-W / 2, -1.5], [1.5, W / 2]]) {
+    const L = z1 - z0, zm = (z0 + z1) / 2, g = mbGroundY(mb, fx, zm);
+    mb.mat(19, 170).color(...blue, 1); mb.box(fx, g + 0.55, zm, 0.22, 1.5, L);
+    mb.mat(19, 170).color(...yellow, 1); mb.box(fx, g + 1.38, zm, 0.23, 0.16, L);
+    mb.mat(19, 170).color(...white, 1); mb.box(fx, g + 1.98, zm, 0.22, 1.04, L);
+    mbColBox(mb, fx, zm, 0.15, L / 2);
+  }
+  mb.mat(2, 140, 200).color(0.22, 0.24, 0.27, 1); for (let b = -1.45; b < 1.5; b += 0.12) { const g = mbGroundY(mb, fx, b); mb.box(fx, g + 1.1, b, 0.03, 2.2, 0.03); }   // portão de grade
+  mb.pop();
+  return true;
+}
+
+// torre treliçada de seção triangular: três montantes inclinados, travamento em X, antenas painel e para-raios no topo
+function centroTorre(mb, T) {
+  const C = CITY, [cx, cz] = T.xz, y0 = hfAt(cx, cz) - 0.3, H = T.h, r0 = T.base, r1 = 0.45;
+  const leg = k => [Math.cos(k * 2.0944 + 0.3), Math.sin(k * 2.0944 + 0.3)];
+  const at = (k, t) => { const [a, b] = leg(k), r = r0 + (r1 - r0) * t; return [cx + a * r, y0 + H * t, cz + b * r]; };
+  const bar = (p, q, w) => { const dx = q[0] - p[0], dy = q[1] - p[1], dz = q[2] - p[2], l = Math.hypot(dx, dy, dz), ux = dx / l, uy = dy / l, uz = dz / l;
+    let ax = -uz, az = ux, al = Math.hypot(ax, az); if (al < 1e-3) { ax = 1; az = 0; al = 1; } ax /= al; az /= al; const bx = uy * az, by = uz * ax - ux * az, bz = -uy * ax;
+    mb.push(m4basis(m4(), ax, 0, az, ux, uy, uz, bx, by, bz, (p[0] + q[0]) / 2, (p[1] + q[1]) / 2, (p[2] + q[2]) / 2)); mb.box(0, 0, 0, w, l, w); mb.pop(); };
+  const N = Math.round(H / 2.5), red = [0.78, 0.12, 0.1], wh = [0.92, 0.92, 0.9], galv = [0.62, 0.64, 0.66];
+  for (let i = 0; i < N; i++) {
+    const t0 = i / N, t1 = (i + 1) / N, band = T.cores ? (Math.floor(i / (N / 7)) % 2 ? wh : red) : galv;
+    mb.mat(2, 120, 200).color(...band, 1);
+    for (let k = 0; k < 3; k++) {
+      bar(at(k, t0), at(k, t1), 0.14 - 0.06 * t0);
+      bar(at(k, t1), at((k + 1) % 3, t1), 0.05); bar(at(k, t0), at((k + 1) % 3, t1), 0.04); bar(at((k + 1) % 3, t0), at(k, t1), 0.04);
+    }
+  }
+  // plataforma, antenas painel em três setores e para-raios
+  const top = y0 + H; mb.mat(2, 120, 200).color(...galv, 1);
+  for (let k = 0; k < 3; k++) { const [a, b] = leg(k), r = r1 + 0.6; mb.push(m4basis(m4(), -b, 0, a, 0, 1, 0, -a, 0, -b, cx + a * r, top - 1.4, cz + b * r)); mb.mat(2, 150, 200).color(0.9, 0.9, 0.88, 1); mb.box(0, 0, 0, 0.32, 1.6, 0.12); mb.box(0.45, 0, 0, 0.32, 1.6, 0.12); mb.pop(); }
+  mb.mat(2, 120, 200).color(...galv, 1); mb.cyl(cx, top - 2.3, cz, r1 + 0.8, top - 2.2, r1 + 0.8, 12, true, true); mb.cyl(cx, top, cz, 0.04, top + 3, 0.02, 5, false, true);
+  if (T.cores) { mb.mat(25).color(1, 0.12, 0.08, 1); mb.cyl(cx, top + 0.2, cz, 0.12, top + 0.45, 0.12, 8, true, true); }   // luz de balizamento acesa
+  C.addCircle(cx, cz, r0 + 0.3);
+  // terreno cercado de 7 x 7 m com muro baixo e alambrado
+  const S = 3.5; mb.mat(19, 200).color(0.8, 0.79, 0.74, 1);
+  for (const [a, b, w, d] of [[-S, 0, 0.15, 2 * S], [S, 0, 0.15, 2 * S], [0, -S, 2 * S, 0.15], [0, S, 2 * S, 0.15]]) {
+    const x = cx + a, z = cz + b, g = cityGroundY(x, z); mb.box(x, g + 1.0, z, w, 2.0, d); C.addBox({ x, z, ux: 1, uz: 0, hd: w / 2, hw: d / 2 });
+  }
+}
+function centroMarcos(mb) { if (!CITY.on) return; for (const T of CENTRO_TORRES) centroTorre(mb, T); }
+
+// câmeras do modo ?fotos=1 no ponto e na direção das fotos de referência do Street View
+const CENTRO_FOTOS = [
+  ['Centro · galpão da R. Gotardi', -21.0170462, -49.4983303, 168],
+  ['Centro · Escola Abdo Ayruth', -21.0172503, -49.4974349, 257],
+  ['Centro · torres (R. Rui Barbosa, 130)', -21.0154677, -49.4978944, 250],
+  ['Centro · Secretaria da Educação', -21.0170462, -49.4983303, 348],
+];
+function centroFotos(L) {
+  for (const [nome, lat, lon, hd] of CENTRO_FOTOS) {
+    const [x, z] = llToXZ(lat, lon), a = hd * PI / 180, tx = x + Math.sin(a) * 20, tz = z - Math.cos(a) * 20;
+    L.push({ nome, eye: [x, terrainH(x, z) + 2.5, z], alvo: [tx, terrainH(tx, tz) + 3.2, tz], fov: 1.2 });
   }
 }
 
@@ -12761,6 +13054,8 @@ function fotoCams() {
   // rua: vista do alto de um cruzamento urbano (postes, calçadas, placas)
   const c = CITY.cams[Math.floor(CITY.cams.length / 3)];
   if (c) { const s = CITY.spawn, o = new Float64Array(5); chainAt(s.ch, s.s, o); L.push({ nome: 'Rua (partida)', eye: [o[0] - o[2] * 14, o[4] + 3.2, o[1] - o[3] * 14], alvo: [o[0] + o[2] * 30, o[4] + 1, o[1] + o[3] * 30], fov: 1.0 }); }
+  if (typeof sulFotos === 'function') sulFotos(L);   // setor Sul (12_city6_sul.js)
+  if (typeof centroFotos === 'function') centroFotos(L);   // Centro (12_city7_centro.js)
   return Q.get('fotos') === 'borghi' ? L.filter(c => c.nome.startsWith('Borghi')) : L;
 }
 const fotoEspera = ms => new Promise(r => setTimeout(r, ms));

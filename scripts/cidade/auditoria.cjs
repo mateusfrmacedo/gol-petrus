@@ -11,6 +11,8 @@ ${read('12_city1_core.js')}
 ${read('12_city3_mesh.js')}
 ${read('12_city4_marcos.js')}
 ${read('12_city5_borghi.js')}
+${read('12_city6_sul.js')}
+${read('12_city7_centro.js')}
 ${read('12_city8_petrus.js')}
 cityBuild(); globalThis.CITY=CITY; globalThis.MARCOS=MARCOS; globalThis.cityRasterQ=cityRasterQ; globalThis.chainAt=chainAt; globalThis.cityParse=cityParse; globalThis.roadClass=roadClass; globalThis.clipPolyline=clipPolyline;`,ctx);
 const C=ctx.CITY, q=new Float64Array(12), o=new Float64Array(5), P=[];

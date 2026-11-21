@@ -229,6 +229,7 @@ function cOpeningZ(mb, zw, nz, x, w, y0, y1, mat, col) {
 // uma casa (ou loja) no seu lote; quadro local: X da rua para o fundo, Z ao longo da rua
 function cityHouse(mb, h, rnd) {
   if (h.borghiRef) { borghiReferenceHouse(mb, h); return; }
+  if (h.centroRef && typeof centroHouse === 'function' && centroHouse(mb, h)) return;   // Centro (12_city7_centro.js)
   const C = CITY, d = h.d, w = h.w, set = h.set, X = d / 2, Zh = w / 2;
   // chão: maior altura sob a frente; paredes descem até abaixo do terreno mais baixo
   let ymin = 1e9, ymax = -1e9;
@@ -507,6 +508,8 @@ function cityPropsBuild() {
   for (const p of C.pois) {
     const t = p.tags, f = cityFaceRoad(p.x, p.z), yaw = f.ang + PI;   // eixo local X: da via para dentro do lote
     const off = (dd) => [p.x - Math.cos(f.ang) * Math.max(0, dd - f.dist), p.z - Math.sin(f.ang) * Math.max(0, dd - f.dist)];
+    if (typeof sulPoi === 'function' && sulPoi(mb, p)) continue;   // fachadas próprias do setor Sul (12_city6_sul.js)
+    if (typeof centroPoi === 'function' && centroPoi(mb, p)) continue;   // fachadas próprias do Centro (12_city7_centro.js)
     if (t.am === 'place_of_worship') { if (MARCOS.matriz) continue; const [x, z] = off(C.SW + 4.2 + 20); cityChurch(mb, x, z, yaw); }
     else if (t.am === 'school' || t.am === 'kindergarten') { const [x, z] = off(4.2 + C.SW + 8); cityBuilding(mb, x, z, yaw, 12, t.am === 'school' ? 34 : 18, 1, [0.92, 0.88, 0.72], { gable: false, sign: (p.name || (t.am === 'school' ? 'Escola' : 'Creche')).replace(/^Escola Estadual /, 'E. E. ').replace(/^Escola M+unicipal /i, 'E. M. ').toUpperCase(), bg: '#f4f4f0', fg: '#1a4d8f' }); }
     else if (t.am === 'townhall') { const [x, z] = off(4.2 + C.SW + 7 + 3.2); cityPaco(mb, x, z, yaw); }
@@ -610,6 +613,8 @@ function cityPropsBuild() {
   j0 = mm.ni; marcoSacoi(mm, MA.REG); SM.add(mm, j0, 7, 1600);
   j0 = mm.ni; marcoPetrus(mm, MA.REG); SM.add(mm, j0, 7, 900);
   j0 = mm.ni; marcoEntrada(mm); SM.add(mm, j0, 7, 1400);
+  if (typeof sulMarcos === 'function') { j0 = mm.ni; sulMarcos(mm); SM.add(mm, j0, 7, 1400); }
+  if (typeof centroMarcos === 'function') { j0 = mm.ni; centroMarcos(mm); SM.add(mm, j0, 7, 1600); }
   j0 = mm.ni; citySigns(mm, MA.REG); SM.add(mm, j0, 7, 300);
   SM.upload(mm); R.drawables.push(SM);
   WORLD.stats.tris.props = mb.ni / 3 + mm.ni / 3;
@@ -623,6 +628,7 @@ function poiSite(p, depth) { const f = cityFaceRoad(p.x, p.z); return { x: p.x -
 // pisos de concreto (antes dos mapas do mundo)
 function cityPave() {
   const C = CITY; C.pave = [];
+  if (typeof sulPave === 'function') sulPave();
   for (const p of C.pois) {
     const t = p.tags;
     if (t.am === 'fuel') { const s = poiSite(p, 4.2 + C.SW + 9); C.pave.push(s.x, s.z, 15); }

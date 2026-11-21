@@ -11,6 +11,9 @@ ${read('12_city1_core.js')}
 ${read('12_city3_mesh.js')}
 ${read('12_city4_marcos.js')}
 ${read('12_city5_borghi.js')}
+${read('12_city6_sul.js')}
+${read('12_city7_centro.js')}
+${fs.existsSync(path.join(__dirname,'../source/js/12_city8_petrus.js'))?read('12_city8_petrus.js'):''}
 cityBuild();
 const VP={halfW:0.78,front:1.92,rear:1.72};
 const VEH={x:0,z:0,yaw:0,vx:0,vy:0,r:0,hits:0};
