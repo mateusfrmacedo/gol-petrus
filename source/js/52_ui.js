@@ -12,7 +12,7 @@ function uiInit() {
   UI.b1.onclick = () => benchStart();
   $('gear-mode').value = VEH.manual ? 'manual' : 'auto';
   $('gear-mode').onchange = e => { VEH.manual = e.target.value === 'manual'; };
-  $('orbit-reset').onclick = e => { if(CAM_ORBIT.active)CAM_ORBIT.reset();else CAM_ORBIT.activate();CAM_ORBIT.ui();e.currentTarget.blur(); };
+  $('orbit-reset').onclick = e => { if(CAM_ORBIT.allowed())CAM_ORBIT.reset();CAM_ORBIT.ui();e.currentTarget.blur(); };
   $('sunroof').onclick = e => { SUNROOF.toggle(); e.currentTarget.blur(); };
   $('vehicle-choice').onchange = e => vehicleChoice(e.target.value, true);
   if (typeof CIVIC === 'undefined') { const o = $('vehicle-choice').querySelector('option[value=civic]'); if (o) o.remove(); $('vehicle-choice').closest('p').hidden = true; }

@@ -40,9 +40,8 @@ const CAM_ORBIT = {
     addEventListener('blur',()=>this.stop());
   },
   ui() {
-    const allowed=this.allowed(),panel=document.getElementById('camera-tools'),b=document.getElementById('orbit-reset');
-    if(panel)panel.hidden=!allowed;
-    if(b){const text=this.active?'Centralizar câmera':'Girar câmera';if(b.textContent!==text)b.textContent=text;}
+    const allowed=this.allowed(),b=document.getElementById('orbit-reset');
+    if(b)b.hidden=!allowed;
     if(!allowed && this.dragging)this.stop();
     if(this.canvas){const cursor=allowed?(this.dragging?'grabbing':'grab'):'';if(this.canvas.style.cursor!==cursor)this.canvas.style.cursor=cursor;}
   }

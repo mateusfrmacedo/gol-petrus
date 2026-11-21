@@ -79,7 +79,7 @@ Farol baixo e alto com fachos, luz forte de placa com comando independente, seta
 
 ### Teto solar articulado
 
-O botão **Abrir/Fechar teto solar** e a tecla **O** comandam o vidro. Ele primeiro se eleva e depois desliza para trás; o movimento pode ser invertido durante a abertura ou o fechamento.
+O botão **Abrir/Fechar teto solar**, junto aos botões de luzes, e a tecla **O** comandam o vidro. Ele primeiro se eleva e depois desliza para trás; o movimento pode ser invertido durante a abertura ou o fechamento.
 
 A chapa e o forro originais têm um vão real. Vidro e moldura móvel são separados da vedação fixa, com defletor frontal articulado. O controle `teto_solar`, de 0 a 1, usa as mesmas fases no Blender e no jogo.
 
@@ -283,6 +283,8 @@ node scripts/prepare-site.mjs /tmp/gol-petrus-site
 
 O empacotador recusa um HTML com o Civic incorporado. Builds locais com `--civic` continuam possíveis para revisão, mas não são publicados por esse workflow. Antes de enviar mudanças de código, gere o `index.html` e execute as verificações pertinentes. Alterações de documentação não exigem reconstruir o HTML.
 
+O botão de centralizar a câmera externa fica junto aos controles de luzes e teto solar. A luz da placa acompanha o farol alto, além do acionamento manual.
+
 ## Controles
 
 | Ação | Teclado / mouse | Controle |
@@ -301,7 +303,7 @@ O empacotador recusa um HTML com o Civic incorporado. Builds locais com `--civic
 | Farol baixo / farol alto do Gol | `L` / `K` ou botões na tela | — |
 | Setas esquerda / direita do Gol | `Z` / `X`; repetir desliga | — |
 | Buzina do Gol | Segurar `J` ou o botão na tela | — |
-| Luz forte da placa do Gol | `I` ou botão na tela | — |
+| Luz forte da placa do Gol | automática com farol alto; `I` ou botão para acionamento manual | — |
 | Girar câmera externa do Gol | Arrastar com o botão esquerdo | — |
 | Zoom externo do Gol | Roda do mouse | — |
 | Centralizar câmera | Duplo clique ou botão na tela | — |

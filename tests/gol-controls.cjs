@@ -6,9 +6,11 @@ const c=vm.createContext({console,Set,Number,Math,document:{getElementById:butto
 vm.runInContext(fs.readFileSync('source/js/43_accessories.js','utf8')+`
 const p=new Float32Array(16),g=GOL_CONTROLS;
 g.init();g.write(p);assert.equal(p[2],0);
-g.toggleHigh();g.write(p);assert.equal(p[2],2);assert(g.lights);
-g.toggleHigh();g.write(p);assert.equal(p[2],1);
-g.toggleLights();g.write(p);assert.equal(p[2],0);assert(!g.high);
+g.toggleHigh();g.write(p);assert.equal(p[2],2);assert(g.lights);assert.equal(p[8],1);assert.equal(g.buttons.plate.attrs['aria-pressed'],'true');
+g.togglePlate();g.togglePlate();g.write(p);assert.equal(p[8],1,'farol alto mantém a placa acesa mesmo com o comando manual desligado');
+g.toggleHigh();g.write(p);assert.equal(p[2],1);assert.equal(p[8],0);
+g.toggleLights();g.write(p);assert.equal(p[2],0);assert(!g.high);assert.equal(p[8],0);
+g.toggleHigh();g.toggleLights();g.write(p);assert.equal(p[8],0,'desligar os faróis cancela a luz automática da placa');
 g.togglePlate();g.write(p);assert.equal(p[8],1);assert(!g.lights);g.togglePlate();g.write(p);assert.equal(p[8],0);
 g.toggleSignal(-1);g.write(p);assert.equal(p[6],1);assert.equal(p[7],0);
 g.advance(.41);g.write(p);assert.equal(p[6],0);

@@ -24,9 +24,9 @@ const SUNROOF = {
     const visible = VEHICLES.current==='gol' && UI.st===ST.JOGO;
     b.hidden=!visible;
     const text=this.target?'Fechar teto solar · O':'Abrir teto solar · O';
-    if(b.textContent!==text)b.textContent=text;
+    b.setAttribute('aria-label',text);
     b.setAttribute('aria-pressed',String(!!this.target));
-    b.title=this.value===this.target?(this.value?'Teto aberto':'Teto fechado'):(this.target?'Abrindo teto':'Fechando teto');
+    b.title=text+' · '+(this.value===this.target?(this.value?'Teto aberto':'Teto fechado'):(this.target?'Abrindo teto':'Fechando teto'));
   }
 };
 // As peças móveis já estão separadas do teto branco no modelo importado.

@@ -39,7 +39,7 @@ const GOL_CONTROLS = {
     params[2]=gol&&this.lights?(this.high?2:1):0;
     params[6]=gol&&this.signal===-1&&this.flash?1:0;
     params[7]=gol&&this.signal===1&&this.flash?1:0;
-    params[8]=gol&&this.plate?1:0;
+    params[8]=gol&&(this.plate||this.high)?1:0;
   },
   init() {
     this.buttons={panel:document.getElementById('gol-controls'),low:document.getElementById('gol-low'),high:document.getElementById('gol-high'),plate:document.getElementById('gol-plate'),left:document.getElementById('gol-left'),right:document.getElementById('gol-right'),horn:document.getElementById('gol-horn')};
@@ -65,7 +65,7 @@ const GOL_CONTROLS = {
   ui() {
     if(!this.available()&&this.hornKeys.size)this.stopHorn();
     const b=this.buttons;if(!b)return;b.panel.hidden=!this.available();
-    const states=[[b.low,this.lights],[b.high,this.high],[b.plate,this.plate],[b.left,this.signal===-1],[b.right,this.signal===1],[b.horn,this.hornKeys.size>0]];
+    const states=[[b.low,this.lights],[b.high,this.high],[b.plate,this.plate||this.high],[b.left,this.signal===-1],[b.right,this.signal===1],[b.horn,this.hornKeys.size>0]];
     for(const [button,on]of states)button.setAttribute('aria-pressed',String(!!on));
     b.left.classList.toggle('lit',this.signal===-1&&this.flash);b.right.classList.toggle('lit',this.signal===1&&this.flash);
   }

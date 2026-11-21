@@ -32,16 +32,11 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 #ui button:focus-visible{outline:2px solid #fff;outline-offset:2px}
 #transmission{display:none;position:absolute;right:1.6vh;top:1.6vh;padding:.55em .9em;border-radius:.6em;background:rgba(9,11,14,.72);color:#fff;font-variant-numeric:tabular-nums;pointer-events:none}
 #gear-mode,#vehicle-choice,#map-choice,#tempo,#clima,#clima-real{font:inherit;color:#fff;background:#25282d;border:1px solid #777;border-radius:.4em;padding:.4em .7em}
-#sunroof{position:absolute;left:calc(1.6vh + 142px);bottom:1.6vh;padding:.65em 1em;border:1px solid #777;border-radius:.6em;background:rgba(9,11,14,.82);color:#fff;font:inherit;cursor:pointer;touch-action:manipulation}
-#camera-tools{position:absolute;left:calc(1.6vh + 142px);bottom:4.8em;max-width:85vw;padding:.55em .7em;border-radius:.6em;background:rgba(9,11,14,.82);color:#ddd;font-size:12px}
-#camera-tools button{font:inherit;color:#fff;background:transparent;border:1px solid #777;border-radius:.4em;padding:.4em .7em;margin-right:.6em;cursor:pointer}
-#camera-tools button:focus-visible{outline:2px solid #fff;outline-offset:2px}
-#sunroof:focus-visible{outline:2px solid #fff;outline-offset:3px}
 #clock{position:fixed;left:1.6vh;bottom:calc(1.6vh + 138px);width:132px;text-align:center;z-index:6;pointer-events:none;color:#fff;font:600 15px/1.2 system-ui,sans-serif;letter-spacing:.06em;text-shadow:0 1px 3px #000;display:none}
 #hora{width:12em;vertical-align:middle;accent-color:#ccc}
 .gear-setting{margin:1.2em 0 0}
 #gol-controls{position:absolute;right:1.6vh;bottom:calc(1.6vh + 180px);display:flex;flex-wrap:nowrap;gap:3px;padding:3px;border-radius:6px;background:rgba(9,11,14,.82);font-size:11px}
-#gol-controls[hidden]{display:none}
+#gol-controls[hidden],#gol-controls button[hidden]{display:none}
 .ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;display:block}
 #gol-controls button,#music-bar button{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:.3em;min-width:40px;height:38px;font:inherit;color:#e8e8e8;background:#20252a;border:1px solid #4a5058;border-radius:.55em;padding:0 .55em;cursor:pointer;touch-action:none;transition:transform .12s ease-out,background-color .15s ease-out,border-color .15s ease-out,color .15s ease-out}
 #gol-controls button{width:28px;min-width:28px;height:28px;padding:0;border-radius:4px}
@@ -72,7 +67,6 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 <div id="msg">carregando…</div>
 <div id="hint">W acelera · S freia/ré · A/D faz curvas · Espaço freio de mão · C câmera · R volta à pista</div>
 <canvas id="hg"></canvas><canvas id="ht"></canvas><canvas id="hs"></canvas><div id="tag"></div>
-<div id="camera-tools" hidden><button id="orbit-reset" type="button">Girar câmera</button><span>Arraste para girar · roda do mouse: zoom · duplo clique: centralizar</span></div>
 <div id="clock" aria-live="off"></div>
 <div id="music-bar" role="group" aria-label="Rádio">
 <span class="mt"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18V6l11-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg><span id="music-title">Rádio</span></span>
@@ -82,14 +76,15 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 <button id="mus-shuf" type="button" aria-pressed="false" aria-label="Ordem aleatória · 8" title="Ordem aleatória · 8"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 7h3.5c2 0 3.2 1 4.3 2.6l2.4 3.8c1.1 1.6 2.3 2.6 4.3 2.6H21M3 17h3.5c1.4 0 2.4-.5 3.2-1.3M14 8.3c.8-.8 1.8-1.3 3.2-1.3H21"/><path d="M18.5 4.5L21 7l-2.5 2.5M18.5 14.5L21 17l-2.5 2.5"/></svg></button>
 </div>
 
-<button id="sunroof" type="button" aria-pressed="false" hidden>Abrir teto solar · O</button>
-<div id="gol-controls" role="group" aria-label="Luzes e buzina do Gol" hidden>
+<div id="gol-controls" role="group" aria-label="Controles do Gol" hidden>
 <button id="gol-low" type="button" aria-pressed="false" aria-label="Farol baixo · L" title="Farol baixo · L"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 5c-3.9 0-6 3.1-6 7s2.1 7 6 7c1.1 0 1.6-.8 1.6-1.6V6.6C11.6 5.8 11.1 5 10 5z"/><path d="M15 8.5l5 1.8M15 12l5 1.8M15 15.5l5 1.8"/></svg><kbd>L</kbd></button>
 <button id="gol-high" type="button" aria-pressed="false" aria-label="Farol alto · K" title="Farol alto · K"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 5c-3.9 0-6 3.1-6 7s2.1 7 6 7c1.1 0 1.6-.8 1.6-1.6V6.6C11.6 5.8 11.1 5 10 5z"/><path d="M15 7.5h6M15 10.5h6M15 13.5h6M15 16.5h6"/></svg><kbd>K</kbd></button>
 <button id="gol-plate" type="button" aria-pressed="false" aria-label="Luz da placa · I" title="Luz da placa · I"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="8" width="18" height="10" rx="1.5"/><path d="M7 13h10"/><path d="M12 3v2.5M7.5 4.5l1.2 1.8M16.5 4.5l-1.2 1.8"/></svg><kbd>I</kbd></button>
 <button id="gol-left" type="button" aria-label="Seta esquerda · Z" title="Seta esquerda · Z" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="seta" d="M10 4L3 12l7 8v-5h11V9H10z"/></svg><kbd>Z</kbd></button>
 <button id="gol-right" type="button" aria-label="Seta direita · X" title="Seta direita · X" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="seta" d="M14 4l7 8-7 8v-5H3V9h11z"/></svg><kbd>X</kbd></button>
 <button id="gol-horn" type="button" aria-pressed="false" aria-label="Buzina · J (segure)" title="Segure para buzinar · J"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10v4h3l7 4V6L6 10z"/><path d="M16 9c1.2.8 1.8 1.8 1.8 3s-.6 2.2-1.8 3M18.5 6.5c2 1.5 3 3.4 3 5.5s-1 4-3 5.5"/></svg><kbd>J</kbd></button>
+<button id="sunroof" type="button" aria-pressed="false" aria-label="Abrir teto solar · O" title="Abrir teto solar · O" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15V9h10M13 6l4 3-4 3"/></svg><kbd>O</kbd></button>
+<button id="orbit-reset" type="button" aria-label="Centralizar câmera" title="Centralizar câmera" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"/><circle cx="12" cy="12" r="3"/></svg></button>
 </div>
 <div id="transmission" role="status" aria-live="polite"></div>
 <div id="ui"><div>
@@ -109,7 +104,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 <tr><td>L / K</td><td>liga farol / alterna farol alto do Gol</td></tr>
 <tr><td>Z / X</td><td>seta esquerda / direita (repita para desligar)</td></tr>
 <tr><td>J (segurar)</td><td>buzina do Gol</td></tr>
-<tr><td>I</td><td>liga / desliga a luz forte da placa do Gol</td></tr>
+<tr><td>I</td><td>luz da placa: automática no farol alto ou acionamento manual</td></tr>
 <tr><td>C</td><td>câmera externa / interna / pista</td></tr>
 <tr><td>V (segurar)</td><td>olha para trás</td></tr>
 <tr><td>R</td><td>devolve o carro à pista</td></tr>
