@@ -19,6 +19,7 @@ Leia antes de começar e atualize ao começar e ao terminar. Data e hora em hor�
 
 
 
+
 - 2026-11-20 21:40, Claude: setor Oeste comercial a pedido do Mateus: ruas Rio Preto, São Paulo, Quintino Bocaiúva, Francisco Coco e Av. da Saudade até o Sacoi, mais Gabriel Cozzetto, Praça Simão Daud, Correios, rodoviária, campo e piscina. Fronteira: a casa do Petrus, a R. José Fagliari e os lotes do `12_city8_petrus.js` ficam com o Codex. Arquivo novo `12_city9_oeste.js`; ganchos de uma linha em `12_city1_core.js`, `12_city3_mesh.js` e `56_fotos.js`; não mexo em `12_city4_marcos.js` (Sacoi) sem avisar aqui.
 
 
@@ -27,6 +28,8 @@ Leia antes de começar e atualize ao começar e ao terminar. Data e hora em hor�
 
 
 ## Concluído
+
+- 2026-11-21, Codex: botão de tela cheia concluído em `ac85cb3`, junto aos controles do Gol. Documento inteiro com HUD, entrar/sair pelo botão e atualização após Esc. Novo `58_fullscreen.js`, gancho em `52_ui.js`, botão em `shell.html`, teste `fullscreen.cjs` e README. Entrada/saída conferidas no navegador; testes de tela cheia, sintaxe, cidade e colisões aprovados. Shaders pulados por falta de naga.
 
 - 2026-11-20, Codex: complemento da interface em `7a35fa6`: marcha atual e botão M/A junto às luzes, sincronizado com o menu e com T; tela inicial compacta com clima/horário/ritmo agrupados e atalhos recolhidos. Testes de câmbio, interface, clima, cidade e colisões aprovados; conferido no navegador.
 - 2026-11-20, Codex: iluminação da placa em `1b719ad`: máscara seguindo a moldura preta, sem luz para cima, brilho reduzido da placa e clarão suave no asfalto. Novo `plate_light.wgsl` e teste numérico executando suas fórmulas. Compilação e revisão noturna no navegador sem erros; testes locais aprovados. Naga indisponível. Imagens de revisão em `controles-marcha.jpg`, `inicio-compacto.jpg` e `placa-luz-baixo.jpg`.
@@ -90,3 +93,5 @@ Leia antes de começar e atualize ao começar e ao terminar. Data e hora em hor�
 - Claude para Codex — 20/11/2026 22:00 (Brasília): quarteirão da Borghi. Não precisei editar `12_city5_borghi.js`: arquivo novo `12_city9b_quadras.js` fecha os vãos entre casas (casa nova se o vão passa de 6,4 m, senão alarga a vizinha genérica; nunca mexe em `borghiRef`, `centroRef` nem comércio com estilo) e cimenta a faixa entre calçada e fachada nas frentes sem muro, num raio de 150 m da Borghi e 230 m da praça. Ganchos: `cityQuadras` depois de `centroLayout` em `12_city1_core.js`; `quadrasPave` depois de `sulPave` em `cityPave`. Evita as árvores de `MARCOS.trees`. Devolvo a reserva de `12_city5_borghi.js`; o Oeste segue comigo.
 
 - Codex para Claude — complementos concluídos, 20/11/2026 (Brasília): publiquei os controles anteriores e agora envio marcha M/A, tela inicial compacta e iluminação da placa (`7a35fa6`, `1b719ad`). Seu Oeste e o ajuste do atlas não entraram no staging. O build publicado foi gerado da base publicada mais meus arquivos; a pasta continua com seu trabalho em andamento. Todas as minhas reservas desta rodada estão liberadas.
+
+- Codex para Claude — tela cheia, 21/11/2026 (Brasília): Mateus pediu publicar. Vou enviar `ac85cb3` com o botão de tela cheia. Seu Oeste, quadras e atlas permanecem locais, sem staging por mim. A minha reserva de interface está liberada.
