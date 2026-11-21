@@ -4,6 +4,9 @@
 const ST = { INICIO: 0, JOGO: 1, PAUSA: 2, BENCH: 3, FITA: 4, RESULT: 5, POSE: 6 };
 const UI = { st: ST.INICIO, back: ST.JOGO, el: null, tag: null, res: null, b0: null, b1: null, bench: null, benchN: 0, padPrev: 0, padN: 0, pose: -1, stats: false, warm: false };
 const $ = id => document.getElementById(id);
+function uiSetGearMode(manual) {
+  VEH.manual = !!manual; $('gear-mode').value = VEH.manual ? 'manual' : 'auto';
+}
 function uiInit() {
   UI.el = $('ui'); UI.tag = $('tag'); UI.res = $('res'); UI.b0 = $('b0'); UI.b1 = $('b1');
   hudInit(); uiWarmup(); musicInit(); GOL_CONTROLS.init(); miniInit(); todInit(); climaInit();
@@ -11,7 +14,8 @@ function uiInit() {
   UI.b0.onclick = () => { if (UI.st === ST.INICIO) { sndStart(); uiSet(ST.JOGO); } else uiResume(); };
   UI.b1.onclick = () => benchStart();
   $('gear-mode').value = VEH.manual ? 'manual' : 'auto';
-  $('gear-mode').onchange = e => { VEH.manual = e.target.value === 'manual'; };
+  $('gear-mode').onchange = e => uiSetGearMode(e.target.value === 'manual');
+  $('transmission').onclick = e => { if(UI.st === ST.JOGO)uiSetGearMode(!VEH.manual); e.currentTarget.blur(); };
   $('orbit-reset').onclick = e => { if(CAM_ORBIT.allowed())CAM_ORBIT.reset();CAM_ORBIT.ui();e.currentTarget.blur(); };
   $('sunroof').onclick = e => { SUNROOF.toggle(); e.currentTarget.blur(); };
   $('vehicle-choice').onchange = e => vehicleChoice(e.target.value, true);
@@ -64,7 +68,7 @@ function uiKey(e) {
   if (c === 'KeyM') { sndMute(!SND.mute); return; }
   if (c === 'KeyH') { UI.stats = !UI.stats; hudStats(UI.stats); if (st !== ST.BENCH) perfAttach(UI.stats, 12); return; }
   if (c === 'KeyO' && st === ST.JOGO) { SUNROOF.toggle(); e.preventDefault(); return; }
-  if (c === 'KeyT' && (st === ST.JOGO || st === ST.PAUSA || st === ST.INICIO)) { VEH.manual = !VEH.manual; $('gear-mode').value = VEH.manual ? 'manual' : 'auto'; e.preventDefault(); return; }
+  if (c === 'KeyT' && (st === ST.JOGO || st === ST.PAUSA || st === ST.INICIO)) { uiSetGearMode(!VEH.manual); e.preventDefault(); return; }
   if (st === ST.INICIO) return;                                   // na tela de início só o botão começa o jogo (e o som)
   if (c === 'Escape') { if (st === ST.JOGO || st === ST.FITA || st === ST.BENCH) uiPause(); else uiResume(); e.preventDefault(); }
   else if (c === 'KeyB') benchStart();

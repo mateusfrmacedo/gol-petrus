@@ -30,7 +30,6 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 #ui button{font:inherit;font-size:1.15em;font-weight:600;color:#fff;background:#d8351c;border:0;border-radius:.5em;padding:.6em 2em;margin:0 .4em;cursor:pointer}
 #ui button+button{background:rgba(255,255,255,.16)}
 #ui button:focus-visible{outline:2px solid #fff;outline-offset:2px}
-#transmission{display:none;position:absolute;right:1.6vh;top:1.6vh;padding:.55em .9em;border-radius:.6em;background:rgba(9,11,14,.72);color:#fff;font-variant-numeric:tabular-nums;pointer-events:none}
 #gear-mode,#vehicle-choice,#map-choice,#tempo,#clima,#clima-real{font:inherit;color:#fff;background:#25282d;border:1px solid #777;border-radius:.4em;padding:.4em .7em}
 #clock{position:fixed;left:1.6vh;bottom:calc(1.6vh + 138px);width:132px;text-align:center;z-index:6;pointer-events:none;color:#fff;font:600 15px/1.2 system-ui,sans-serif;letter-spacing:.06em;text-shadow:0 1px 3px #000;display:none}
 #hora{width:12em;vertical-align:middle;accent-color:#ccc}
@@ -40,6 +39,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 .ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;display:block}
 #gol-controls button,#music-bar button{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:.3em;min-width:40px;height:38px;font:inherit;color:#e8e8e8;background:#20252a;border:1px solid #4a5058;border-radius:.55em;padding:0 .55em;cursor:pointer;touch-action:none;transition:transform .12s ease-out,background-color .15s ease-out,border-color .15s ease-out,color .15s ease-out}
 #gol-controls button{width:28px;min-width:28px;height:28px;padding:0;border-radius:4px}
+#gol-controls #transmission{width:auto;min-width:48px;padding:0 6px;font-weight:700;font-variant-numeric:tabular-nums}
 #gol-controls .ic{width:15px;height:15px}
 #gol-controls kbd{display:none}
 #gol-controls button:active,#music-bar button:active{transform:scale(.97)}
@@ -60,6 +60,31 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 #music-bar .ch{fill:currentColor;stroke:none}
 #mus-play [data-i="pause"]{display:none}#mus-play[aria-pressed="true"] [data-i="play"]{display:none}#mus-play[aria-pressed="true"] [data-i="pause"]{display:block}
 #mus-shuf[aria-pressed="true"]{border-color:#a3d6c1;background:#254c3c;color:#d8ffee}
+
+#ui>div{width:760px;max-width:94vw;padding:1.3em 1.5em;border:1px solid #ffffff1a;border-radius:12px;background:rgba(12,16,21,.92)}
+#ui h1{font-size:2.6em}
+#ui .sub{margin:.4em 0 1em;letter-spacing:.06em}
+#ui .setup-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px;text-align:left}
+#ui .gear-setting{margin:0;min-width:0}
+#ui .gear-setting[hidden]{display:none}
+#ui .gear-setting label{display:block;margin-bottom:5px;font-size:.9em;color:#b9c0ca}
+#ui .gear-setting select{box-sizing:border-box;width:100%;min-width:0;padding:.45em .6em}
+#ui .environment{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px;padding:12px;border:1px solid #ffffff14;border-radius:8px;background:#ffffff05}
+#ui .time-setting{grid-column:1/-1}
+#ui .time-setting label{display:flex;justify-content:space-between;align-items:center}
+#hora-txt{font-variant-numeric:tabular-nums;font-weight:700;color:#fff}
+#ui #hora{width:100%;margin:0;box-sizing:border-box}
+#ui .real-weather{grid-column:1/-1;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#ui #clima-real{margin:0;padding:6px 10px;border:1px solid #56606e;background:#252c36;font-size:.9em;font-weight:500;border-radius:5px}
+#ui #clima-real[aria-pressed="true"]{background:#254c3c;border-color:#8fc9b0;color:#d8ffee}
+#ui #clima-info{margin:0;flex:1;min-width:150px;font-size:.85em;color:#aeb8c6}
+#ui #clima-info:empty{display:none}
+#ui .controls-help{margin-top:14px;text-align:left}
+#ui .controls-help summary{cursor:pointer;color:#b9c0ca;font-size:.9em}
+#ui .controls-help[open] summary{margin-bottom:12px}
+#ui .cols{gap:1.5em}
+#ui .bt{margin-top:16px}
+@media(max-width:480px){#ui>div{padding:16px}#ui .setup-grid{gap:8px}#ui .environment{padding:10px;gap:10px}#ui h1{font-size:2.2em}}
 </style>
 </head>
 <body>
@@ -77,6 +102,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 </div>
 
 <div id="gol-controls" role="group" aria-label="Controles do Gol" hidden>
+<button id="transmission" type="button" aria-label="Manual · 1ª marcha · Alternar para automático · T" title="Manual · 1ª marcha · Alternar para automático · T">M · 1</button>
 <button id="gol-low" type="button" aria-pressed="false" aria-label="Farol baixo · L" title="Farol baixo · L"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 5c-3.9 0-6 3.1-6 7s2.1 7 6 7c1.1 0 1.6-.8 1.6-1.6V6.6C11.6 5.8 11.1 5 10 5z"/><path d="M15 8.5l5 1.8M15 12l5 1.8M15 15.5l5 1.8"/></svg><kbd>L</kbd></button>
 <button id="gol-high" type="button" aria-pressed="false" aria-label="Farol alto · K" title="Farol alto · K"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 5c-3.9 0-6 3.1-6 7s2.1 7 6 7c1.1 0 1.6-.8 1.6-1.6V6.6C11.6 5.8 11.1 5 10 5z"/><path d="M15 7.5h6M15 10.5h6M15 13.5h6M15 16.5h6"/></svg><kbd>K</kbd></button>
 <button id="gol-plate" type="button" aria-pressed="false" aria-label="Luz da placa · I" title="Luz da placa · I"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="8" width="18" height="10" rx="1.5"/><path d="M7 13h10"/><path d="M12 3v2.5M7.5 4.5l1.2 1.8M16.5 4.5l-1.2 1.8"/></svg><kbd>I</kbd></button>
@@ -86,11 +112,22 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 <button id="sunroof" type="button" aria-pressed="false" aria-label="Abrir teto solar · O" title="Abrir teto solar · O" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15V9h10M13 6l4 3-4 3"/></svg><kbd>O</kbd></button>
 <button id="orbit-reset" type="button" aria-label="Centralizar câmera" title="Centralizar câmera" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"/><circle cx="12" cy="12" r="3"/></svg></button>
 </div>
-<div id="transmission" role="status" aria-live="polite"></div>
 <div id="ui"><div>
 <h1>Gol Petrus</h1>
 <p class="sub" id="vehicle-name">VW Gol G6 1.0 MSI branco · circuito</p>
 <div id="res"></div>
+<div class="setup-grid">
+<p class="gear-setting"><label for="map-choice">Mapa </label><select id="map-choice"><option value="circuito">Pista de teste Borghi Veículos</option><option value="nova-alianca">Cidade de Nova Aliança</option></select></p>
+<p class="gear-setting"><label for="gear-mode">Câmbio </label><select id="gear-mode"><option value="manual">Manual</option><option value="auto">Automático</option></select></p>
+<p class="gear-setting"><label for="vehicle-choice">Veículo </label><select id="vehicle-choice"><option value="gol">VW Gol Petrus</option><option value="civic">Honda Civic</option></select></p>
+<section class="environment" aria-label="Clima e horário">
+<p class="gear-setting time-setting"><label for="hora">Horário <span id="hora-txt">16:00</span></label><input id="hora" type="range" min="0" max="23.99" step="0.05" value="16"></p>
+<p class="gear-setting"><label for="clima">Clima</label><select id="clima"><option value="limpo">Sem nuvens</option><option value="ensolarado">Ensolarado</option><option value="quente">Sol quente</option><option value="poucas">Poucas nuvens</option><option value="muitas">Muitas nuvens</option><option value="nublado">Nublado</option><option value="chuva">Chuva</option><option value="tempestade">Tempestade</option></select></p>
+<p class="gear-setting"><label for="tempo">Ritmo do tempo </label><select id="tempo"><option value="parado">Parado</option><option value="normal">1 min / s</option><option value="rapido">10 min / s</option><option value="turbo">1 h / s</option></select></p>
+<div class="real-weather"><button id="clima-real" type="button" aria-pressed="false">Usar clima real</button><p id="clima-info" aria-live="polite"></p></div>
+</section>
+</div>
+<details class="controls-help"><summary>Controles e atalhos</summary>
 <div class="cols">
 <div><h2>Teclado</h2><table>
 <tr><td>W ou ↑</td><td>acelera</td></tr>
@@ -135,13 +172,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -ap
 <tr><td colspan="2" style="font-weight:400;color:#ddd;opacity:.75;padding-top:.5em">5 marchas · embreagem automática<br>S freia e engata ré ao parar<br>A volta conta ao cruzar a largada</td></tr>
 </table></div>
 </div>
-<p class="gear-setting"><label for="map-choice">Mapa </label><select id="map-choice"><option value="circuito">Pista de teste Borghi Veículos</option><option value="nova-alianca">Cidade de Nova Aliança</option></select></p>
-<p class="gear-setting"><label for="hora">Horário </label><input id="hora" type="range" min="0" max="23.99" step="0.05" value="16"> <span id="hora-txt">16:00</span></p>
-<p class="gear-setting"><button id="clima-real" type="button" aria-pressed="false">Usar clima real</button> <label for="clima">Clima </label><select id="clima"><option value="limpo">Sem nuvens</option><option value="ensolarado">Ensolarado</option><option value="quente">Sol quente</option><option value="poucas">Poucas nuvens</option><option value="muitas">Muitas nuvens</option><option value="nublado">Nublado</option><option value="chuva">Chuva</option><option value="tempestade">Tempestade</option></select></p>
-<p class="gear-setting" id="clima-info" aria-live="polite"></p>
-<p class="gear-setting"><label for="tempo">Passagem do tempo </label><select id="tempo"><option value="parado">Parado</option><option value="normal">1 minuto por segundo</option><option value="rapido">10 minutos por segundo</option><option value="turbo">1 hora por segundo</option></select></p>
-<p class="gear-setting"><label for="vehicle-choice">Veículo </label><select id="vehicle-choice"><option value="gol">VW Gol Petrus</option><option value="civic">Honda Civic</option></select></p>
-<p class="gear-setting"><label for="gear-mode">Câmbio </label><select id="gear-mode"><option value="manual">Manual · E/Q ou B/LB</option><option value="auto">Automático</option></select></p>
+</details>
 <div class="bt"><button id="b0">Começar</button><button id="b1">Benchmark</button></div>
 </div></div>
 <script>
@@ -12622,9 +12653,14 @@ function hudRead() {
   const V = HUD.V, v = VEH; let kmh = GS.speed * 36; if (kmh > 2000) kmh = 2000; let rpm = v.rpm; if (rpm > 7000) rpm = 7000;
   if (!UI.warm) {
     hudGaugeVisibility();
-    const label = manualGearbox() ? 'MANUAL' : 'AUTO', gear = v.gear === 0 ? 'R' : v.gear;
-    const text = label + ' · ' + gear + (v.gear === 0 ? '' : 'ª') + (manualGearbox() ? (v.rpm >= 6000 && v.gear < 5 ? ' · ↑ TROCAR' : ' · E ↑ / Q ↓') : ' · T manual');
-    const el = $('transmission'); if (el.textContent !== text) el.textContent = text;
+    const manual = manualGearbox(), gear = v.gear === 0 ? 'R' : v.gear;
+    const text = (manual ? 'M' : 'A') + ' · ' + gear;
+    const el = $('transmission');
+    if (el.textContent !== text) {
+      el.textContent = text;
+      const label = (manual ? 'Manual' : 'Automático') + ' · ' + (gear === 'R' ? 'Ré' : gear + 'ª marcha') + ' · Alternar para ' + (manual ? 'automático' : 'manual') + ' · T';
+      el.title = label; el.setAttribute('aria-label', label);
+    }
   }
   V[0] = kmh; V[1] = rpm; V[2] = v.gear; V[3] = LAP[3] === 1 ? (v.time - LAP[0]) * 100 : 0; V[4] = LAP[1] > 0 ? LAP[1] * 100 : -1; V[5] = LAP[2] > 0 ? LAP[2] * 100 : -1;
 }
@@ -12662,7 +12698,7 @@ function hudGaugeVisibility() {
   const display = HUD.vis && !(GS.cam === 1 && !GS.freeCam && VEHICLES.current === 'gol') ? 'block' : 'none';
   if (HUD.cg.style.display !== display) HUD.cg.style.display = display;
 }
-function hudShow(on) { $('transmission').style.display = on ? 'block' : 'none'; HUD.vis = on; HUD.ct.style.display = on ? 'block' : 'none'; hudGaugeVisibility(); HUD.K.fill(-9); }
+function hudShow(on) { $('transmission').style.display = on ? 'inline-flex' : 'none'; HUD.vis = on; HUD.ct.style.display = on ? 'block' : 'none'; hudGaugeVisibility(); HUD.K.fill(-9); }
 function hudStats(on) { HUD.stats = on; HUD.cs.style.display = on ? 'block' : 'none'; HUD.acc[0] = 0; HUD.acc[1] = 0; if (on) { const L = HUD.L; HUD.s.clearRect(0, 0, L[27], L[28]); HUD.s.drawImage(HUD.bgS, 0, 0); } }
 
 // ---- 52_ui.js
@@ -12672,6 +12708,9 @@ function hudStats(on) { HUD.stats = on; HUD.cs.style.display = on ? 'block' : 'n
 const ST = { INICIO: 0, JOGO: 1, PAUSA: 2, BENCH: 3, FITA: 4, RESULT: 5, POSE: 6 };
 const UI = { st: ST.INICIO, back: ST.JOGO, el: null, tag: null, res: null, b0: null, b1: null, bench: null, benchN: 0, padPrev: 0, padN: 0, pose: -1, stats: false, warm: false };
 const $ = id => document.getElementById(id);
+function uiSetGearMode(manual) {
+  VEH.manual = !!manual; $('gear-mode').value = VEH.manual ? 'manual' : 'auto';
+}
 function uiInit() {
   UI.el = $('ui'); UI.tag = $('tag'); UI.res = $('res'); UI.b0 = $('b0'); UI.b1 = $('b1');
   hudInit(); uiWarmup(); musicInit(); GOL_CONTROLS.init(); miniInit(); todInit(); climaInit();
@@ -12679,7 +12718,8 @@ function uiInit() {
   UI.b0.onclick = () => { if (UI.st === ST.INICIO) { sndStart(); uiSet(ST.JOGO); } else uiResume(); };
   UI.b1.onclick = () => benchStart();
   $('gear-mode').value = VEH.manual ? 'manual' : 'auto';
-  $('gear-mode').onchange = e => { VEH.manual = e.target.value === 'manual'; };
+  $('gear-mode').onchange = e => uiSetGearMode(e.target.value === 'manual');
+  $('transmission').onclick = e => { if(UI.st === ST.JOGO)uiSetGearMode(!VEH.manual); e.currentTarget.blur(); };
   $('orbit-reset').onclick = e => { if(CAM_ORBIT.allowed())CAM_ORBIT.reset();CAM_ORBIT.ui();e.currentTarget.blur(); };
   $('sunroof').onclick = e => { SUNROOF.toggle(); e.currentTarget.blur(); };
   $('vehicle-choice').onchange = e => vehicleChoice(e.target.value, true);
@@ -12732,7 +12772,7 @@ function uiKey(e) {
   if (c === 'KeyM') { sndMute(!SND.mute); return; }
   if (c === 'KeyH') { UI.stats = !UI.stats; hudStats(UI.stats); if (st !== ST.BENCH) perfAttach(UI.stats, 12); return; }
   if (c === 'KeyO' && st === ST.JOGO) { SUNROOF.toggle(); e.preventDefault(); return; }
-  if (c === 'KeyT' && (st === ST.JOGO || st === ST.PAUSA || st === ST.INICIO)) { VEH.manual = !VEH.manual; $('gear-mode').value = VEH.manual ? 'manual' : 'auto'; e.preventDefault(); return; }
+  if (c === 'KeyT' && (st === ST.JOGO || st === ST.PAUSA || st === ST.INICIO)) { uiSetGearMode(!VEH.manual); e.preventDefault(); return; }
   if (st === ST.INICIO) return;                                   // na tela de início só o botão começa o jogo (e o som)
   if (c === 'Escape') { if (st === ST.JOGO || st === ST.FITA || st === ST.BENCH) uiPause(); else uiResume(); e.preventDefault(); }
   else if (c === 'KeyB') benchStart();

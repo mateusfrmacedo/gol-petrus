@@ -88,7 +88,7 @@ A chapa e o forro originais têm um vão real. Vidro e moldura móvel são separ
 - Câmera externa de perseguição, câmera interna do motorista e câmera da pista.
 - Na câmera externa do Gol, **arraste com o botão esquerdo do mouse** para girar ao redor do veículo e use a roda do mouse para ajustar a distância.
 - O botão **Girar câmera** ativa a inspeção; **Centralizar câmera** ou duplo clique retorna à perseguição normal. A câmera continua acompanhando o carro em movimento.
-- Câmbio manual de cinco marchas com embreagem automática, intervalo entre trocas e bloqueio de reduções que excederiam 6.500 rpm. O automático pode ser selecionado no menu.
+- Câmbio manual de cinco marchas com embreagem automática, intervalo entre trocas e bloqueio de reduções que excederiam 6.500 rpm. O automático pode ser selecionado no menu, pela tecla T ou pelo botão M/A junto às luzes.
 - Cronômetro de voltas, retorno à pista, freio de mão, teclado e controle com leitura analógica.
 - Volta roteirizada, poses de inspeção e benchmark com estatísticas de desempenho; tempo de GPU quando o navegador disponibiliza `timestamp-query`.
 
@@ -283,7 +283,9 @@ node scripts/prepare-site.mjs /tmp/gol-petrus-site
 
 O empacotador recusa um HTML com o Civic incorporado. Builds locais com `--civic` continuam possíveis para revisão, mas não são publicados por esse workflow. Antes de enviar mudanças de código, gere o `index.html` e execute as verificações pertinentes. Alterações de documentação não exigem reconstruir o HTML.
 
-O botão de centralizar a câmera externa fica junto aos controles de luzes e teto solar. A luz da placa acompanha o farol alto, além do acionamento manual.
+O botão de centralizar a câmera externa fica junto aos controles de luzes e teto solar. O indicador de marcha nesse grupo mostra **M** (manual) ou **A** (automático), seguido da marcha atual; clicar nele alterna o modo de câmbio. A luz da placa acompanha o farol alto, além do acionamento manual.
+
+A tela inicial reúne clima, horário e ritmo do tempo em um painel compacto; a lista de atalhos fica em **Controles e atalhos**.
 
 ## Controles
 
@@ -294,7 +296,7 @@ O botão de centralizar a câmera externa fica junto aos controles de luzes e te
 | Fazer curvas | `A` / `D` ou `←` / `→` | Analógico esquerdo |
 | Freio de mão | `Espaço` | `A` |
 | Subir / reduzir marcha | `E` / `Q` | `B` / `LB` |
-| Manual / automático | `T` ou seletor no menu | Seletor no menu |
+| Manual / automático | `T`, botão M/A ou seletor no menu | Seletor no menu |
 | Trocar a câmera | `C` | `Y` |
 | Olhar para trás | Segurar `V` | Segurar `RB` |
 | Devolver o carro à pista | `R` | `X` |
