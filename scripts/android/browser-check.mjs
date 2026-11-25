@@ -72,6 +72,10 @@ try {
   await touch('touchMove', [{ id: 1, x: gas.x, y: gas.y }, { id: 2, x: wheel.x + 45, y: wheel.y }]);
   await evaluate('__cap.frames(20)');
   const turning = await evaluate('__cap.state()'); assert(turning.steer > 0.02, 'Volante e acelerador precisam funcionar juntos.');
+  assert.equal(await evaluate("getComputedStyle(document.getElementById('hg')).display"), 'none');
+  assert.equal(await evaluate("document.querySelectorAll('.mobile-pedals span,#mob-hand span').length"), 0);
+  assert.equal(await evaluate("document.getElementById('mob-speed').textContent"), String(await evaluate('Math.round(__cap.GS.speed*3.6)')));
+  assert.equal(await evaluate("document.getElementById('mob-gear').textContent"), (await evaluate('__cap.VEH.gear')) + 'ª');
   await screenshot('dirigindo');
   const hand = await box('mob-hand');
   await touch('touchStart', [{id:1,x:gas.x,y:gas.y},{id:2,x:wheel.x+45,y:wheel.y},{id:3,x:hand.x,y:hand.y}]);
@@ -79,6 +83,9 @@ try {
   assert((await evaluate('__cap.state().keys')) & 16, 'A alavanca aciona o freio de mão.');
   await screenshot('freio-de-mao-puxado');
   await touch('touchCancel', []); await evaluate('__cap.frames(30)');
+  await evaluate('__cap.VEH.gear=0; __cap.frames(1)');
+  assert.equal(await evaluate("document.getElementById('mob-gear').textContent"), 'R');
+  await evaluate('__cap.VEH.gear=1; __cap.frames(1)');
   const stoppedInput = await evaluate('__cap.state()'); assert.equal(stoppedInput.thr, 0, 'Cancelar toque solta o acelerador.');
   await evaluate("document.getElementById('mob-pause').click()"); assert.equal(await evaluate('__cap.ui().estado'), 'PAUSA');
   assert.equal(await evaluate("getComputedStyle(document.getElementById('gol-controls')).display"), 'none');

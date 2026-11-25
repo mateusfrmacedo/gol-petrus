@@ -12899,7 +12899,7 @@ function uiAfter() {
   if (st === ST.BENCH) { if (GS.tick60 >= 3600) benchEnd(); }
   else {
     if (st === ST.FITA && GS.tick60 >= GS.replay.length) { GS.replayOn = false; uiSet(ST.JOGO); }
-    if (HUD.vis) hudFrame();
+    if (HUD.vis && !MOBILE_PROFILE) hudFrame();
     if (GS.lapNew) { GS.lapNew = false; try { localStorage.setItem('gol-melhor', LAP[2].toFixed(3)); } catch (e) { /* idem */ } }
   }
   if (HUD.stats) hudStatsFrame();
@@ -13251,6 +13251,7 @@ const MOBILE_ART = {"wheel":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAA
 // ---- 59_mobile.js
 // Controles móveis: volante multitoque e inclinação, compartilhando a física analógica do controle.
 const MOBILE = {
+  readoutSpeed: -1, readoutGear: null,
   on: false, mode: 'volante', steer: 0, keys: 0, wheelId: null, wheelAngle: 0,
   lastAngle: 0, tilt: null, neutral: 0, sensorTime: 0, sensorPending: false,
   pointers: new Map(), buttons: new Map(), cameraPointers: new Map(), el: null, wheel: null, status: null,
@@ -13265,7 +13266,8 @@ const MOBILE = {
     const root = document.createElement('div'); root.id = 'mobile-controls'; root.hidden = true;
     root.innerHTML = `<div class="mobile-top"><button id="mob-pause" aria-label="Abrir menu de configurações" title="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 3l-.6 2.2-1.8 1-2.2-.6-2 3.4 1.6 1.6v2.1L3 14.3l2 3.4 2.2-.6 1.8 1 .6 2.2h4l.6-2.2 1.8-1 2.2.6 2-3.4-1.6-1.6v-2.1L20 9l-2-3.4-2.2.6-1.8-1-.6-2.2z"/><circle cx="11.5" cy="11.7" r="3.2"/></svg></button><button id="mob-camera" aria-label="Trocar câmera"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M8 6l2-3h4l2 3"/><circle cx="12" cy="13" r="4"/></svg></button></div>
       <div class="mobile-left"><div id="mob-wheel" role="slider" tabindex="0" aria-label="Volante: arraste para girar" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0"><img id="mob-wheel-art" src="${MOBILE_ART.wheel}" alt="" draggable="false"></div><button id="mob-center">Calibrar inclinação</button></div>
-      <div class="mobile-right"><div class="mobile-shifts"><button id="mob-down" aria-label="Reduzir marcha">−</button><button id="mob-hand" aria-label="Freio de mão: segure para puxar"><img src="${MOBILE_ART.handbrake}" alt="" draggable="false"><span>Freio de mão</span></button><button id="mob-up" aria-label="Subir marcha">+</button></div><div class="mobile-pedals"><button id="mob-brake" aria-label="Freio e ré"><img src="${MOBILE_ART.brake}" alt="" draggable="false"><span>Freio / ré</span></button><button id="mob-gas" aria-label="Acelerar"><img src="${MOBILE_ART.gas}" alt="" draggable="false"><span>Acelerar</span></button></div></div>`;
+      <div class="mobile-readout" aria-label="Velocidade e marcha atual"><span id="mob-speed">0</span><small>km/h</small><span id="mob-gear">1ª</span></div>
+      <div class="mobile-right"><div class="mobile-shifts"><button id="mob-down" aria-label="Reduzir marcha">−</button><button id="mob-hand" aria-label="Freio de mão: segure para puxar"><img src="${MOBILE_ART.handbrake}" alt="" draggable="false"></button><button id="mob-up" aria-label="Subir marcha">+</button></div><div class="mobile-pedals"><button id="mob-brake" aria-label="Freio e ré"><img src="${MOBILE_ART.brake}" alt="" draggable="false"></button><button id="mob-gas" aria-label="Acelerar"><img src="${MOBILE_ART.gas}" alt="" draggable="false"></button></div></div>`;
     document.body.append(root); this.el = root; this.wheel = document.getElementById('mob-wheel');
     const settings = document.createElement('section'); settings.className = 'mobile-settings';
     settings.innerHTML = `<label>Direção<select id="mob-mode"><option value="volante">Volante na tela</option><option value="inclinacao">Inclinação do celular</option></select></label><label>Sensibilidade<input id="mob-sensitivity" type="range" min="12" max="40" value="25"><small>Menor valor: direção mais sensível</small></label><label>Gráficos<select id="mob-quality"><option value="economico">Econômico</option><option value="equilibrado">Equilibrado</option><option value="alto">Alto</option></select></label><p id="mob-status" role="status">Segure os pedais e arraste o volante. Freio dá ré após parar.</p>`;
@@ -13415,6 +13417,11 @@ const MOBILE = {
     const playing = UI.st === ST.JOGO;
     if (!playing) { this.reset(); this.menuSync(); } this.el.hidden = !playing;
     document.body.classList.toggle('mobile-playing', playing);
+    if (playing) {
+      const speed = Math.round(GS.speed * 3.6), gear = VEH.gear;
+      if (speed !== this.readoutSpeed) { this.readoutSpeed = speed; document.getElementById('mob-speed').textContent = speed; }
+      if (gear !== this.readoutGear) { this.readoutGear = gear; document.getElementById('mob-gear').textContent = gear === 0 ? 'R' : gear + 'ª'; }
+    }
     document.getElementById('mob-up').hidden = document.getElementById('mob-down').hidden = !VEH.manual;
   },
   css: `
@@ -13441,20 +13448,18 @@ const MOBILE = {
     .mobile-left{position:absolute;bottom:max(12px,env(safe-area-inset-bottom));left:max(14px,env(safe-area-inset-left))}
     #mob-wheel{pointer-events:auto;touch-action:none;position:relative;width:clamp(146px,35vh,186px);height:clamp(146px,35vh,186px);border-radius:50%;background:none;border:0}
     #mob-wheel img{width:100%;height:100%;display:block;pointer-events:none;object-fit:contain;transition:transform .12s ease-out;filter:drop-shadow(0 3px 3px #0009)}#mob-wheel:active img{transition:none}
-    .mobile-right{position:absolute;bottom:max(12px,env(safe-area-inset-bottom));right:max(14px,env(safe-area-inset-right));display:flex;flex-direction:column;align-items:flex-end;gap:8px}
-    .mobile-shifts,.mobile-pedals{display:flex;gap:8px;align-items:flex-end}.mobile-shifts #mob-up,.mobile-shifts #mob-down{align-self:flex-end;height:48px;width:44px}
-    #mobile-controls .mobile-pedals button{position:relative;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;width:88px;height:132px;min-height:132px;background:none;border:0;padding:0;gap:4px}
-    .mobile-pedals img{pointer-events:none;object-fit:contain;max-width:84px;height:104px;filter:drop-shadow(0 3px 2px #000a);transition:transform .1s ease-out}
-    .mobile-pedals span{pointer-events:none;font-size:12px;padding:3px 7px;border-radius:5px;background:#0c1015d9;white-space:nowrap}
-    .mobile-pedals button.pressed img{transform:translateY(5px) scale(.95)}.mobile-pedals button.pressed span{background:#855b16;color:#fff}
-    #mobile-controls #mob-hand{display:flex;position:relative;flex-direction:column;align-items:center;justify-content:flex-end;width:116px;height:90px;background:none;border:0;padding:0;gap:2px}
-    #mob-hand img{pointer-events:none;object-fit:contain;width:112px;height:64px;transform-origin:18% 80%;filter:drop-shadow(0 3px 2px #0009);transition:transform .12s ease-out}
-    #mob-hand span{pointer-events:none;font-size:11px;padding:3px 6px;background:#0c1015d9;border-radius:5px}
-    #mob-hand.pressed img{transform:rotate(-24deg) translateY(-4px)}#mob-hand.pressed span{background:#855b16}
-    .mobile #gol-controls,.mobile #music-bar,.mobile #mobile-mini,.mobile #clock,.mobile #ht{display:none!important}
-    .mobile #hg{right:calc(50% - 95px);bottom:12px;max-width:190px;height:auto!important;width:190px!important;pointer-events:none}.mobile #hs{top:64px}
-    @media(max-height:420px){.mobile #hg{width:150px!important;right:calc(50% - 75px)}}
-    @media(orientation:portrait){.mobile-settings{grid-template-columns:1fr}.mobile-light-grid{grid-template-columns:1fr 1fr}.mobile #ui .setup-grid,.mobile #ui .environment{grid-template-columns:1fr}.mobile #hg{bottom:190px}}
+    .mobile-right{position:absolute;bottom:max(12px,env(safe-area-inset-bottom));right:max(14px,env(safe-area-inset-right));display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+    .mobile-shifts,.mobile-pedals{display:flex;gap:2px;align-items:flex-end}.mobile-shifts #mob-up,.mobile-shifts #mob-down{align-self:flex-end;height:48px;width:44px}
+    #mobile-controls .mobile-pedals button{position:relative;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;width:64px;height:88px;min-height:88px;background:none;border:0;padding:0;gap:4px}
+    .mobile-pedals img{pointer-events:none;object-fit:contain;max-width:60px;height:80px;filter:drop-shadow(0 3px 2px #000a);transition:transform .1s ease-out}
+    .mobile-pedals button.pressed img{transform:translateY(4px) scale(.95)}
+    #mobile-controls #mob-hand{display:flex;position:relative;flex-direction:column;align-items:center;justify-content:flex-end;width:84px;height:48px;background:none;border:0;padding:0;gap:2px}
+    #mob-hand img{pointer-events:none;object-fit:contain;width:80px;height:44px;transform-origin:18% 80%;filter:drop-shadow(0 3px 2px #0009);transition:transform .12s ease-out}
+    #mob-hand.pressed img{transform:rotate(-24deg) translateY(-4px)}
+    .mobile #gol-controls,.mobile #music-bar,.mobile #mobile-mini,.mobile #clock,.mobile #ht,.mobile #hg{display:none!important}
+    .mobile-readout{position:absolute;top:max(10px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));display:flex;align-items:baseline;gap:6px;padding:5px 9px;border-radius:7px;background:#0c1015cc;color:#fff;font:600 18px/1.2 system-ui;font-variant-numeric:tabular-nums;pointer-events:none}
+    .mobile-readout small{font-size:10px;font-weight:400;color:#d6dce3}.mobile-readout #mob-gear{font-size:14px;border-left:1px solid #ffffff40;margin-left:2px;padding-left:8px;min-width:16px;text-align:center}
+    @media(orientation:portrait){.mobile-settings{grid-template-columns:1fr}.mobile-light-grid{grid-template-columns:1fr 1fr}.mobile #ui .setup-grid,.mobile #ui .environment{grid-template-columns:1fr}}
     @media(prefers-reduced-motion:reduce){#mob-wheel img,.mobile-pedals img,#mob-hand img{transition:none}}
   `
 };

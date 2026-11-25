@@ -1,13 +1,13 @@
 # GTA NA para Android
 
-O APK de teste fica em `dist/android/GTA-NA-0.1.0.apk`. É um aplicativo Android com o motor WebGPU original e arquivos locais; não exige publicar mudanças no GitHub. Requer Android 12 ou superior, GPU compatível e Android System WebView atualizado. O número da versão do Android, sozinho, não garante suporte gráfico.
+O APK de teste fica em `dist/android/GTA-NA-0.1.1.apk`. É um aplicativo Android com o motor WebGPU original e arquivos locais; não exige publicar mudanças no GitHub. Requer Android 12 ou superior, GPU compatível e Android System WebView atualizado. O número da versão do Android, sozinho, não garante suporte gráfico.
 
 ## Instalação e uso
 
 Transfira o APK para o celular e abra o arquivo. Autorize a instalação por esse aplicativo quando o Android solicitar. O pacote usa a assinatura de desenvolvimento local; serve para instalação direta e testes.
 
-- O aplicativo abre em paisagem, com tela imersiva e câmbio automático.
-- O volante reproduz a foto do proprietário; os pedais têm aparência de borracha real. Segure **Acelerar** ou **Freio / ré** e gire o volante com outro dedo. O freio engata ré depois de parar.
+- O aplicativo abre em paisagem, com tela imersiva e câmbio automático. A velocidade e a marcha aparecem em um visor digital pequeno no canto superior direito; os mostradores analógicos foram removidos da versão móvel.
+- O volante reproduz a foto do proprietário; os pedais têm aparência de borracha real. Pedais e freio de mão ficam menores, próximos e sem legendas visuais. Segure **Acelerar** ou **Freio / ré** e gire o volante com outro dedo. O freio engata ré depois de parar.
 - Toque na **engrenagem → Direção**, escolha inclinação. Segure o telefone na posição de dirigir e toque em **Calibrar inclinação**. O controle volta ao volante se o sensor não estiver disponível.
 - Na câmera externa, arraste o cenário para olhar ao redor; use dois dedos para aproximar ou afastar. A opção Centralizar câmera, dentro do menu, restaura a perseguição. Reposicionar carro devolve o Gol à rua.
 - O menu permite câmbio manual, sensibilidade, clima, horário e três qualidades gráficas. Os botões de marcha aparecem no modo manual.

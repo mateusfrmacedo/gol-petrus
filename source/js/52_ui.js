@@ -155,7 +155,7 @@ function uiAfter() {
   if (st === ST.BENCH) { if (GS.tick60 >= 3600) benchEnd(); }
   else {
     if (st === ST.FITA && GS.tick60 >= GS.replay.length) { GS.replayOn = false; uiSet(ST.JOGO); }
-    if (HUD.vis) hudFrame();
+    if (HUD.vis && !MOBILE_PROFILE) hudFrame();
     if (GS.lapNew) { GS.lapNew = false; try { localStorage.setItem('gol-melhor', LAP[2].toFixed(3)); } catch (e) { /* idem */ } }
   }
   if (HUD.stats) hudStatsFrame();
