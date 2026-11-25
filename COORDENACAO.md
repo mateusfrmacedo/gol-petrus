@@ -21,6 +21,7 @@ Leia antes de começar e atualize ao começar e ao terminar. Data e hora em hor�
 
 
 
+
 - 2026-11-20 21:40, Claude: setor Oeste comercial a pedido do Mateus: ruas Rio Preto, São Paulo, Quintino Bocaiúva, Francisco Coco e Av. da Saudade até o Sacoi, mais Gabriel Cozzetto, Praça Simão Daud, Correios, rodoviária, campo e piscina. Fronteira: a casa do Petrus, a R. José Fagliari e os lotes do `12_city8_petrus.js` ficam com o Codex. Arquivo novo `12_city9_oeste.js`; ganchos de uma linha em `12_city1_core.js`, `12_city3_mesh.js` e `56_fotos.js`; não mexo em `12_city4_marcos.js` (Sacoi) sem avisar aqui.
 
 
@@ -29,6 +30,8 @@ Leia antes de começar e atualize ao começar e ao terminar. Data e hora em hor�
 
 
 ## Concluído
+
+- 2026-11-25, Codex: comandos móveis compactos e visor digital concluídos em `54719d7`. Pedais e freio de mão menores, próximos e sem legendas; velocidade em km/h e marcha atual (incluindo R) pequenas no canto superior direito; mostradores analógicos ocultos e sem redesenho no modo móvel. APK 0.1.1, versionCode 2, em `dist/android/` e Downloads. Build limpo, lint Android, assinatura, sintaxe, cidade, colisões e teste de controles/visor aprovados; Naga indisponível e telefone físico ainda não conferido. HTML de commit isolado da cidade em revisão; HTML/APK locais continuam com a integração da pasta. Sem push; reserva liberada.
 
 - 2026-11-25, Codex: APK GTA NA concluído em `61f7129`, sem push. Android 12+, WebView com reserva pelo Chrome servindo arquivos locais; ícones quadrado, redondo, adaptável e monocromático; volante da foto, pedais e freio de mão realistas; menu de engrenagem com luzes/teto, sem minimapa ou rádio móvel. Build limpo, assinatura, instalação/abertura no emulador e lint Android aprovados; sintaxe, cidade, colisões, controles, câmbio, câmera e rádio do desktop aprovados. WebGPU e comandos conferidos no computador por PointerEvents sintéticos; GPU emulada não oferece adaptador e teste físico no Nothing Phone segue pendente. Naga indisponível. APK em `dist/android/` e Downloads; guia em `android/README.md`. Código e HTML do commit preservam a base publicada sem incluir as edições reservadas; HTML e APK locais incluem a integração atual da pasta. Reservas liberadas.
 
