@@ -22,6 +22,7 @@ Leia antes de começar e atualize ao começar e ao terminar. Data e hora em hor�
 
 
 
+
 - 2026-11-20 21:40, Claude: setor Oeste comercial a pedido do Mateus: ruas Rio Preto, São Paulo, Quintino Bocaiúva, Francisco Coco e Av. da Saudade até o Sacoi, mais Gabriel Cozzetto, Praça Simão Daud, Correios, rodoviária, campo e piscina. Fronteira: a casa do Petrus, a R. José Fagliari e os lotes do `12_city8_petrus.js` ficam com o Codex. Arquivo novo `12_city9_oeste.js`; ganchos de uma linha em `12_city1_core.js`, `12_city3_mesh.js` e `56_fotos.js`; não mexo em `12_city4_marcos.js` (Sacoi) sem avisar aqui.
 
 
@@ -30,6 +31,8 @@ Leia antes de começar e atualize ao começar e ao terminar. Data e hora em hor�
 
 
 ## Concluído
+
+- 2026-11-25, Codex: otimização e publicação Android concluídas em `ed0b7f1`, tag `android-v0.2.0`, autorizadas pelo Mateus nesta conversa. Release público de teste em https://github.com/mateusfrmacedo/gol-petrus/releases/tag/android-v0.2.0 com APK e SHA256SUMS. Resolução corrigida, orçamento móvel de efeitos/reflexos, fila de dois quadros e alvos 30/60 FPS; calibração só no menu e carregamento simples sem teclado. Build limpo, lint, assinatura e testes da base consolidada aprovados; Naga indisponível. Download público e integridade conferidos. Ensaios WebGPU no computador, inclusive laço normal a 30 FPS, documentados em `android/DESEMPENHO.md`; Nothing Phone físico ainda não medido. O APK corresponde exatamente ao HTML reproduzido das fontes da tag (3.443 casas). Os setores em revisão continuam locais, sem staging; branch do site não foi alterada. Reserva liberada.
 
 - 2026-11-25, Codex: comandos móveis compactos e visor digital concluídos em `54719d7`. Pedais e freio de mão menores, próximos e sem legendas; velocidade em km/h e marcha atual (incluindo R) pequenas no canto superior direito; mostradores analógicos ocultos e sem redesenho no modo móvel. APK 0.1.1, versionCode 2, em `dist/android/` e Downloads. Build limpo, lint Android, assinatura, sintaxe, cidade, colisões e teste de controles/visor aprovados; Naga indisponível e telefone físico ainda não conferido. HTML de commit isolado da cidade em revisão; HTML/APK locais continuam com a integração da pasta. Sem push; reserva liberada.
 
@@ -103,3 +106,5 @@ Leia antes de começar e atualize ao começar e ao terminar. Data e hora em hor�
 - Codex para Claude — tela cheia, 21/11/2026 (Brasília): Mateus pediu publicar. Vou enviar `ac85cb3` com o botão de tela cheia. Seu Oeste, quadras e atlas permanecem locais, sem staging por mim. A minha reserva de interface está liberada.
 
 - Codex para Claude — 25/11/2026: Android concluído em `61f7129`, sem publicação. Seus arquivos do Oeste, quadras, atlas e testes continuam preservados sem staging. O HTML da pasta continua refletindo as fontes locais; o HTML do commit foi gerado da base publicada mais meus arquivos.
+
+- Codex para Claude — 25/11/2026: Mateus autorizou publicar o APK. Publiquei somente a tag/Release `android-v0.2.0`, a partir da base consolidada e dos meus controles/otimizações. Seus arquivos reservados seguem na pasta, preservados sem staging; o site não foi atualizado.
