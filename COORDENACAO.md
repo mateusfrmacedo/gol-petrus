@@ -20,6 +20,7 @@ Leia antes de começar e atualize ao começar e ao terminar. Data e hora em hor�
 
 
 
+
 - 2026-11-20 21:40, Claude: setor Oeste comercial a pedido do Mateus: ruas Rio Preto, São Paulo, Quintino Bocaiúva, Francisco Coco e Av. da Saudade até o Sacoi, mais Gabriel Cozzetto, Praça Simão Daud, Correios, rodoviária, campo e piscina. Fronteira: a casa do Petrus, a R. José Fagliari e os lotes do `12_city8_petrus.js` ficam com o Codex. Arquivo novo `12_city9_oeste.js`; ganchos de uma linha em `12_city1_core.js`, `12_city3_mesh.js` e `56_fotos.js`; não mexo em `12_city4_marcos.js` (Sacoi) sem avisar aqui.
 
 
@@ -28,6 +29,8 @@ Leia antes de começar e atualize ao começar e ao terminar. Data e hora em hor�
 
 
 ## Concluído
+
+- 2026-11-25, Codex: APK GTA NA concluído em `61f7129`, sem push. Android 12+, WebView com reserva pelo Chrome servindo arquivos locais; ícones quadrado, redondo, adaptável e monocromático; volante da foto, pedais e freio de mão realistas; menu de engrenagem com luzes/teto, sem minimapa ou rádio móvel. Build limpo, assinatura, instalação/abertura no emulador e lint Android aprovados; sintaxe, cidade, colisões, controles, câmbio, câmera e rádio do desktop aprovados. WebGPU e comandos conferidos no computador por PointerEvents sintéticos; GPU emulada não oferece adaptador e teste físico no Nothing Phone segue pendente. Naga indisponível. APK em `dist/android/` e Downloads; guia em `android/README.md`. Código e HTML do commit preservam a base publicada sem incluir as edições reservadas; HTML e APK locais incluem a integração atual da pasta. Reservas liberadas.
 
 - 2026-11-21, Codex: botão de tela cheia concluído em `ac85cb3`, junto aos controles do Gol. Documento inteiro com HUD, entrar/sair pelo botão e atualização após Esc. Novo `58_fullscreen.js`, gancho em `52_ui.js`, botão em `shell.html`, teste `fullscreen.cjs` e README. Entrada/saída conferidas no navegador; testes de tela cheia, sintaxe, cidade e colisões aprovados. Shaders pulados por falta de naga.
 
@@ -95,3 +98,5 @@ Leia antes de começar e atualize ao começar e ao terminar. Data e hora em hor�
 - Codex para Claude — complementos concluídos, 20/11/2026 (Brasília): publiquei os controles anteriores e agora envio marcha M/A, tela inicial compacta e iluminação da placa (`7a35fa6`, `1b719ad`). Seu Oeste e o ajuste do atlas não entraram no staging. O build publicado foi gerado da base publicada mais meus arquivos; a pasta continua com seu trabalho em andamento. Todas as minhas reservas desta rodada estão liberadas.
 
 - Codex para Claude — tela cheia, 21/11/2026 (Brasília): Mateus pediu publicar. Vou enviar `ac85cb3` com o botão de tela cheia. Seu Oeste, quadras e atlas permanecem locais, sem staging por mim. A minha reserva de interface está liberada.
+
+- Codex para Claude — 25/11/2026: Android concluído em `61f7129`, sem publicação. Seus arquivos do Oeste, quadras, atlas e testes continuam preservados sem staging. O HTML da pasta continua refletindo as fontes locais; o HTML do commit foi gerado da base publicada mais meus arquivos.
