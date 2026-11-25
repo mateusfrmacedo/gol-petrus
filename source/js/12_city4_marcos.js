@@ -139,10 +139,12 @@ function marcosAtlas() {
     g.textAlign = 'left'; g.textBaseline = 'alphabetic';
     reg('rua' + i, x, y, 256, 48); CITY.plates[nm] = 'rua' + i;
   });
-  // letreiros dos comércios e prédios públicos (512 x 96 cada): 16 a partir de y = 1600 e mais 40 a partir de y = 2048
+  // letreiros dos comércios e prédios públicos: 16 de 512 x 96 a partir de y = 1600 e mais 64 de 512 x 64 a partir de y = 2048
   const sn = [...new Map(CITY.signs.map(s => [s.name, s])).values()];
-  sn.slice(0, 56).forEach((sg, i) => {
-    const x = (i % 4) * 512, y = i < 16 ? 1600 + Math.floor(i / 4) * 96 : 2048 + Math.floor((i - 16) / 4) * 96;
+  // vagas a partir de y = 2048 com 64 px de altura (80 no total): o letreiro é desenhado achatado e o quadro o estica de volta
+  sn.slice(0, 80).forEach((sg, i) => {
+    const x = (i % 4) * 512, y = i < 16 ? 1600 + Math.floor(i / 4) * 96 : 2048 + Math.floor((i - 16) / 4) * 64, sy = i < 16 ? 1 : 64 / 96;
+    g.setTransform(1, 0, 0, sy, 0, y * (1 - sy));
     g.fillStyle = sg.bg; g.fillRect(x, y, 512, 96);
     if (sg.name === 'Prisma') {   // painel azul de "galáxia" com brilhos, como o letreiro da papelaria
       const gr = g.createRadialGradient(x + 200, y + 40, 10, x + 256, y + 48, 300); gr.addColorStop(0, '#3d6fd6'); gr.addColorStop(0.5, '#1a2f7a'); gr.addColorStop(1, '#0b1436'); g.fillStyle = gr; g.fillRect(x, y, 512, 96);
@@ -153,7 +155,7 @@ function marcosAtlas() {
     if (sg.band) { g.fillStyle = sg.band; g.fillRect(x, y + 70, 512, 18); g.fillStyle = sg.fg; }
     if (sg.sub) { g.font = sg.font || (sg.name === 'Prisma' ? 'italic bold 56px Georgia, serif' : 'bold 48px Arial, sans-serif'); g.fillText(sg.name, x + 256, y + 38, 490); g.font = 'bold 19px Arial, sans-serif'; g.fillText(sg.sub, x + 256, y + 78, 490); }
     else { g.font = sg.font || 'bold 50px Arial, sans-serif'; g.fillText(sg.name, x + 256, y + (sg.band ? 38 : 46), 490); }
-    g.textAlign = 'left'; g.textBaseline = 'alphabetic'; reg('sg' + i, x, y, 512, 96); CITY.signReg = CITY.signReg || {}; CITY.signReg[sg.name] = 'sg' + i;
+    g.setTransform(1, 0, 0, 1, 0, 0); g.textAlign = 'left'; g.textBaseline = 'alphabetic'; reg('sg' + i, x, y, 512, 96 * sy); CITY.signReg = CITY.signReg || {}; CITY.signReg[sg.name] = 'sg' + i;
   });
   // mural da lateral da Borghi (Rua Francisco Coco): serviços à esquerda, logo no meio, telefones à direita
   {

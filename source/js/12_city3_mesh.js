@@ -629,6 +629,7 @@ function poiSite(p, depth) { const f = cityFaceRoad(p.x, p.z); return { x: p.x -
 function cityPave() {
   const C = CITY; C.pave = [];
   if (typeof sulPave === 'function') sulPave();
+  if (typeof quadrasPave === 'function') quadrasPave();   // calçada até o alinhamento (12_city9b_quadras.js)
   for (const p of C.pois) {
     const t = p.tags;
     if (t.am === 'fuel') { const s = poiSite(p, 4.2 + C.SW + 9); C.pave.push(s.x, s.z, 15); }

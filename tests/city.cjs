@@ -22,6 +22,8 @@ ${read('12_city5_borghi.js')}
 ${read('12_city6_sul.js')}
 ${read('12_city7_centro.js')}
 ${fs.existsSync(path.join(__dirname,'../source/js/12_city8_petrus.js'))?read('12_city8_petrus.js'):''}
+${read('12_city9_oeste.js')}
+${read('12_city9b_quadras.js')}
 assert(CITY.on,'?mapa=nova-alianca liga a cidade');
 cityBuild();
 const C=CITY, q=new Float64Array(12), o=new Float64Array(5);
@@ -73,5 +75,10 @@ assert(C.signs.some(s=>s.name==='UBS NOVA ALIANÇA'),'letreiro da UBS');
 // Centro (12_city7_centro.js): galpão no lote certo e torres sólidas, sem casa em cima da base
 assert(CENTRO.lotes.length===CENTRO_LOTES.length,'lotes de referência do Centro'); assert(CENTRO.escola && C.signs.some(s=>s.name==='E. M. ABDO AYRUTH'),'escola Abdo Ayruth na Rui Barbosa');
 for (const T of CENTRO_TORRES) { assert(C.circles.some(c=>Math.hypot(c.x-T.xz[0],c.z-T.xz[1])<0.1&&c.r>2),'torre com colisão'); assert(!C.houses.some(h=>!h.centroRef&&Math.hypot(h.x-T.xz[0],h.z-T.xz[1])<Math.max(h.d,h.w)/2),'casa em cima da torre'); }
+for (const sh of OESTE_SHOPS) assert(C.shops.includes(sh[0]),'comércio do Oeste sem lote: '+sh[0]);
+assert(new Set(C.signs.map(s=>s.name)).size<=80,'letreiros demais para o atlas (80 vagas): '+new Set(C.signs.map(s=>s.name)).size);
+// quadras da Borghi e do Centro (12_city9b_quadras.js): vãos fechados sem sobrepor lotes nem invadir calçada
+assert(QUADRAS.novas+QUADRAS.alargadas>5,'vãos fechados: '+JSON.stringify(QUADRAS));
+{ const L=C.houses.filter(h=>h.quadra||h.quadraAlargada); for (const h of L) { assert(quadrasLivre(h),'casa nova na calçada'); for (const o of C.houses) if (o!==h) assert(!quadrasSobrepoe(quadrasCaixa(h),quadrasCaixa(o),0.05),'casa nova sobre outra'); } }
 console.log('PASS: Nova Aliança — '+C.chains.length+' vias, '+C.juncs.length+' cruzamentos, '+C.houses.length+' casas; perfis, rasters, calçadas, partida, lugares modelados e malhas.');
 `,ctx);

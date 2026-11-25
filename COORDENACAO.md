@@ -14,6 +14,8 @@ Leia antes de começar e atualize ao começar e ao terminar. Data e hora em hor�
 
 ## Em andamento
 
+- 2026-11-25, Codex: Mateus autorizou publicar tudo para limpar o computador. Reservo este quadro e a publicação/build; preservo os arquivos do Oeste e quadras sem alterar sua implementação. Vou testar, publicar fontes e guardar referências/backups locais no GitHub, verificando a recuperação antes de liberar a exclusão.
+
 
 
 
@@ -31,6 +33,8 @@ Leia antes de começar e atualize ao começar e ao terminar. Data e hora em hor�
 
 
 ## Concluído
+
+- 2026-11-25, Codex: auditoria para eventual exclusão da pasta concluída sobre HEAD `454bd75`, sem novo commit ou push. GitHub conferido por fetch e refs remotas: main local seis commits à frente, mas tag remota Android cobre até `ed0b7f1`. Persistem alterações sem commit, dois arquivos novos do Oeste/quadras e arquivos ignorados (referências e backups). Pasta não pode ser apagada sem preservar esse material.
 
 - 2026-11-25, Codex: otimização e publicação Android concluídas em `ed0b7f1`, tag `android-v0.2.0`, autorizadas pelo Mateus nesta conversa. Release público de teste em https://github.com/mateusfrmacedo/gol-petrus/releases/tag/android-v0.2.0 com APK e SHA256SUMS. Resolução corrigida, orçamento móvel de efeitos/reflexos, fila de dois quadros e alvos 30/60 FPS; calibração só no menu e carregamento simples sem teclado. Build limpo, lint, assinatura e testes da base consolidada aprovados; Naga indisponível. Download público e integridade conferidos. Ensaios WebGPU no computador, inclusive laço normal a 30 FPS, documentados em `android/DESEMPENHO.md`; Nothing Phone físico ainda não medido. O APK corresponde exatamente ao HTML reproduzido das fontes da tag (3.443 casas). Os setores em revisão continuam locais, sem staging; branch do site não foi alterada. Reserva liberada.
 

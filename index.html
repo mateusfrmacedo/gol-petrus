@@ -5499,6 +5499,7 @@ function cityLots() {
   borghiNeighborhoodLayout(houses, occ);
   if (typeof sulLayout === 'function') sulLayout(houses);   // setor Sul (12_city6_sul.js): UBS e caixas de água
   if (typeof centroLayout === 'function') centroLayout(houses);   // Centro (12_city7_centro.js): galpão e torres
+  if (typeof cityQuadras === 'function') cityQuadras(houses);   // vãos entre casas na Borghi e no Centro (12_city9b_quadras.js)
   // grade para colisão: caixas orientadas (casas com o muro e o quintal da frente, prédios, lugares modelados)
   // e círculos (troncos de árvore, postes, placas, frades). Cada obstáculo entra em todas as células que toca.
   const cell = 32, nx = Math.ceil(C.W / cell), nz = Math.ceil(C.H / cell), grid = Array.from({ length: nx * nz }, () => []);
@@ -6613,6 +6614,7 @@ function poiSite(p, depth) { const f = cityFaceRoad(p.x, p.z); return { x: p.x -
 function cityPave() {
   const C = CITY; C.pave = [];
   if (typeof sulPave === 'function') sulPave();
+  if (typeof quadrasPave === 'function') quadrasPave();   // calçada até o alinhamento (12_city9b_quadras.js)
   for (const p of C.pois) {
     const t = p.tags;
     if (t.am === 'fuel') { const s = poiSite(p, 4.2 + C.SW + 9); C.pave.push(s.x, s.z, 15); }
@@ -6778,10 +6780,12 @@ function marcosAtlas() {
     g.textAlign = 'left'; g.textBaseline = 'alphabetic';
     reg('rua' + i, x, y, 256, 48); CITY.plates[nm] = 'rua' + i;
   });
-  // letreiros dos comércios e prédios públicos (512 x 96 cada): 16 a partir de y = 1600 e mais 40 a partir de y = 2048
+  // letreiros dos comércios e prédios públicos: 16 de 512 x 96 a partir de y = 1600 e mais 64 de 512 x 64 a partir de y = 2048
   const sn = [...new Map(CITY.signs.map(s => [s.name, s])).values()];
-  sn.slice(0, 56).forEach((sg, i) => {
-    const x = (i % 4) * 512, y = i < 16 ? 1600 + Math.floor(i / 4) * 96 : 2048 + Math.floor((i - 16) / 4) * 96;
+  // vagas a partir de y = 2048 com 64 px de altura (80 no total): o letreiro é desenhado achatado e o quadro o estica de volta
+  sn.slice(0, 80).forEach((sg, i) => {
+    const x = (i % 4) * 512, y = i < 16 ? 1600 + Math.floor(i / 4) * 96 : 2048 + Math.floor((i - 16) / 4) * 64, sy = i < 16 ? 1 : 64 / 96;
+    g.setTransform(1, 0, 0, sy, 0, y * (1 - sy));
     g.fillStyle = sg.bg; g.fillRect(x, y, 512, 96);
     if (sg.name === 'Prisma') {   // painel azul de "galáxia" com brilhos, como o letreiro da papelaria
       const gr = g.createRadialGradient(x + 200, y + 40, 10, x + 256, y + 48, 300); gr.addColorStop(0, '#3d6fd6'); gr.addColorStop(0.5, '#1a2f7a'); gr.addColorStop(1, '#0b1436'); g.fillStyle = gr; g.fillRect(x, y, 512, 96);
@@ -6792,7 +6796,7 @@ function marcosAtlas() {
     if (sg.band) { g.fillStyle = sg.band; g.fillRect(x, y + 70, 512, 18); g.fillStyle = sg.fg; }
     if (sg.sub) { g.font = sg.font || (sg.name === 'Prisma' ? 'italic bold 56px Georgia, serif' : 'bold 48px Arial, sans-serif'); g.fillText(sg.name, x + 256, y + 38, 490); g.font = 'bold 19px Arial, sans-serif'; g.fillText(sg.sub, x + 256, y + 78, 490); }
     else { g.font = sg.font || 'bold 50px Arial, sans-serif'; g.fillText(sg.name, x + 256, y + (sg.band ? 38 : 46), 490); }
-    g.textAlign = 'left'; g.textBaseline = 'alphabetic'; reg('sg' + i, x, y, 512, 96); CITY.signReg = CITY.signReg || {}; CITY.signReg[sg.name] = 'sg' + i;
+    g.setTransform(1, 0, 0, 1, 0, 0); g.textAlign = 'left'; g.textBaseline = 'alphabetic'; reg('sg' + i, x, y, 512, 96 * sy); CITY.signReg = CITY.signReg || {}; CITY.signReg[sg.name] = 'sg' + i;
   });
   // mural da lateral da Borghi (Rua Francisco Coco): serviços à esquerda, logo no meio, telefones à direita
   {
@@ -8041,6 +8045,138 @@ function petrusTreeReserved(x, z) {
   const dx = x - M.ox, dz = z - M.oz;
   const a = dx * M.ux + dz * M.uz, b = dx * M.zx + dz * M.zz;
   return a > -48 && a < 24 && b > -59 && b < 28;
+}
+
+// ---- 12_city9_oeste.js
+// Setor Oeste comercial de Nova Aliança: ruas Rio Preto, São Paulo, Quintino Bocaiúva, Francisco Coco, Gotardi (trecho oeste)
+// e Av. da Saudade até o Sacoi. Levantamento de 20/nov/2026 pelo Google Maps; fachadas pelo Street View quando conferidas.
+// Arquivo do Claude (ver COORDENACAO.md). A casa do Petrus e a R. José Fagliari ficam com o Codex (12_city8_petrus.js).
+
+// comércios: nome, lat, lon, fundo do letreiro, letra, rua (para cair no lote certo)
+const OESTE_SHOPS = [
+  ['SUPERMERCADO SOUZA', -21.0174237, -49.5017529, '#c62828', '#ffffff'],
+  ['PALHERANI', -21.0171709, -49.5013378, '#0d47a1', '#ffffff', 'Rua Rio Preto'],
+  ['ELETROLON', -21.0166498, -49.5018942, '#fdd835', '#0d47a1'],
+  ['ADS EMBALAGENS', -21.0170469, -49.5024690, '#263238', '#ffffff', 'Rua Quintino de Socaiuva'],
+  ['COZINHA DE FAMÍLIA', -21.0156513, -49.5014433, '#6d4c41', '#fff3e0', 'Rua Francisco Coco'],
+  ['MADEIRAS NOVA ALIANÇA', -21.0162217, -49.5026998, '#5d4037', '#ffe0b2'],
+  ['GB MOTOS', -21.0168788, -49.5004218, '#212121', '#ff9800', 'Rua São Paulo'],
+  ['SALÃO CÁTIA FIOCHE', -21.0179137, -49.5014018, '#f8bbd0', '#880e4f'],
+  ['MINEIRINHO SUPERMERCADO', -21.0175079, -49.5004969, '#2e7d32', '#ffeb3b', 'Rua Gotardi'],
+  ['IRMÃO LANCHES', -21.0173020, -49.4999849, '#e65100', '#ffffff', 'Rua Gotardi'],
+  ['ESPETINHO PÔR DO SOL', -21.0173899, -49.5003270, '#bf360c', '#ffe082', 'Rua Gotardi'],
+  ['FARMÁCIA NOVA ALIANÇA', -21.0168029, -49.5015527, '#00796b', '#ffffff'],
+  // pontas do Centro que apareceram nesta busca
+  ['RADIOVAL MÓVEIS', -21.0163632, -49.4992722, '#d32f2f', '#ffffff'],
+  ['FARMÁCIA POPULAR', -21.0162081, -49.4986189, '#1565c0', '#ffffff'],
+  ['LUCATTO & CANDEIRA', -21.0150847, -49.4977830, '#00897b', '#ffffff'],
+  ['LOJA DO BIGODE', -21.0160010, -49.4982979, '#37474f', '#ffffff'],
+];
+const OESTE_SHOP_STYLE = {
+  'SUPERMERCADO SOUZA': { kind: 'simples', col: [0.94, 0.93, 0.9], sub: 'SUPERMERCADO', signH: 1.0, signW: 5.5 },
+  'PALHERANI': { kind: 'simples', col: [0.93, 0.93, 0.92], sub: 'MÓVEIS E ELETRO', signH: 1.0 },
+  'ELETROLON': { kind: 'simples', col: [0.95, 0.9, 0.62], sub: 'ELÉTRICA · HIDRÁULICA · TINTAS', signH: 0.95 },
+  'MADEIRAS NOVA ALIANÇA': { kind: 'simples', col: [0.8, 0.72, 0.6], sub: 'ESTRUTURAS DE MADEIRA', signH: 0.9 },
+};
+for (const s of OESTE_SHOPS) CITY_SHOPS.push(s);
+Object.assign(CITY_SHOP_STYLE, OESTE_SHOP_STYLE);
+
+// ---- 12_city9b_quadras.js
+// Acabamento das quadras em volta da Borghi e do Centro (pedido do Mateus em 20/nov/2026).
+// Os lotes reservados para lugares modelados (Borghi, Matriz, comércios, escola, galpão) deixavam vãos de 7 a 13 m de grama
+// entre as construções, e as frentes comerciais ficavam com uma faixa de grama entre a calçada e a fachada. Nas cidades do
+// interior paulista as casas ficam coladas ou com um corredor lateral de ~1,2 m e a calçada vai até o alinhamento.
+// Arquivo do Claude (ver COORDENACAO.md). Ganchos: cityQuadras em 12_city1_core.js (antes da grade de colisão) e
+// quadrasPave em cityPave (12_city3_mesh.js).
+
+const QUADRAS_AREAS = [
+  { quem: 'Borghi', x: () => MARCOS.borghi && MARCOS.borghi.ox, z: () => MARCOS.borghi && MARCOS.borghi.oz, r: 150 },
+  { quem: 'Centro', x: () => 44, z: () => -47, r: 230 },   // Praça Padre João Nolte
+];
+const QUADRAS = { novas: 0, alargadas: 0, faixas: [] };
+
+function quadrasNaArea(x, z) {
+  for (const A of QUADRAS_AREAS) { const ax = A.x(), az = A.z(); if (ax !== undefined && ax !== null && Math.hypot(x - ax, z - az) < A.r) return true; }
+  return false;
+}
+
+// caixa do lote (casa + quintal da frente com muro) e teste de separação de eixos com folga
+function quadrasCaixa(h) { const e = h.wall && h.set > 1.0 ? h.set / 2 : 0; return { x: h.x - h.nx * e, z: h.z - h.nz * e, nx: h.nx, nz: h.nz, d: h.d + 2 * e, w: h.w }; }
+function quadrasSobrepoe(a, b, folga) {
+  for (const [x, z] of [[a.nx, a.nz], [-a.nz, a.nx], [b.nx, b.nz], [-b.nz, b.nx]]) {
+    const ra = a.d / 2 * Math.abs(a.nx * x + a.nz * z) + a.w / 2 * Math.abs(-a.nz * x + a.nx * z);
+    const rb = b.d / 2 * Math.abs(b.nx * x + b.nz * z) + b.w / 2 * Math.abs(-b.nz * x + b.nx * z);
+    if (Math.abs((a.x - b.x) * x + (a.z - b.z) * z) >= ra + rb + folga) return false;
+  }
+  return true;
+}
+// o lote inteiro fica fora da calçada e das ruas (inclusive de outra rua, nas esquinas)
+function quadrasLivre(h) {
+  const C = CITY, B = quadrasCaixa(h);
+  for (const [a, b] of [[-0.5, -0.5], [0.5, -0.5], [0.5, 0.5], [-0.5, 0.5], [0, 0], [-0.5, 0], [0.5, 0], [0, -0.5], [0, 0.5]]) {
+    const x = B.x + B.nx * a * B.d - B.nz * b * B.w, z = B.z + B.nz * a * B.d + B.nx * b * B.w;
+    _cq[0] = x; _cq[1] = z; cityRasterQ(_cq); if (_cq[9] < C.SW + 0.15) return false;
+    if (MARCOS.trees && MARCOS.trees.some(t => Math.hypot((t.x !== undefined ? t.x : t[0]) - x, (t.z !== undefined ? t.z : t[1]) - z) < 2.2)) return false;
+  }
+  return true;
+}
+
+function cityQuadras(houses) {
+  const C = CITY, rnd = mkRng(4417), fixo = h => h.borghiRef || h.centroRef || h.style;
+  // faces de quadra: casas da mesma via e do mesmo lado, em ordem ao longo da fachada
+  const faces = new Map();
+  for (const h of houses) { if (!quadrasNaArea(h.x, h.z) || !C.chains[h.ch] || !C.chains[h.ch].cls.urban) continue; const k = h.ch + ':' + h.side; if (!faces.has(k)) faces.set(k, []); faces.get(k).push(h); }
+  const novas = [];
+  for (const L of faces.values()) {
+    if (L.length < 2) continue;
+    const f0 = L[0], pr = h => h.x * f0.fx + h.z * f0.fz; L.sort((a, b) => pr(a) - pr(b));
+    for (let i = 1; i < L.length; i++) {
+      const A = L[i - 1], B = L[i]; if (A.nx * B.nx + A.nz * B.nz < 0.94) continue;   // faces que viram a esquina
+      const gap = Math.abs(pr(B) - pr(A)) - (A.w + B.w) / 2; if (gap < 2.6 || gap > 30) continue;
+      if (gap >= 6.4) {
+        // casa nova no vão, na linha de fachada da vizinha mais comum, com corredor de 0,8 m de cada lado
+        const w = Math.min(12, gap - 1.6), ref = !fixo(A) ? A : B, d = Math.min(14, Math.max(9, ref.d)), set = ref.set;
+        const m = (pr(A) + A.w / 2 + pr(B) - B.w / 2) / 2, fA = [A.x - A.nx * A.d / 2, A.z - A.nz * A.d / 2];
+        const cx = fA[0] + f0.fx * (m - pr(A)) + A.nx * d / 2, cz = fA[1] + f0.fz * (m - pr(A)) + A.nz * d / 2;
+        _cq[0] = cx; _cq[1] = cz; cityRasterQ(_cq);
+        const h = { x: cx, z: cz, w, d, yaw: Math.atan2(A.nz, A.nx), fx: A.fx, fz: A.fz, nx: A.nx, nz: A.nz, set, comm: !!ref.comm && rnd() < 0.5, two: rnd() < 0.12,
+          col: ref.col ? ref.col.map((c, k) => Math.min(1, Math.max(0, c + (rnd() - 0.5) * 0.16 + (k === 2 ? 0.02 : 0)))) : [0.9, 0.88, 0.82], roof: rnd(), wall: ref.wall, gate: rnd(), seed: rnd(),
+          yr: _cq[10] + C.CURB, ch: ref.ch, side: ref.side, quadra: true };
+        if (quadrasLivre(h) && ![...houses, ...novas].some(o => quadrasSobrepoe(quadrasCaixa(h), quadrasCaixa(o), 0.3))) { novas.push(h); continue; }
+      }
+      // vão menor (ou casa nova sem espaço): alarga a vizinha genérica, deixando corredor de 1,2 m
+      for (const V of [A, B]) {
+        if (fixo(V) || V.quadraAlargada) continue;
+        const extra = Math.min(gap - 1.2, 6), s = V === A ? 1 : -1;
+        const W = { ...V, w: V.w + extra, x: V.x + f0.fx * s * extra / 2, z: V.z + f0.fz * s * extra / 2 };
+        if (!quadrasLivre(W) || houses.some(o => o !== V && quadrasSobrepoe(quadrasCaixa(W), quadrasCaixa(o), 0.3)) || novas.some(o => quadrasSobrepoe(quadrasCaixa(W), quadrasCaixa(o), 0.3))) continue;
+        V.w = W.w; V.x = W.x; V.z = W.z; V.quadraAlargada = true; QUADRAS.alargadas++; break;
+      }
+    }
+  }
+  for (const h of novas) houses.push(h);
+  QUADRAS.novas = novas.length;
+  // ocupação das casas novas e alargadas (árvores procedurais não nascem dentro delas)
+  for (const h of houses) {
+    if (!h.quadra && !h.quadraAlargada) continue;
+    for (let a = -h.d / 2 - h.set; a <= h.d / 2; a += 0.8) for (let b = -h.w / 2; b <= h.w / 2; b += 0.8) {
+      const i = Math.round(h.x + h.nx * a + h.fx * b - C.X0), j = Math.round(h.z + h.nz * a + h.fz * b - C.Z0);
+      if (i >= 0 && j >= 0 && i < C.W && j < C.H && !C.occ[j * C.W + i]) C.occ[j * C.W + i] = 1;
+    }
+  }
+}
+
+// faixa entre o fim da calçada e a fachada: cimentada (calçada até o alinhamento) nas frentes sem muro
+function quadrasPave() {
+  const C = CITY; QUADRAS.faixas = [];
+  for (const h of C.houses) {
+    if (!quadrasNaArea(h.x, h.z) || (h.wall && h.set > 1.0) || h.borghiRef) continue;
+    const fx = h.x - h.nx * h.d / 2, fz = h.z - h.nz * h.d / 2; _cq[0] = fx; _cq[1] = fz; cityRasterQ(_cq);
+    const faixa = _cq[9] - C.SW; if (faixa < 0.15 || faixa > 3.5) continue;
+    const r = faixa / 2 + 0.45, xm = fx - h.nx * faixa / 2, zm = fz - h.nz * faixa / 2;
+    for (let b = -h.w / 2 + r * 0.6; b <= h.w / 2 - r * 0.6 + 1e-6; b += r * 0.9) C.pave.push(xm + h.fx * b, zm + h.fz * b, r);
+    QUADRAS.faixas.push(h);
+  }
 }
 
 // ---- 20_renderer.js
