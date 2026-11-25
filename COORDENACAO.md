@@ -14,8 +14,6 @@ Leia antes de começar e atualize ao começar e ao terminar. Data e hora em hor�
 
 ## Em andamento
 
-- 2026-11-25, Codex: Mateus autorizou publicar tudo para limpar o computador. Reservo este quadro e a publicação/build; preservo os arquivos do Oeste e quadras sem alterar sua implementação. Vou testar, publicar fontes e guardar referências/backups locais no GitHub, verificando a recuperação antes de liberar a exclusão.
-
 
 
 
@@ -33,6 +31,8 @@ Leia antes de começar e atualize ao começar e ao terminar. Data e hora em hor�
 
 
 ## Concluído
+
+- 2026-11-25, Codex: código local consolidado em `b26d10d` para publicação autorizada por Mateus, preservando Oeste, quadras e atlas sem mudar a implementação reservada. Build, todos os testes CJS e rádio aprovados; shaders pulados por ausência de Naga. Cópia completa dos arquivos locais em preparação para a Release `backup-completo-2026-11-25`, com partes, manifesto e SHA256SUMS; a exclusão depende da verificação remota desses anexos. Guia em `BACKUP.md`.
 
 - 2026-11-25, Codex: auditoria para eventual exclusão da pasta concluída sobre HEAD `454bd75`, sem novo commit ou push. GitHub conferido por fetch e refs remotas: main local seis commits à frente, mas tag remota Android cobre até `ed0b7f1`. Persistem alterações sem commit, dois arquivos novos do Oeste/quadras e arquivos ignorados (referências e backups). Pasta não pode ser apagada sem preservar esse material.
 
