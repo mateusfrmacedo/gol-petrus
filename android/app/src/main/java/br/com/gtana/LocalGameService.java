@@ -24,7 +24,7 @@ import java.util.concurrent.Executors;
 // Referência: https://developer.chrome.com/docs/android/trusted-web-activity/overview
 public class LocalGameService extends Service {
     static final int PORT = 38765;
-    static final String URL = "http://127.0.0.1:" + PORT + "/index.html?mobile=1&android=1&quality=economico&hz=60&ui=1";
+    static final String URL = "http://127.0.0.1:" + PORT + "/index.html?mobile=1&android=1&ui=1";
     private ServerSocket server;
     private ExecutorService clients;
     @Override public void onCreate() {

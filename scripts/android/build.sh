@@ -13,5 +13,5 @@ node scripts/android/prepare.mjs "$@"
 cd android
 ./gradlew --no-daemon assembleDebug
 mkdir -p "$ROOT_DIR/dist/android"
-cp app/build/outputs/apk/debug/app-debug.apk "$ROOT_DIR/dist/android/GTA-NA-0.1.1.apk"
-printf 'APK: %s\n' "$ROOT_DIR/dist/android/GTA-NA-0.1.1.apk"
+cp app/build/outputs/apk/debug/app-debug.apk "$ROOT_DIR/dist/android/GTA-NA-0.2.0.apk"
+printf 'APK: %s\n' "$ROOT_DIR/dist/android/GTA-NA-0.2.0.apk"

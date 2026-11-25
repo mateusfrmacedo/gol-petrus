@@ -1,7 +1,7 @@
 // Revisão funcional real com CDP: Chrome em execução com --remote-debugging-port=9333.
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
-const synthetic = process.argv.includes('--synthetic');
+const synthetic = process.argv.includes('--synthetic'), phone = process.argv.includes('--phone');
 const out = new URL('../../.tools/android-review/', import.meta.url); fs.mkdirSync(out, { recursive: true });
 const pages = await (await fetch('http://127.0.0.1:9333/json/list')).json();
 const page = pages.find(p => p.type === 'page');
@@ -22,7 +22,7 @@ try {
   const { windowId } = await send('Browser.getWindowForTarget');
   await send('Browser.setWindowBounds', { windowId, bounds: { width: 1200, height: 800, windowState: 'normal' } });
   await send('Page.bringToFront');
-  await send('Emulation.setDeviceMetricsOverride', { width: 720, height: 360, deviceScaleFactor: 1, mobile: true, screenOrientation: { type: 'landscapePrimary', angle: 90 } });
+  await send('Emulation.setDeviceMetricsOverride', { width: phone ? 915 : 720, height: phone ? 412 : 360, deviceScaleFactor: phone ? 2.625 : 1, mobile: true, screenOrientation: { type: 'landscapePrimary', angle: 90 } });
   await send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
   await send('Page.addScriptToEvaluateOnNewDocument', { source: "try { localStorage.setItem('gta-na-direcao','volante'); } catch (_) {} window.GtaAndroid = { unavailable: reason => { window.__nativeError = reason; } };" });
   await send('Page.navigate', { url: 'http://127.0.0.1:8765/?ui=1&cap=1&mobile=1&hz=60&mapa=' + (process.argv.find(v => ['nova-alianca', 'circuito'].includes(v)) || 'nova-alianca') });
@@ -30,9 +30,13 @@ try {
     const state = await evaluate('window.__cap ? {ready:__cap.ready(),error:__cap.error()} : {}');
     if (state.error) throw Error(state.error);
     if (state.ready) break;
+    if (await evaluate("!!document.getElementById('mob-loading')")) await screenshot('carregando');
     if (i === 179) throw Error('Inicialização excedeu 180 segundos.');
     await new Promise(r => setTimeout(r, 1000));
   }
+  if (phone) assert.equal(await evaluate('__cap.G.W'), 1280, 'Equilibrado usa os pixels físicos do telefone.');
+  assert.equal(await evaluate("document.getElementById('mob-loading')===null"), true);
+  assert.equal(await evaluate("getComputedStyle(document.getElementById('hint')).display"), 'none');
   await screenshot('menu');
   console.log('Jogo pronto:', await evaluate('({res:[__cap.G.W,__cap.G.H],mapa:__cap.CITY.on ? "Nova Aliança" : "circuito"})'));
   await evaluate("document.getElementById('b0').click(); new Promise(r=>setTimeout(r,500))");
@@ -97,6 +101,9 @@ try {
   await screenshot('menu-luzes');
   await evaluate("document.getElementById('mob-mode').value='inclinacao';document.getElementById('mob-mode').dispatchEvent(new Event('change'));window.dispatchEvent(new CustomEvent('gta-na-tilt',{detail:0}));document.getElementById('b0').click();for(let i=0;i<20;i++)window.dispatchEvent(new CustomEvent('gta-na-tilt',{detail:-25}));__cap.frames(30)");
   assert((await evaluate('__cap.state()')).steer < -0.02, 'Inclinação precisa virar o volante.');
+  assert.equal(await evaluate("!!document.getElementById('mob-center').closest('#ui')"), true);
+  assert.equal(await evaluate("document.getElementById('mobile-controls').contains(document.getElementById('mob-center'))"), false);
+  await screenshot('inclinacao-sem-botao');
   await evaluate("window.dispatchEvent(new Event('gta-na-background'))"); assert.equal(await evaluate('__cap.ui().estado'), 'PAUSA');
   await screenshot('configuracao');
   fs.writeFileSync(new URL('relatorio.json', out), JSON.stringify({ entrada: synthetic ? 'PointerEvents sintéticos no DOM real' : 'CDP multitoque', accelerating, turning, stoppedInput, errors }, null, 2));

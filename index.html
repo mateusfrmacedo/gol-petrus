@@ -9,6 +9,7 @@
 html,body{margin:0;height:100%;background:#000;overflow:hidden;font:14px/1.4 -apple-system,Helvetica,Arial,sans-serif;color:#ddd}
 #c{position:absolute;inset:0;margin:auto;width:100vw;height:100vh;display:block;object-fit:contain}
 #msg{position:absolute;left:0;right:0;top:45%;text-align:center;letter-spacing:.08em;white-space:pre-wrap}
+@media(pointer:coarse){#hint{display:none!important}}
 #hint{position:absolute;left:14px;bottom:10px;opacity:.75;text-shadow:0 1px 2px #000;transition:opacity 1.5s;pointer-events:none}
 #hg,#ht,#hs,#tag,#ui{display:none;position:absolute;pointer-events:none}
 #hg{right:1.6vh;bottom:1.6vh}
@@ -649,7 +650,10 @@ fn tone(c: vec3f) -> vec3f { return agx(c); }
   // grão fino + pontilhado triangular
   let h = hash22(in.pos.xy + vec2f(F.misc.y * 37.0, F.misc.y * 17.0));
   let tri = (h.x + h.y - 1.0);
-  o += vec3f(tri) * (1.2 / 255.0) + (h.x - 0.5) * 0.012 * (1.0 - o) * o * 4.0 * 0.5;
+  o += vec3f(tri) * (1.2 / 255.0);
+#ifndef MOBILE_CLEAR
+  o += (h.x - 0.5) * 0.012 * (1.0 - o) * o * 4.0 * 0.5;
+#endif
   return vec4f(o, 1.0);
 }
 `;
@@ -773,6 +777,12 @@ fn shade(in: V2F, ff: bool) -> vec4f {
 }
 `;
 WGSL["half"] = `// Meia resolução: oclusão de ambiente em espaço de tela (r) + visibilidade média do sol na névoa (g) + z linear (b).
+#ifndef AO_SAMPLES
+#define AO_SAMPLES 14
+#endif
+#ifndef FOG_STEPS
+#define FOG_STEPS 20
+#endif
 #include fsq
 #include util
 @group(0) @binding(0) var<uniform> F: Frame;
@@ -807,7 +817,7 @@ fn sunVis1(wp: vec3f) -> f32 {
     let R = clamp(zl * 0.11, 0.35, 1.6);                // raio em metros, cresce com a distância
     let ps = F.screen.y * 0.5 / F.post.y;
     let rpx = clamp(R * ps / zl, 5.0, 96.0);
-    var occ = 0.0; const NS = 14;
+    var occ = 0.0; const NS = AO_SAMPLES;
     for (var i = 0; i < NS; i++) {
       let r = (f32(i) + 0.5 + noise * 0.5) / f32(NS); let a = (f32(i) * 2.39996 + noise * 6.2832);
       let sp = fp + vec2f(cos(a), sin(a)) * rpx * r;
@@ -821,7 +831,7 @@ fn sunVis1(wp: vec3f) -> f32 {
   // névoa: fração iluminada ao longo do raio
   let wpp = F.invViewProjJ * vec4f(fp.x * F.screen.z * 2.0 - 1.0, 1.0 - fp.y * F.screen.w * 2.0, max(d, 1e-5), 1.0);
   let wp = wpp.xyz / wpp.w; let cam = F.camPos.xyz; let dv = wp - cam; let dist = length(dv); let dir = dv / dist;
-  let tMax = min(dist, VOL_DIST); const NV = 20; var wsum = 1e-6; var vsum = 0.0; var T = 1.0; var tp = 0.0;
+  let tMax = min(dist, VOL_DIST); const NV = FOG_STEPS; var wsum = 1e-6; var vsum = 0.0; var T = 1.0; var tp = 0.0;
   let j2 = fract(noise + 0.618 * f32(pxi.x & 1) + 0.31 * f32(pxi.y & 1));
   for (var i = 0; i < NV; i++) {
     let f1 = (f32(i) + 1.0) / f32(NV); let tn = tMax * f1 * f1; let dt = tn - tp; let t = tp + dt * j2; tp = tn;
@@ -3735,7 +3745,7 @@ function halton(i, b) { let f = 1, r = 0; while (i > 0) { f /= b; r += f * (i % 
 const Q = new URLSearchParams(location.search);
 // Perfil de celular: preserva a proporção e reduz o custo por quadro sem alterar a física.
 const MOBILE_PROFILE = Q.get('mobile') === '1' || (Q.get('mobile') !== '0' && typeof matchMedia !== 'undefined' && matchMedia('(pointer:coarse)').matches);
-const MOBILE_QUALITY = Q.get('quality') || 'economico';
+const MOBILE_QUALITY = (() => { let value = Q.get('quality'); if (!value && MOBILE_PROFILE) try { value = localStorage.getItem('gta-na-qualidade'); } catch (_) {} return ['economico', 'equilibrado', 'alto'].includes(value) ? value : 'equilibrado'; })();
 // atalhos por âncora (páginas que não repassam parâmetros de URL): #carro abre o visualizador do carro isolado
 if (/^#carro(-\d)?$/.test(location.hash) && !Q.has('scene')) { Q.set('scene', 'car'); Q.set('ui', '0'); Q.set('carcam', location.hash.slice(7) || '0'); }
 const BUILD = [];           // construtores de cena registrados pelos outros arquivos: async fn(), executados em ordem por main()
@@ -3757,7 +3767,7 @@ async function gpuInit() {
   const feats = [];
   // 'timestamp-query' é pedido na medição de desempenho (?perf) e no jogo aberto por uma pessoa (benchmark e estatísticas
   // mostram o tempo de GPU quando o navegador permite); ?nots desliga. Captura, poses e testes continuam sem o recurso.
-  for (const f of ['float32-filterable', 'rg11b10ufloat-renderable'].concat((Q.has('perf') || GAME.ui) && !Q.has('nots') ? ['timestamp-query'] : [])) if (ad.features.has(f) && !(MOBILE_PROFILE && f === 'float32-filterable')) feats.push(f);
+  for (const f of ['float32-filterable', 'rg11b10ufloat-renderable'].concat((Q.has('perf') || GAME.ui) && !Q.has('nots') ? ['timestamp-query'] : [])) if (ad.features.has(f)) feats.push(f);
   G.filter32 = feats.includes('float32-filterable');
   G.hasTS = feats.includes('timestamp-query');
   G.dev = await ad.requestDevice({
@@ -3767,10 +3777,9 @@ async function gpuInit() {
   G.dev.addEventListener('uncapturederror', e => { console.error('GPU: ' + e.error.message); G.lastErr = e.error.message; });
   G.canvas = document.getElementById('c');
   const res = (Q.get('res') || '').split('x');
-  const cap = MOBILE_QUALITY === 'alto' ? 1600 : MOBILE_QUALITY === 'equilibrado' ? 1280 : 960;
-  const dpr = MOBILE_PROFILE ? Math.min(1, cap / Math.max(innerWidth, innerHeight)) : Math.min(window.devicePixelRatio || 1, 2);
-  G.W = res.length === 2 ? +res[0] : Math.round(innerWidth * dpr);
-  G.H = res.length === 2 ? +res[1] : Math.round(innerHeight * dpr);
+  const size = MOBILE_RENDER.resolution(innerWidth, innerHeight, window.devicePixelRatio || 1);
+  G.W = res.length === 2 ? +res[0] : size[0];
+  G.H = res.length === 2 ? +res[1] : size[1];
   G.W = clamp(G.W & ~1, 320, 5120); G.H = clamp(G.H & ~1, 180, 2880);
   G.canvas.width = G.W; G.canvas.height = G.H;
   G.ctx = G.canvas.getContext('webgpu');
@@ -3789,7 +3798,8 @@ function mkBuf(size, usage, data) {
   if (data) { new Uint8Array(b.getMappedRange()).set(new Uint8Array(data.buffer, data.byteOffset, data.byteLength)); b.unmap(); }
   return b;
 }
-const BU = { V: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST, I: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST, U: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST, S: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST };
+// Mantém o diagnóstico acessível mesmo em navegadores sem a API WebGPU.
+const BU = typeof GPUBufferUsage === 'undefined' ? {} : { V: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST, I: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST, U: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST, S: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST };
 
 // Pré-processador: #include nome, #define NOME [valor], #ifdef/#ifndef/#else/#endif. Substitui macros por palavra inteira.
 function wgslPP(name, defs) {
@@ -4146,6 +4156,67 @@ class MeshBuilder {
     return { vb, ib, count: this.ni, nv: this.nv, bounds: this.bounds() };
   }
 }
+
+// ---- 03_mobile_quality.js
+// Perfil móvel: orçamento de efeitos separado da resolução; nenhum modelo de telefone é fixado.
+// Referência: https://developer.android.com/games/optimize/optimization-tips
+const MOBILE_RENDER = {
+  on: MOBILE_PROFILE, inFlight: 0,
+  maxEdge: MOBILE_QUALITY === 'alto' ? 1600 : MOBILE_QUALITY === 'equilibrado' ? 1280 : 960,
+  shadow: MOBILE_PROFILE ? (MOBILE_QUALITY === 'alto' ? 1536 : 1024) : 2048,
+  staticShadow: MOBILE_PROFILE ? 2048 : 4096,
+  environment: MOBILE_PROFILE ? 256 : 512,
+  environmentMips: MOBILE_PROFILE ? 6 : 7,
+  skyWidth: MOBILE_PROFILE ? 2048 : 4096,
+  skyHeight: MOBILE_PROFILE ? 512 : 1024,
+  aoSamples: MOBILE_PROFILE ? (MOBILE_QUALITY === 'alto' ? 8 : MOBILE_QUALITY === 'equilibrado' ? 6 : 4) : 14,
+  fogSamples: MOBILE_PROFILE ? (MOBILE_QUALITY === 'alto' ? 8 : MOBILE_QUALITY === 'equilibrado' ? 6 : 4) : 20,
+  motionBlur: !MOBILE_PROFILE,
+  screenReflections: !MOBILE_PROFILE,
+  cubeEvery: MOBILE_QUALITY === 'economico' ? 3 : 2,
+  resolution(width, height, dpr) {
+    const scale = this.on ? Math.min(dpr || 1, this.maxEdge / Math.max(width, height)) : Math.min(dpr || 1, 2);
+    return [clamp(Math.round(width * scale) & ~1, 320, 5120), clamp(Math.round(height * scale) & ~1, 180, 2880)];
+  },
+  cadence(worst) {
+    let rate = Q.get('hz');
+    if (!rate && this.on) try { rate = localStorage.getItem('gta-na-fps'); } catch (_) { /* preferência desta sessão */ }
+    if (rate === '30') return 29.5;
+    if (rate === '60') return 14.6;
+    if (!this.on) return rate === '120' ? 0 : worst > 6.2 ? 14.6 : 0;
+    // Abertura mede a GPU com margem: permite 60 quando cabe; caso contrário, busca 30 estáveis.
+    return worst > 12 ? 29.5 : 14.6;
+  },
+  hasSlot() { return !this.on || this.inFlight < 2; },
+  submitted(device) {
+    if (!this.on) return;
+    this.inFlight++;
+    device.queue.onSubmittedWorkDone().then(() => { this.inFlight--; }, () => { this.inFlight--; });
+  },
+  cubeCount(frame, ready) { return !this.on || !ready ? 2 : frame % this.cubeEvery === 0 ? 1 : 0; },
+  cubeFace(frame, ready) { return !this.on || !ready ? frame * 2 % 6 : Math.floor(frame / this.cubeEvery) % 6; },
+};
+
+// ---- 04_mobile_loading.js
+// A abertura móvel mostra uma única mensagem enquanto GPU, mapa e materiais são preparados.
+const MOBILE_LOADING = {
+  el: null,
+  init() {
+    if (!MOBILE_PROFILE || !GAME.ui) return;
+    const style = document.createElement('style');
+    style.textContent = `#mob-loading{position:fixed;inset:0;z-index:100;background:#0c1015;color:#edf0f3;display:grid;place-content:center;justify-items:center;gap:14px;font:14px/1.4 system-ui;text-align:center}
+      #mob-loading .loading-ring{width:28px;height:28px;border:2px solid #ffffff28;border-top-color:#edf0f3;border-radius:50%;animation:mobile-loading-spin .9s linear infinite}
+      @keyframes mobile-loading-spin{to{transform:rotate(360deg)}}
+      @media(prefers-reduced-motion:reduce){#mob-loading .loading-ring{animation:none}}`;
+    document.head.append(style);
+    const cover = document.createElement('div'); cover.id = 'mob-loading'; cover.setAttribute('role', 'status');
+    cover.innerHTML = '<span class="loading-ring" aria-hidden="true"></span><span>Carregando…</span>';
+    document.body.append(cover); this.el = cover;
+    const hint = document.getElementById('hint'); if (hint) hint.hidden = true;
+  },
+  finish() { if (this.el) this.el.remove(); this.el = null; },
+};
+MOBILE_LOADING.init();
 
 // ---- 10_track.js
 // Circuito original: traçado, elevação, zonas e altura do terreno (somente CPU; sem GPU).
@@ -7974,7 +8045,7 @@ function petrusTreeReserved(x, z) {
 
 // ---- 20_renderer.js
 // Núcleo do renderizador diferido: recursos, uniformes de quadro, famílias de material e o grafo de passes.
-const SHADOW_RES = MOBILE_PROFILE && MOBILE_QUALITY !== 'alto' ? 1024 : 2048, SHADOW_S_RES = MOBILE_PROFILE && MOBILE_QUALITY !== 'alto' ? 2048 : 4096, ENV_RES = 512, ENV_MIPS = 7, SKY_W = 4096, SKY_H = 1024, VOL_DIST = 220;
+const SHADOW_RES = MOBILE_RENDER.shadow, SHADOW_S_RES = MOBILE_RENDER.staticShadow, ENV_RES = MOBILE_RENDER.environment, ENV_MIPS = MOBILE_RENDER.environmentMips, SKY_W = MOBILE_RENDER.skyWidth, SKY_H = MOBILE_RENDER.skyHeight, VOL_DIST = 220;
 const SKY_EL0 = -0.14, SKY_ELR = PI / 2 + 0.14;
 const SH_DEFS = { SHADOW_RES: SHADOW_RES + '.0', ENV_MIPS: ENV_MIPS + '.0', ENV_MIP_K: (ENV_RES * 2 / (PI * 1.5)).toFixed(2), VOL_DIST: VOL_DIST + '.0', SKY_EL0: SKY_EL0.toFixed(5), SKY_ELR: SKY_ELR.toFixed(5), WM_ZS: '2.0' };
 const KIND = { GBUF: 0, SHADOW: 1, CUBE: 2 };
@@ -8130,7 +8201,7 @@ function rendererInit() {
   const T = R.tex = {};
   T.gA = mkTex(W, H, 'rgba8unorm-srgb'); T.gB = mkTex(W, H, 'rgba16float'); T.gC = mkTex(W, H, 'rgba8unorm'); T.gV = mkTex(W, H, 'rg16float'); T.depth = mkTex(W, H, 'depth32float');
   T.hdr = mkTex(W, H, 'rgba16float'); T.hist = [mkTex(W, H, 'rgba16float'), mkTex(W, H, 'rgba16float')]; T.vel = mkTex(W, H, 'rg16float');
-  T.mb = mkTex(W, H, 'rgba16float');
+  if (MOBILE_RENDER.motionBlur) T.mb = mkTex(W, H, 'rgba16float');
   T.half = [mkTex(hw, hh, 'rgba16float'), mkTex(hw, hh, 'rgba16float'), mkTex(hw, hh, 'rgba16float')];
   T.shadow = dev.createTexture({ size: [SHADOW_RES, SHADOW_RES, 3], format: 'depth32float', usage: TU.RT | TU.TB });
   T.shadowS = mkTex(SHADOW_S_RES, SHADOW_S_RES, 'depth32float');
@@ -8140,7 +8211,7 @@ function rendererInit() {
   T.noise = mkTex(512, 512, 'rgba8unorm', TU.RT | TU.TB, { mipLevelCount: 10 });
   T.noise3 = dev.createTexture({ size: [64, 64, 64], dimension: '3d', format: 'rgba8unorm', usage: TU.RT | TU.TB });
   const V = R.view = {};
-  for (const k of ['gA', 'gB', 'gC', 'gV', 'depth', 'hdr', 'vel', 'mb', 'shadowS', 'sky', 'noise', 'envDepth']) V[k] = T[k].createView();
+  for (const k of ['gA', 'gB', 'gC', 'gV', 'depth', 'hdr', 'vel', 'mb', 'shadowS', 'sky', 'noise', 'envDepth']) if (T[k]) V[k] = T[k].createView();
   V.hist = T.hist.map(t => t.createView()); V.half = T.half.map(t => t.createView());
   V.shadow = T.shadow.createView({ dimension: '2d-array' }); V.shadowL = [0, 1, 2].map(i => T.shadow.createView({ dimension: '2d', baseArrayLayer: i, arrayLayerCount: 1 }));
   V.env = T.env.createView({ dimension: 'cube' }); V.noise3 = T.noise3.createView({ dimension: '3d' });
@@ -8294,10 +8365,9 @@ function renderFrame() {
   for (let i = 0; i < 3; i++) cascadeSetup(i);
   setPass(0, c.vpJ, c.pos);
   for (let i = 0; i < 3; i++) setPass(1 + i, R.casc.vp[i], c.pos);
-  // uma face do cubemap de ambiente por quadro (ciclo completo a cada 6 quadros)
-  // duas faces do cubemap de ambiente por quadro, cada uma na posição atual do carro (ciclo completo a cada 3 quadros)
-  const face = (R.frameIdx * 2) % 6; R.cube.cur.set(R.cube.pos);
-  for (let k = 0; k < 2; k++) { cubeSetup(face + k); setPass(5 + face + k, R.cube.vp, R.cube.cur); m4inv(R.cube.view, R.cube.vp); R.passData.set(R.cube.view, (11 + k) * 64); }
+  // Desktop e aquecimento: duas faces por quadro. Celular: uma face a cada 2 ou 3 quadros.
+  const face = MOBILE_RENDER.cubeFace(R.frameIdx, GAME.ready), cubeCount = MOBILE_RENDER.cubeCount(R.frameIdx, GAME.ready); R.cube.cur.set(R.cube.pos);
+  for (let k = 0; k < cubeCount; k++) { cubeSetup(face + k); setPass(5 + face + k, R.cube.vp, R.cube.cur); m4inv(R.cube.view, R.cube.vp); R.passData.set(R.cube.view, (11 + k) * 64); }
   dev.queue.writeBuffer(R.frameBuf, 0, FR.data);
   dev.queue.writeBuffer(R.passBuf, 0, R.passData, 0, 13 * 64);
   dev.queue.writeBuffer(R.objBuf, 0, R.objData, 0, R.objCount * 64);
@@ -8309,7 +8379,7 @@ function renderFrame() {
     drawAll(p, ctxFrom(KIND.SHADOW, R.casc.vp[i], 6, c.pos, i), 1 + i, R.passBG); p.end();
   }
   // faces do cubemap de ambiente
-  for (let k = 0; k < 2; k++) {
+  for (let k = 0; k < cubeCount; k++) {
     const f = face + k; cubeSetup(f);
     const p = apiPass(enc, D.cube[f]);
     cubeSky(p, 11 + k);
@@ -8345,27 +8415,30 @@ const MB_TILE = 20, BLOOM_N = 6;
 function postInit() {
   const dev = G.dev, T = R.tex, V = R.view, W = G.W, H = G.H, D = R.pd, P = R.post = {};
   const HDR = 'rgba16float';
-  P.half = mkPost('half', {}, [HDR]); P.halfBG = bgOf(P.half, 0, [R.frameBuf, V.depth, V.gB, V.shadow, V.shadowS, R.sCmp]);
+  P.half = mkPost('half', { AO_SAMPLES: String(MOBILE_RENDER.aoSamples), FOG_STEPS: String(MOBILE_RENDER.fogSamples) }, [HDR]); P.halfBG = bgOf(P.half, 0, [R.frameBuf, V.depth, V.gB, V.shadow, V.shadowS, R.sCmp]);
   P.blurH = mkPost('bilat', { DIR: '1,0' }, [HDR]); P.blurV = mkPost('bilat', { DIR: '0,1' }, [HDR]);
   P.blurHBG = bgOf(P.blurH, 0, [V.half[0]]); P.blurVBG = bgOf(P.blurV, 0, [V.half[1]]);
   D.half = mkPassDesc(1, null, false, 'half'); D.half.colorAttachments[0].view = V.half[0];
   D.blurH = mkPassDesc(1, null, false, 'blurH'); D.blurH.colorAttachments[0].view = V.half[1];
   D.blurV = mkPassDesc(1, null, false, 'blurV'); D.blurV.colorAttachments[0].view = V.half[2];
-  P.light = mkPost('light', { SSR: '' }, [HDR]);
+  P.light = mkPost('light', MOBILE_RENDER.screenReflections ? { SSR: '' } : {}, [HDR]);
   P.lightBG = [0, 1].map(i => bgOf(P.light, 0, [R.frameBuf, V.gA, V.gB, V.gC, V.depth, V.shadow, V.shadowS, R.sCmp, V.half[2], V.env, V.sky, R.sClamp, R.sSky, V.hist[i]]));
   P.taa = mkPost('taa', {}, [HDR, 'rg16float']);
   P.taaBG = [0, 1].map(i => bgOf(P.taa, 0, [R.frameBuf, V.hdr, V.hist[i], V.gV, V.depth, R.sClamp]));
   D.taa = [0, 1].map(i => { const d = mkPassDesc(2, null, false, 'taa'); d.colorAttachments[0].view = V.hist[i]; d.colorAttachments[1].view = V.vel; return d; });
-  // desfoque de movimento
-  const tw = Math.ceil(W / MB_TILE), th = Math.ceil(H / MB_TILE);
-  T.tile = [mkTex(tw, th, 'rg16float'), mkTex(tw, th, 'rg16float')]; V.tile = T.tile.map(t => t.createView());
-  P.mbTile = mkPost('mbtile', { TILE: MB_TILE }, ['rg16float']); P.mbNeigh = mkPost('mbtile', { NEIGH: '', TILE: MB_TILE }, ['rg16float']);
-  P.mbTileBG = bgOf(P.mbTile, 0, [V.vel]); P.mbNeighBG = bgOf(P.mbNeigh, 0, [V.tile[0]]);
-  D.mbTile = mkPassDesc(1, null, false, 'mbTile'); D.mbTile.colorAttachments[0].view = V.tile[0];
-  D.mbNeigh = mkPassDesc(1, null, false, 'mbNeigh'); D.mbNeigh.colorAttachments[0].view = V.tile[1];
-  P.mb = mkPost('mblur', { TILE: MB_TILE }, [HDR]);
-  P.mbBG = [0, 1].map(i => bgOf(P.mb, 0, [R.frameBuf, V.hist[i], V.vel, V.tile[1], V.depth, R.sClamp]));
-  D.mb = mkPassDesc(1, null, false, 'mblur'); D.mb.colorAttachments[0].view = V.mb;
+  // Sem desfoque no celular: elimina três passes e mantém as fachadas legíveis em movimento.
+  if (MOBILE_RENDER.motionBlur) {
+    const tw = Math.ceil(W / MB_TILE), th = Math.ceil(H / MB_TILE);
+    T.tile = [mkTex(tw, th, 'rg16float'), mkTex(tw, th, 'rg16float')]; V.tile = T.tile.map(t => t.createView());
+    P.mbTile = mkPost('mbtile', { TILE: MB_TILE }, ['rg16float']); P.mbNeigh = mkPost('mbtile', { NEIGH: '', TILE: MB_TILE }, ['rg16float']);
+    P.mbTileBG = bgOf(P.mbTile, 0, [V.vel]); P.mbNeighBG = bgOf(P.mbNeigh, 0, [V.tile[0]]);
+    D.mbTile = mkPassDesc(1, null, false, 'mbTile'); D.mbTile.colorAttachments[0].view = V.tile[0];
+    D.mbNeigh = mkPassDesc(1, null, false, 'mbNeigh'); D.mbNeigh.colorAttachments[0].view = V.tile[1];
+    P.mb = mkPost('mblur', { TILE: MB_TILE }, [HDR]);
+    P.mbBG = [0, 1].map(i => bgOf(P.mb, 0, [R.frameBuf, V.hist[i], V.vel, V.tile[1], V.depth, R.sClamp]));
+    D.mb = mkPassDesc(1, null, false, 'mblur'); D.mb.colorAttachments[0].view = V.mb;
+  }
+  const color = MOBILE_RENDER.motionBlur ? [V.mb, V.mb] : V.hist;
   // bloom
   T.bl = []; V.bl = []; D.blDown = []; D.blUp = []; P.blDownBG = []; P.blUpBG = [];
   for (let i = 0; i < BLOOM_N; i++) { T.bl[i] = mkTex(Math.max(2, W >> (i + 1)), Math.max(2, H >> (i + 1)), HDR); V.bl[i] = T.bl[i].createView(); }
@@ -8373,8 +8446,9 @@ function postInit() {
   P.blUp = mkPost('bloom', { UP: '', UPW: '1.0' }, [{ format: HDR, blend: { color: { srcFactor: 'one', dstFactor: 'one' }, alpha: { srcFactor: 'one', dstFactor: 'one' } } }]);
   for (let i = 0; i < BLOOM_N; i++) {
     const d = mkPassDesc(1, null, false, 'blDown' + i); d.colorAttachments[0].view = V.bl[i]; D.blDown.push(d);
-    P.blDownBG.push(bgOf(i ? P.blDown : P.blFirst, 0, [i ? V.bl[i - 1] : V.mb, R.sClamp]));
+    P.blDownBG.push(i ? bgOf(P.blDown, 0, [V.bl[i - 1], R.sClamp]) : null);
   }
+  P.blFirstBG = color.map(view => bgOf(P.blFirst, 0, [view, R.sClamp]));
   for (let i = BLOOM_N - 2; i >= 0; i--) {
     const d = mkPassDesc(1, null, false, 'blUp' + i); d.colorAttachments[0].view = V.bl[i]; d.colorAttachments[0].loadOp = 'load'; D.blUp.push(d);
     P.blUpBG.push(bgOf(P.blUp, 0, [V.bl[i + 1], R.sClamp]));
@@ -8384,8 +8458,8 @@ function postInit() {
   P.expo = mkPost('expo', {}, ['r16float']);
   P.expoBG = [0, 1].map(i => bgOf(P.expo, 0, [R.frameBuf, V.bl[BLOOM_N - 1], V.ex[i], R.sClamp]));
   D.expo = [0, 1].map(i => { const d = mkPassDesc(1, null, false, 'expo'); d.colorAttachments[0].view = V.ex[i]; return d; });
-  P.final = mkPost('final', {}, [G.fmt]);
-  P.finalBG = [0, 1].map(i => bgOf(P.final, 0, [R.frameBuf, V.mb, V.bl[0], V.ex[i], R.sClamp, V.depth]));
+  P.final = mkPost('final', MOBILE_RENDER.on ? { MOBILE_CLEAR: '' } : {}, [G.fmt]);
+  P.finalBG = [0, 1].map(i => bgOf(P.final, 0, [R.frameBuf, color[i], V.bl[0], V.ex[i], R.sClamp, V.depth]));
   D.final = mkPassDesc(1, null, false, 'final');
   // cubemap: céu + pré-filtro
   P.cubeSky = mkPost('cubesky', {}, [HDR], { depthStencil: { format: 'depth32float', depthWriteEnabled: false, depthCompare: 'always' } });
@@ -8429,9 +8503,11 @@ function postFrame(enc) {
     for (let i = 0; i < R.transparents.length; i++) R.transparents[i].draw(p); p.end();
   }
   { const p = apiPass(enc, D.taa[cur]); p.setPipeline(P.taa); p.setBindGroup(0, P.taaBG[prev]); p.draw(3); p.end(); }
-  fsPass(enc, D.mbTile, P.mbTile, P.mbTileBG); fsPass(enc, D.mbNeigh, P.mbNeigh, P.mbNeighBG);
-  fsPass(enc, D.mb, P.mb, P.mbBG[cur]);
-  for (let i = 0; i < BLOOM_N; i++) fsPass(enc, D.blDown[i], i ? P.blDown : P.blFirst, P.blDownBG[i]);
+  if (MOBILE_RENDER.motionBlur) {
+    fsPass(enc, D.mbTile, P.mbTile, P.mbTileBG); fsPass(enc, D.mbNeigh, P.mbNeigh, P.mbNeighBG);
+    fsPass(enc, D.mb, P.mb, P.mbBG[cur]);
+  }
+  for (let i = 0; i < BLOOM_N; i++) fsPass(enc, D.blDown[i], i ? P.blDown : P.blFirst, i ? P.blDownBG[i] : P.blFirstBG[cur]);
   for (let i = 0; i < BLOOM_N - 1; i++) fsPass(enc, D.blUp[i], P.blUp, P.blUpBG[i]);
   fsPass(enc, D.expo[cur], P.expo, P.expoBG[prev]);
   D.final.colorAttachments[0].view = apiCanvasView();
@@ -12231,7 +12307,7 @@ function perfInit() {
   add('shadow0', [D.shadow[0]]); add('shadow1', [D.shadow[1]]); add('shadow2', [D.shadow[2]]); add('cube', D.cube);
   for (let m = 1; m <= ENV_MIPS; m++) add('envMip' + m, D.envMip.map(f => f[m]));
   add('gbuf', [D.gbuf]); add('decal', [D.decal]); add('half', [D.half]); add('blurH', [D.blurH]); add('blurV', [D.blurV]); add('light', [D.light]); add('trans', [D.trans]);
-  add('taa', D.taa); add('mbTile', [D.mbTile]); add('mbNeigh', [D.mbNeigh]); add('mblur', [D.mb]);
+  add('taa', D.taa); if (D.mb) { add('mbTile', [D.mbTile]); add('mbNeigh', [D.mbNeigh]); add('mblur', [D.mb]); }
   D.blDown.forEach((d, i) => add('blDown' + i, [d])); D.blUp.forEach((d, i) => add('blUp' + i, [d])); add('expo', D.expo); add('final', [D.final]);
   PERF.names = list; PERF.n = list.length;
   PERF.qs = dev.createQuerySet({ type: 'timestamp', count: PERF.n * 2 });
@@ -12753,7 +12829,7 @@ function uiSetGearMode(manual) {
 }
 function uiInit() {
   UI.el = $('ui'); UI.tag = $('tag'); UI.res = $('res'); UI.b0 = $('b0'); UI.b1 = $('b1');
-  hudInit(); uiWarmup(); FULLSCREEN.init(); if (!MOBILE_PROFILE) musicInit(); GOL_CONTROLS.init(); if (!MOBILE_PROFILE) miniInit(); todInit(); climaInit();
+  hudInit(); if (!MOBILE_PROFILE) uiWarmup(); FULLSCREEN.init(); if (!MOBILE_PROFILE) musicInit(); GOL_CONTROLS.init(); if (!MOBILE_PROFILE) miniInit(); todInit(); climaInit();
   try { const b = +localStorage.getItem('gol-melhor'); if (b > 20 && b < 600) LAP[2] = b; } catch (e) { /* sem armazenamento local: a melhor volta vale só nesta sessão */ }
   UI.b0.onclick = () => { if (UI.st === ST.INICIO) { sndStart(); uiSet(ST.JOGO); } else uiResume(); };
   UI.b1.onclick = () => benchStart();
@@ -13251,7 +13327,7 @@ const MOBILE_ART = {"wheel":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAA
 // ---- 59_mobile.js
 // Controles móveis: volante multitoque e inclinação, compartilhando a física analógica do controle.
 const MOBILE = {
-  readoutSpeed: -1, readoutGear: null,
+  readoutSpeed: -1, readoutGear: null, fps: 0, fpsFrames: 0, fpsMs: 0,
   on: false, mode: 'volante', steer: 0, keys: 0, wheelId: null, wheelAngle: 0,
   lastAngle: 0, tilt: null, neutral: 0, sensorTime: 0, sensorPending: false,
   pointers: new Map(), buttons: new Map(), cameraPointers: new Map(), el: null, wheel: null, status: null,
@@ -13270,15 +13346,19 @@ const MOBILE = {
       <div class="mobile-right"><div class="mobile-shifts"><button id="mob-down" aria-label="Reduzir marcha">−</button><button id="mob-hand" aria-label="Freio de mão: segure para puxar"><img src="${MOBILE_ART.handbrake}" alt="" draggable="false"></button><button id="mob-up" aria-label="Subir marcha">+</button></div><div class="mobile-pedals"><button id="mob-brake" aria-label="Freio e ré"><img src="${MOBILE_ART.brake}" alt="" draggable="false"></button><button id="mob-gas" aria-label="Acelerar"><img src="${MOBILE_ART.gas}" alt="" draggable="false"></button></div></div>`;
     document.body.append(root); this.el = root; this.wheel = document.getElementById('mob-wheel');
     const settings = document.createElement('section'); settings.className = 'mobile-settings';
-    settings.innerHTML = `<label>Direção<select id="mob-mode"><option value="volante">Volante na tela</option><option value="inclinacao">Inclinação do celular</option></select></label><label>Sensibilidade<input id="mob-sensitivity" type="range" min="12" max="40" value="25"><small>Menor valor: direção mais sensível</small></label><label>Gráficos<select id="mob-quality"><option value="economico">Econômico</option><option value="equilibrado">Equilibrado</option><option value="alto">Alto</option></select></label><p id="mob-status" role="status">Segure os pedais e arraste o volante. Freio dá ré após parar.</p>`;
+    settings.innerHTML = `<label>Direção<select id="mob-mode"><option value="volante">Volante na tela</option><option value="inclinacao">Inclinação do celular</option></select></label><label>Sensibilidade<input id="mob-sensitivity" type="range" min="12" max="40" value="25"><small>Menor valor: direção mais sensível</small></label><label>Gráficos<select id="mob-quality"><option value="economico">Econômico</option><option value="equilibrado">Equilibrado</option><option value="alto">Alto</option></select></label><label>Fluidez<select id="mob-fps"><option value="auto">Automática</option><option value="30">30 FPS</option><option value="60">60 FPS</option></select></label><p id="mob-performance"></p><p id="mob-status" role="status">Segure os pedais e arraste o volante. Freio dá ré após parar.</p>`;
     document.querySelector('#ui .setup-grid').append(settings); this.status = document.getElementById('mob-status');
     const environment = document.querySelector('#ui .environment');
     const weather = document.createElement('details'); weather.className = 'mobile-weather';
     weather.innerHTML = '<summary>Clima e horário</summary>'; environment.before(weather); weather.append(environment);
     const mode = document.getElementById('mob-mode'); mode.value = this.mode;
     mode.onchange = () => { this.reset(); this.mode = mode.value; this.save('gta-na-direcao', this.mode); this.layout(); if (this.mode === 'inclinacao') void this.enableSensor(); };
-    const quality = document.getElementById('mob-quality'); quality.value = Q.get('quality') || 'economico';
-    quality.onchange = () => { const u = new URL(location.href); u.searchParams.set('quality', quality.value); u.searchParams.delete('res'); location.href = u.href; };
+    const quality = document.getElementById('mob-quality'); quality.value = MOBILE_QUALITY;
+    quality.onchange = () => { this.save('gta-na-qualidade', quality.value); const u = new URL(location.href); u.searchParams.set('quality', quality.value); u.searchParams.delete('res'); location.href = u.href; };
+    const fps = document.getElementById('mob-fps');
+    try { fps.value = Q.get('hz') || localStorage.getItem('gta-na-fps') || 'auto'; } catch (_) { fps.value = Q.get('hz') || 'auto'; }
+    if (!['30','60'].includes(fps.value)) fps.value = 'auto';
+    fps.onchange = () => { this.save('gta-na-fps', fps.value); const u = new URL(location.href); u.searchParams.set('hz', fps.value); location.href = u.href; };
     document.getElementById('mob-pause').onclick = () => uiPause();
     document.getElementById('mob-center').onclick = () => { this.calibrate(); void this.enableSensor(); };
     this.hold('mob-gas', K_W); this.hold('mob-brake', K_S); this.hold('mob-hand', K_SPACE);
@@ -13321,13 +13401,15 @@ const MOBILE = {
     for (const [id, action] of Object.entries(commands)) document.getElementById(id).onchange = () => { action(); this.menuSync(); };
     const actions = document.createElement('div'); actions.className = 'mobile-actions';
     actions.innerHTML = '<button id="mob-centralize" type="button">Centralizar câmera</button><button id="mob-recover" type="button">Reposicionar carro</button>';
-    section.append(actions);
+    section.append(actions); actions.append(document.getElementById('mob-center'));
     document.getElementById('mob-centralize').onclick = () => { CAM_ORBIT.reset(); GS.chaseInit = false; GS.cut = true; };
     document.getElementById('mob-recover').onclick = () => { if (CITY.on) cityRecover(); else vehicleReset(VEH.s, clamp(VEH.d, -2, 2), 0); CAM_ORBIT.reset(); GS.cut = true; GS.chaseInit = false; };
     const bt = document.querySelector('#ui .bt'); document.querySelector('#ui .sub').after(bt);
   },
   menuSync() {
     if (!this.on || !document.getElementById('mob-low')) return;
+    const info = document.getElementById('mob-performance');
+    if (info) info.textContent = G.W + ' × ' + G.H + ' · ' + (this.fps ? this.fps + ' FPS observados · ' : 'dirija para medir os FPS · ') + 'alvo ' + (GAME.minFrameMs > 25 ? '30' : '60') + ' FPS';
     const c = GOL_CONTROLS;
     const states = { 'mob-low': c.lights, 'mob-high': c.high, 'mob-plate': c.plate || c.high, 'mob-left': c.signal === -1, 'mob-right': c.signal === 1, 'mob-roof': !!SUNROOF.target };
     for (const [id, value] of Object.entries(states)) document.getElementById(id).checked = !!value;
@@ -13418,6 +13500,7 @@ const MOBILE = {
     if (!playing) { this.reset(); this.menuSync(); } this.el.hidden = !playing;
     document.body.classList.toggle('mobile-playing', playing);
     if (playing) {
+      if (GAME.ready && RT[3] > 0 && RT[3] < 1000) { this.fpsFrames++; this.fpsMs += RT[3]; if (this.fpsMs >= 600) { this.fps = Math.round(this.fpsFrames * 1000 / this.fpsMs); this.fpsFrames = 0; this.fpsMs = 0; } }
       const speed = Math.round(GS.speed * 3.6), gear = VEH.gear;
       if (speed !== this.readoutSpeed) { this.readoutSpeed = speed; document.getElementById('mob-speed').textContent = speed; }
       if (gear !== this.readoutGear) { this.readoutGear = gear; document.getElementById('mob-gear').textContent = gear === 0 ? 'R' : gear + 'ª'; }
@@ -13431,7 +13514,7 @@ const MOBILE = {
     .mobile #ui select,.mobile #ui button,.mobile #ui input{min-height:44px;font-size:14px}.mobile #ui .controls-help{display:none}
     .mobile #ui .environment{padding:8px;gap:8px}.mobile #ui .setup-grid{gap:8px}
     .mobile #ui .bt{position:sticky;top:-18px;background:#0c1015;z-index:2;padding:10px 0;margin:0 0 10px}
-    .mobile-settings{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding-top:8px;border-top:1px solid #ffffff24}
+    .mobile-settings{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding-top:8px;border-top:1px solid #ffffff24}
     .mobile-settings label{display:flex;flex-direction:column;gap:4px;text-align:left}.mobile-settings select{color:#fff;background:#25282d;border:1px solid #777;border-radius:6px;padding:6px}
     .mobile-settings input{width:100%;accent-color:#f4b846}.mobile-settings small{font-size:10px;color:#b9c0ca}.mobile-settings p{grid-column:1/-1;margin:0;font-size:12px;color:#b9c0ca;text-align:left}
     .mobile-weather{grid-column:1/-1;text-align:left}.mobile-weather summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:#ddd}.mobile-weather summary:before{content:'+';margin-right:8px}.mobile-weather[open] summary:before{content:'−'}
@@ -13529,28 +13612,28 @@ async function main() {
     for (let k = 0; k < 2; k++) { for (let i = 0; i < 6; i++) renderFrame(); await computeSH(); }
     if (GAME.prewarm) {
       const worst = await GAME.prewarm(); await computeSH();
-      // Cadência: a 120 Hz só sobram 8,3 ms por quadro. Se a vista mais pesada não cabe com folga, os quadros se enfileiram
-      // na GPU e o tempo de quadro oscila; nesse caso o jogo roda estável a 60 quadros por segundo (um quadro a cada dois
-      // do monitor de 120 Hz). ?hz=120 ou ?hz=60 força a escolha.
-      GAME.gpuWorstMs = worst; GAME.minFrameMs = Q.get('hz') === '120' ? 0 : (Q.get('hz') === '60' || worst > 6.2) ? 14.6 : 0;
+      // O perfil móvel escolhe 30/60 FPS com margem; a escolha explícita no menu tem prioridade.
+      // Desktop mantém a cadência original de 60/120 Hz.
+      GAME.gpuWorstMs = worst; GAME.minFrameMs = MOBILE_RENDER.cadence(worst);
     }
     for (let i = 0; i < 8; i++) renderFrame();
     R.cam.first = true;
     setMsg(''); const hint = document.getElementById('hint'); if (hint) setTimeout(() => { hint.style.opacity = 0; }, 9000);
     if (GAME.ui) uiInit();
-    GAME.ready = true;
+    GAME.ready = true; MOBILE_LOADING.finish();
     if (!GAME.capture) requestAnimationFrame(rafLoop);
-  } catch (e) { setMsg('erro: ' + e.message); console.error(e); GAME.error = e.message; if (window.GtaAndroid) window.GtaAndroid.unavailable(e.message); }
+  } catch (e) { MOBILE_LOADING.finish(); setMsg('erro: ' + e.message); console.error(e); GAME.error = e.message; if (window.GtaAndroid) window.GtaAndroid.unavailable(e.message); }
 }
 let _lastT = 0;
 function rafLoop(t) {
-  if (GAME.minFrameMs > 0 && _lastT && t - _lastT < GAME.minFrameMs) { requestAnimationFrame(rafLoop); return; }   // cadência de 60 Hz em monitor mais rápido
+  if (!MOBILE_RENDER.hasSlot()) { requestAnimationFrame(rafLoop); return; }
+  if (GAME.minFrameMs > 0 && _lastT && t - _lastT < GAME.minFrameMs) { requestAnimationFrame(rafLoop); return; }   // limita a cadência escolhida sem aumentar a fila da GPU
   if (GAME.ui && uiFrame()) { _lastT = 0; requestAnimationFrame(rafLoop); return; }   // menu aberto: o jogo e o som ficam parados e nada é renderizado
   let dt = _lastT ? (t - _lastT) / 1000 : 1 / 60; RT[3] = dt * 1000; if (dt > 0.05) dt = 0.05; _lastT = t;
   if (PERF.rec) perfFrameTimes(t);
   RT[2] = dt;
   if (GAME.tick) GAME.tick(false); else { RT[1] = dt; RT[0] += dt; }
-  renderFrame();
+  renderFrame(); MOBILE_RENDER.submitted(G.dev);
   if (GAME.ui) uiAfter();
   if (PERF.rec) perfJsTime();
   requestAnimationFrame(rafLoop);
@@ -13586,7 +13669,8 @@ window.__cap = {
   perfStart() { perfStart(); }, perfReport() { return perfReport(); }, restart() { gameRestart(); },
   // vista de cada câmera de TV para o ponto da pista 35 m antes dela (verificação de linha de visada)
   tvView(i) { const o = i * 4, p = trackPos(GS.tvData[o] - 30, 0, new Float64Array(5)); GS.freeCam = true; GS.frozen = true; GS.cut = true; setCamera(GS.tvData[o + 1], GS.tvData[o + 2], GS.tvData[o + 3], p[0], p[1] + 0.8, p[2], 0.5); return GS.tvN; },
-  cadencia() { return { piorVistaMs: GAME.gpuWorstMs, minFrameMs: GAME.minFrameMs, hz: GAME.minFrameMs > 0 ? 60 : 'monitor' }; },
+  mobilePerformance: () => ({ quality: MOBILE_QUALITY, resolution: [G.W, G.H], pendingFrames: MOBILE_RENDER.inFlight, fps: MOBILE.fps, target: GAME.minFrameMs > 25 ? 30 : 60 }),
+  cadencia() { return { piorVistaMs: GAME.gpuWorstMs, minFrameMs: GAME.minFrameMs, hz: GAME.minFrameMs > 25 ? 30 : GAME.minFrameMs > 0 ? 60 : 'monitor' }; },
   // estado do jogo para os testes
   // --- som: grava os 16 controles a cada quadro de 1/60 s e sintetiza a trilha fora do tempo real, da mesma simulação
   somGravar(n) { SND.rec = new Int32Array(n * 16); SND.recN = 0; },

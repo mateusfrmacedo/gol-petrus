@@ -33,7 +33,7 @@ import java.util.Collections;
 // Conteúdo local sob origem HTTPS; nenhum arquivo do armazenamento pessoal é exposto.
 public class MainActivity extends Activity implements SensorEventListener {
     private static final String HOST = "appassets.androidplatform.net";
-    private static final String START = "https://" + HOST + "/game/index.html?mobile=1&android=1&quality=economico&hz=60&ui=1";
+    private static final String START = "https://" + HOST + "/game/index.html?mobile=1&android=1&ui=1";
     private WebView web;
     private SensorManager sensors;
     private Sensor gravity;

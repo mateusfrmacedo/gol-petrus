@@ -82,6 +82,9 @@ fn tone(c: vec3f) -> vec3f { return agx(c); }
   // grão fino + pontilhado triangular
   let h = hash22(in.pos.xy + vec2f(F.misc.y * 37.0, F.misc.y * 17.0));
   let tri = (h.x + h.y - 1.0);
-  o += vec3f(tri) * (1.2 / 255.0) + (h.x - 0.5) * 0.012 * (1.0 - o) * o * 4.0 * 0.5;
+  o += vec3f(tri) * (1.2 / 255.0);
+#ifndef MOBILE_CLEAR
+  o += (h.x - 0.5) * 0.012 * (1.0 - o) * o * 4.0 * 0.5;
+#endif
   return vec4f(o, 1.0);
 }

@@ -1,6 +1,6 @@
 // Controles móveis: volante multitoque e inclinação, compartilhando a física analógica do controle.
 const MOBILE = {
-  readoutSpeed: -1, readoutGear: null,
+  readoutSpeed: -1, readoutGear: null, fps: 0, fpsFrames: 0, fpsMs: 0,
   on: false, mode: 'volante', steer: 0, keys: 0, wheelId: null, wheelAngle: 0,
   lastAngle: 0, tilt: null, neutral: 0, sensorTime: 0, sensorPending: false,
   pointers: new Map(), buttons: new Map(), cameraPointers: new Map(), el: null, wheel: null, status: null,
@@ -19,15 +19,19 @@ const MOBILE = {
       <div class="mobile-right"><div class="mobile-shifts"><button id="mob-down" aria-label="Reduzir marcha">−</button><button id="mob-hand" aria-label="Freio de mão: segure para puxar"><img src="${MOBILE_ART.handbrake}" alt="" draggable="false"></button><button id="mob-up" aria-label="Subir marcha">+</button></div><div class="mobile-pedals"><button id="mob-brake" aria-label="Freio e ré"><img src="${MOBILE_ART.brake}" alt="" draggable="false"></button><button id="mob-gas" aria-label="Acelerar"><img src="${MOBILE_ART.gas}" alt="" draggable="false"></button></div></div>`;
     document.body.append(root); this.el = root; this.wheel = document.getElementById('mob-wheel');
     const settings = document.createElement('section'); settings.className = 'mobile-settings';
-    settings.innerHTML = `<label>Direção<select id="mob-mode"><option value="volante">Volante na tela</option><option value="inclinacao">Inclinação do celular</option></select></label><label>Sensibilidade<input id="mob-sensitivity" type="range" min="12" max="40" value="25"><small>Menor valor: direção mais sensível</small></label><label>Gráficos<select id="mob-quality"><option value="economico">Econômico</option><option value="equilibrado">Equilibrado</option><option value="alto">Alto</option></select></label><p id="mob-status" role="status">Segure os pedais e arraste o volante. Freio dá ré após parar.</p>`;
+    settings.innerHTML = `<label>Direção<select id="mob-mode"><option value="volante">Volante na tela</option><option value="inclinacao">Inclinação do celular</option></select></label><label>Sensibilidade<input id="mob-sensitivity" type="range" min="12" max="40" value="25"><small>Menor valor: direção mais sensível</small></label><label>Gráficos<select id="mob-quality"><option value="economico">Econômico</option><option value="equilibrado">Equilibrado</option><option value="alto">Alto</option></select></label><label>Fluidez<select id="mob-fps"><option value="auto">Automática</option><option value="30">30 FPS</option><option value="60">60 FPS</option></select></label><p id="mob-performance"></p><p id="mob-status" role="status">Segure os pedais e arraste o volante. Freio dá ré após parar.</p>`;
     document.querySelector('#ui .setup-grid').append(settings); this.status = document.getElementById('mob-status');
     const environment = document.querySelector('#ui .environment');
     const weather = document.createElement('details'); weather.className = 'mobile-weather';
     weather.innerHTML = '<summary>Clima e horário</summary>'; environment.before(weather); weather.append(environment);
     const mode = document.getElementById('mob-mode'); mode.value = this.mode;
     mode.onchange = () => { this.reset(); this.mode = mode.value; this.save('gta-na-direcao', this.mode); this.layout(); if (this.mode === 'inclinacao') void this.enableSensor(); };
-    const quality = document.getElementById('mob-quality'); quality.value = Q.get('quality') || 'economico';
-    quality.onchange = () => { const u = new URL(location.href); u.searchParams.set('quality', quality.value); u.searchParams.delete('res'); location.href = u.href; };
+    const quality = document.getElementById('mob-quality'); quality.value = MOBILE_QUALITY;
+    quality.onchange = () => { this.save('gta-na-qualidade', quality.value); const u = new URL(location.href); u.searchParams.set('quality', quality.value); u.searchParams.delete('res'); location.href = u.href; };
+    const fps = document.getElementById('mob-fps');
+    try { fps.value = Q.get('hz') || localStorage.getItem('gta-na-fps') || 'auto'; } catch (_) { fps.value = Q.get('hz') || 'auto'; }
+    if (!['30','60'].includes(fps.value)) fps.value = 'auto';
+    fps.onchange = () => { this.save('gta-na-fps', fps.value); const u = new URL(location.href); u.searchParams.set('hz', fps.value); location.href = u.href; };
     document.getElementById('mob-pause').onclick = () => uiPause();
     document.getElementById('mob-center').onclick = () => { this.calibrate(); void this.enableSensor(); };
     this.hold('mob-gas', K_W); this.hold('mob-brake', K_S); this.hold('mob-hand', K_SPACE);
@@ -70,13 +74,15 @@ const MOBILE = {
     for (const [id, action] of Object.entries(commands)) document.getElementById(id).onchange = () => { action(); this.menuSync(); };
     const actions = document.createElement('div'); actions.className = 'mobile-actions';
     actions.innerHTML = '<button id="mob-centralize" type="button">Centralizar câmera</button><button id="mob-recover" type="button">Reposicionar carro</button>';
-    section.append(actions);
+    section.append(actions); actions.append(document.getElementById('mob-center'));
     document.getElementById('mob-centralize').onclick = () => { CAM_ORBIT.reset(); GS.chaseInit = false; GS.cut = true; };
     document.getElementById('mob-recover').onclick = () => { if (CITY.on) cityRecover(); else vehicleReset(VEH.s, clamp(VEH.d, -2, 2), 0); CAM_ORBIT.reset(); GS.cut = true; GS.chaseInit = false; };
     const bt = document.querySelector('#ui .bt'); document.querySelector('#ui .sub').after(bt);
   },
   menuSync() {
     if (!this.on || !document.getElementById('mob-low')) return;
+    const info = document.getElementById('mob-performance');
+    if (info) info.textContent = G.W + ' × ' + G.H + ' · ' + (this.fps ? this.fps + ' FPS observados · ' : 'dirija para medir os FPS · ') + 'alvo ' + (GAME.minFrameMs > 25 ? '30' : '60') + ' FPS';
     const c = GOL_CONTROLS;
     const states = { 'mob-low': c.lights, 'mob-high': c.high, 'mob-plate': c.plate || c.high, 'mob-left': c.signal === -1, 'mob-right': c.signal === 1, 'mob-roof': !!SUNROOF.target };
     for (const [id, value] of Object.entries(states)) document.getElementById(id).checked = !!value;
@@ -167,6 +173,7 @@ const MOBILE = {
     if (!playing) { this.reset(); this.menuSync(); } this.el.hidden = !playing;
     document.body.classList.toggle('mobile-playing', playing);
     if (playing) {
+      if (GAME.ready && RT[3] > 0 && RT[3] < 1000) { this.fpsFrames++; this.fpsMs += RT[3]; if (this.fpsMs >= 600) { this.fps = Math.round(this.fpsFrames * 1000 / this.fpsMs); this.fpsFrames = 0; this.fpsMs = 0; } }
       const speed = Math.round(GS.speed * 3.6), gear = VEH.gear;
       if (speed !== this.readoutSpeed) { this.readoutSpeed = speed; document.getElementById('mob-speed').textContent = speed; }
       if (gear !== this.readoutGear) { this.readoutGear = gear; document.getElementById('mob-gear').textContent = gear === 0 ? 'R' : gear + 'ª'; }
@@ -180,7 +187,7 @@ const MOBILE = {
     .mobile #ui select,.mobile #ui button,.mobile #ui input{min-height:44px;font-size:14px}.mobile #ui .controls-help{display:none}
     .mobile #ui .environment{padding:8px;gap:8px}.mobile #ui .setup-grid{gap:8px}
     .mobile #ui .bt{position:sticky;top:-18px;background:#0c1015;z-index:2;padding:10px 0;margin:0 0 10px}
-    .mobile-settings{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding-top:8px;border-top:1px solid #ffffff24}
+    .mobile-settings{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding-top:8px;border-top:1px solid #ffffff24}
     .mobile-settings label{display:flex;flex-direction:column;gap:4px;text-align:left}.mobile-settings select{color:#fff;background:#25282d;border:1px solid #777;border-radius:6px;padding:6px}
     .mobile-settings input{width:100%;accent-color:#f4b846}.mobile-settings small{font-size:10px;color:#b9c0ca}.mobile-settings p{grid-column:1/-1;margin:0;font-size:12px;color:#b9c0ca;text-align:left}
     .mobile-weather{grid-column:1/-1;text-align:left}.mobile-weather summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:#ddd}.mobile-weather summary:before{content:'+';margin-right:8px}.mobile-weather[open] summary:before{content:'−'}

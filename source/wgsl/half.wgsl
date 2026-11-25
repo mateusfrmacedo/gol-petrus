@@ -1,4 +1,10 @@
 // Meia resolução: oclusão de ambiente em espaço de tela (r) + visibilidade média do sol na névoa (g) + z linear (b).
+#ifndef AO_SAMPLES
+#define AO_SAMPLES 14
+#endif
+#ifndef FOG_STEPS
+#define FOG_STEPS 20
+#endif
 #include fsq
 #include util
 @group(0) @binding(0) var<uniform> F: Frame;
@@ -33,7 +39,7 @@ fn sunVis1(wp: vec3f) -> f32 {
     let R = clamp(zl * 0.11, 0.35, 1.6);                // raio em metros, cresce com a distância
     let ps = F.screen.y * 0.5 / F.post.y;
     let rpx = clamp(R * ps / zl, 5.0, 96.0);
-    var occ = 0.0; const NS = 14;
+    var occ = 0.0; const NS = AO_SAMPLES;
     for (var i = 0; i < NS; i++) {
       let r = (f32(i) + 0.5 + noise * 0.5) / f32(NS); let a = (f32(i) * 2.39996 + noise * 6.2832);
       let sp = fp + vec2f(cos(a), sin(a)) * rpx * r;
@@ -47,7 +53,7 @@ fn sunVis1(wp: vec3f) -> f32 {
   // névoa: fração iluminada ao longo do raio
   let wpp = F.invViewProjJ * vec4f(fp.x * F.screen.z * 2.0 - 1.0, 1.0 - fp.y * F.screen.w * 2.0, max(d, 1e-5), 1.0);
   let wp = wpp.xyz / wpp.w; let cam = F.camPos.xyz; let dv = wp - cam; let dist = length(dv); let dir = dv / dist;
-  let tMax = min(dist, VOL_DIST); const NV = 20; var wsum = 1e-6; var vsum = 0.0; var T = 1.0; var tp = 0.0;
+  let tMax = min(dist, VOL_DIST); const NV = FOG_STEPS; var wsum = 1e-6; var vsum = 0.0; var T = 1.0; var tp = 0.0;
   let j2 = fract(noise + 0.618 * f32(pxi.x & 1) + 0.31 * f32(pxi.y & 1));
   for (var i = 0; i < NV; i++) {
     let f1 = (f32(i) + 1.0) / f32(NV); let tn = tMax * f1 * f1; let dt = tn - tp; let t = tp + dt * j2; tp = tn;

@@ -1,5 +1,5 @@
 // Núcleo do renderizador diferido: recursos, uniformes de quadro, famílias de material e o grafo de passes.
-const SHADOW_RES = MOBILE_PROFILE && MOBILE_QUALITY !== 'alto' ? 1024 : 2048, SHADOW_S_RES = MOBILE_PROFILE && MOBILE_QUALITY !== 'alto' ? 2048 : 4096, ENV_RES = 512, ENV_MIPS = 7, SKY_W = 4096, SKY_H = 1024, VOL_DIST = 220;
+const SHADOW_RES = MOBILE_RENDER.shadow, SHADOW_S_RES = MOBILE_RENDER.staticShadow, ENV_RES = MOBILE_RENDER.environment, ENV_MIPS = MOBILE_RENDER.environmentMips, SKY_W = MOBILE_RENDER.skyWidth, SKY_H = MOBILE_RENDER.skyHeight, VOL_DIST = 220;
 const SKY_EL0 = -0.14, SKY_ELR = PI / 2 + 0.14;
 const SH_DEFS = { SHADOW_RES: SHADOW_RES + '.0', ENV_MIPS: ENV_MIPS + '.0', ENV_MIP_K: (ENV_RES * 2 / (PI * 1.5)).toFixed(2), VOL_DIST: VOL_DIST + '.0', SKY_EL0: SKY_EL0.toFixed(5), SKY_ELR: SKY_ELR.toFixed(5), WM_ZS: '2.0' };
 const KIND = { GBUF: 0, SHADOW: 1, CUBE: 2 };
@@ -155,7 +155,7 @@ function rendererInit() {
   const T = R.tex = {};
   T.gA = mkTex(W, H, 'rgba8unorm-srgb'); T.gB = mkTex(W, H, 'rgba16float'); T.gC = mkTex(W, H, 'rgba8unorm'); T.gV = mkTex(W, H, 'rg16float'); T.depth = mkTex(W, H, 'depth32float');
   T.hdr = mkTex(W, H, 'rgba16float'); T.hist = [mkTex(W, H, 'rgba16float'), mkTex(W, H, 'rgba16float')]; T.vel = mkTex(W, H, 'rg16float');
-  T.mb = mkTex(W, H, 'rgba16float');
+  if (MOBILE_RENDER.motionBlur) T.mb = mkTex(W, H, 'rgba16float');
   T.half = [mkTex(hw, hh, 'rgba16float'), mkTex(hw, hh, 'rgba16float'), mkTex(hw, hh, 'rgba16float')];
   T.shadow = dev.createTexture({ size: [SHADOW_RES, SHADOW_RES, 3], format: 'depth32float', usage: TU.RT | TU.TB });
   T.shadowS = mkTex(SHADOW_S_RES, SHADOW_S_RES, 'depth32float');
@@ -165,7 +165,7 @@ function rendererInit() {
   T.noise = mkTex(512, 512, 'rgba8unorm', TU.RT | TU.TB, { mipLevelCount: 10 });
   T.noise3 = dev.createTexture({ size: [64, 64, 64], dimension: '3d', format: 'rgba8unorm', usage: TU.RT | TU.TB });
   const V = R.view = {};
-  for (const k of ['gA', 'gB', 'gC', 'gV', 'depth', 'hdr', 'vel', 'mb', 'shadowS', 'sky', 'noise', 'envDepth']) V[k] = T[k].createView();
+  for (const k of ['gA', 'gB', 'gC', 'gV', 'depth', 'hdr', 'vel', 'mb', 'shadowS', 'sky', 'noise', 'envDepth']) if (T[k]) V[k] = T[k].createView();
   V.hist = T.hist.map(t => t.createView()); V.half = T.half.map(t => t.createView());
   V.shadow = T.shadow.createView({ dimension: '2d-array' }); V.shadowL = [0, 1, 2].map(i => T.shadow.createView({ dimension: '2d', baseArrayLayer: i, arrayLayerCount: 1 }));
   V.env = T.env.createView({ dimension: 'cube' }); V.noise3 = T.noise3.createView({ dimension: '3d' });
@@ -319,10 +319,9 @@ function renderFrame() {
   for (let i = 0; i < 3; i++) cascadeSetup(i);
   setPass(0, c.vpJ, c.pos);
   for (let i = 0; i < 3; i++) setPass(1 + i, R.casc.vp[i], c.pos);
-  // uma face do cubemap de ambiente por quadro (ciclo completo a cada 6 quadros)
-  // duas faces do cubemap de ambiente por quadro, cada uma na posição atual do carro (ciclo completo a cada 3 quadros)
-  const face = (R.frameIdx * 2) % 6; R.cube.cur.set(R.cube.pos);
-  for (let k = 0; k < 2; k++) { cubeSetup(face + k); setPass(5 + face + k, R.cube.vp, R.cube.cur); m4inv(R.cube.view, R.cube.vp); R.passData.set(R.cube.view, (11 + k) * 64); }
+  // Desktop e aquecimento: duas faces por quadro. Celular: uma face a cada 2 ou 3 quadros.
+  const face = MOBILE_RENDER.cubeFace(R.frameIdx, GAME.ready), cubeCount = MOBILE_RENDER.cubeCount(R.frameIdx, GAME.ready); R.cube.cur.set(R.cube.pos);
+  for (let k = 0; k < cubeCount; k++) { cubeSetup(face + k); setPass(5 + face + k, R.cube.vp, R.cube.cur); m4inv(R.cube.view, R.cube.vp); R.passData.set(R.cube.view, (11 + k) * 64); }
   dev.queue.writeBuffer(R.frameBuf, 0, FR.data);
   dev.queue.writeBuffer(R.passBuf, 0, R.passData, 0, 13 * 64);
   dev.queue.writeBuffer(R.objBuf, 0, R.objData, 0, R.objCount * 64);
@@ -334,7 +333,7 @@ function renderFrame() {
     drawAll(p, ctxFrom(KIND.SHADOW, R.casc.vp[i], 6, c.pos, i), 1 + i, R.passBG); p.end();
   }
   // faces do cubemap de ambiente
-  for (let k = 0; k < 2; k++) {
+  for (let k = 0; k < cubeCount; k++) {
     const f = face + k; cubeSetup(f);
     const p = apiPass(enc, D.cube[f]);
     cubeSky(p, 11 + k);

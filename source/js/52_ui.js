@@ -9,7 +9,7 @@ function uiSetGearMode(manual) {
 }
 function uiInit() {
   UI.el = $('ui'); UI.tag = $('tag'); UI.res = $('res'); UI.b0 = $('b0'); UI.b1 = $('b1');
-  hudInit(); uiWarmup(); FULLSCREEN.init(); if (!MOBILE_PROFILE) musicInit(); GOL_CONTROLS.init(); if (!MOBILE_PROFILE) miniInit(); todInit(); climaInit();
+  hudInit(); if (!MOBILE_PROFILE) uiWarmup(); FULLSCREEN.init(); if (!MOBILE_PROFILE) musicInit(); GOL_CONTROLS.init(); if (!MOBILE_PROFILE) miniInit(); todInit(); climaInit();
   try { const b = +localStorage.getItem('gol-melhor'); if (b > 20 && b < 600) LAP[2] = b; } catch (e) { /* sem armazenamento local: a melhor volta vale só nesta sessão */ }
   UI.b0.onclick = () => { if (UI.st === ST.INICIO) { sndStart(); uiSet(ST.JOGO); } else uiResume(); };
   UI.b1.onclick = () => benchStart();

@@ -62,28 +62,28 @@ async function main() {
     for (let k = 0; k < 2; k++) { for (let i = 0; i < 6; i++) renderFrame(); await computeSH(); }
     if (GAME.prewarm) {
       const worst = await GAME.prewarm(); await computeSH();
-      // Cadência: a 120 Hz só sobram 8,3 ms por quadro. Se a vista mais pesada não cabe com folga, os quadros se enfileiram
-      // na GPU e o tempo de quadro oscila; nesse caso o jogo roda estável a 60 quadros por segundo (um quadro a cada dois
-      // do monitor de 120 Hz). ?hz=120 ou ?hz=60 força a escolha.
-      GAME.gpuWorstMs = worst; GAME.minFrameMs = Q.get('hz') === '120' ? 0 : (Q.get('hz') === '60' || worst > 6.2) ? 14.6 : 0;
+      // O perfil móvel escolhe 30/60 FPS com margem; a escolha explícita no menu tem prioridade.
+      // Desktop mantém a cadência original de 60/120 Hz.
+      GAME.gpuWorstMs = worst; GAME.minFrameMs = MOBILE_RENDER.cadence(worst);
     }
     for (let i = 0; i < 8; i++) renderFrame();
     R.cam.first = true;
     setMsg(''); const hint = document.getElementById('hint'); if (hint) setTimeout(() => { hint.style.opacity = 0; }, 9000);
     if (GAME.ui) uiInit();
-    GAME.ready = true;
+    GAME.ready = true; MOBILE_LOADING.finish();
     if (!GAME.capture) requestAnimationFrame(rafLoop);
-  } catch (e) { setMsg('erro: ' + e.message); console.error(e); GAME.error = e.message; if (window.GtaAndroid) window.GtaAndroid.unavailable(e.message); }
+  } catch (e) { MOBILE_LOADING.finish(); setMsg('erro: ' + e.message); console.error(e); GAME.error = e.message; if (window.GtaAndroid) window.GtaAndroid.unavailable(e.message); }
 }
 let _lastT = 0;
 function rafLoop(t) {
-  if (GAME.minFrameMs > 0 && _lastT && t - _lastT < GAME.minFrameMs) { requestAnimationFrame(rafLoop); return; }   // cadência de 60 Hz em monitor mais rápido
+  if (!MOBILE_RENDER.hasSlot()) { requestAnimationFrame(rafLoop); return; }
+  if (GAME.minFrameMs > 0 && _lastT && t - _lastT < GAME.minFrameMs) { requestAnimationFrame(rafLoop); return; }   // limita a cadência escolhida sem aumentar a fila da GPU
   if (GAME.ui && uiFrame()) { _lastT = 0; requestAnimationFrame(rafLoop); return; }   // menu aberto: o jogo e o som ficam parados e nada é renderizado
   let dt = _lastT ? (t - _lastT) / 1000 : 1 / 60; RT[3] = dt * 1000; if (dt > 0.05) dt = 0.05; _lastT = t;
   if (PERF.rec) perfFrameTimes(t);
   RT[2] = dt;
   if (GAME.tick) GAME.tick(false); else { RT[1] = dt; RT[0] += dt; }
-  renderFrame();
+  renderFrame(); MOBILE_RENDER.submitted(G.dev);
   if (GAME.ui) uiAfter();
   if (PERF.rec) perfJsTime();
   requestAnimationFrame(rafLoop);
@@ -119,7 +119,8 @@ window.__cap = {
   perfStart() { perfStart(); }, perfReport() { return perfReport(); }, restart() { gameRestart(); },
   // vista de cada câmera de TV para o ponto da pista 35 m antes dela (verificação de linha de visada)
   tvView(i) { const o = i * 4, p = trackPos(GS.tvData[o] - 30, 0, new Float64Array(5)); GS.freeCam = true; GS.frozen = true; GS.cut = true; setCamera(GS.tvData[o + 1], GS.tvData[o + 2], GS.tvData[o + 3], p[0], p[1] + 0.8, p[2], 0.5); return GS.tvN; },
-  cadencia() { return { piorVistaMs: GAME.gpuWorstMs, minFrameMs: GAME.minFrameMs, hz: GAME.minFrameMs > 0 ? 60 : 'monitor' }; },
+  mobilePerformance: () => ({ quality: MOBILE_QUALITY, resolution: [G.W, G.H], pendingFrames: MOBILE_RENDER.inFlight, fps: MOBILE.fps, target: GAME.minFrameMs > 25 ? 30 : 60 }),
+  cadencia() { return { piorVistaMs: GAME.gpuWorstMs, minFrameMs: GAME.minFrameMs, hz: GAME.minFrameMs > 25 ? 30 : GAME.minFrameMs > 0 ? 60 : 'monitor' }; },
   // estado do jogo para os testes
   // --- som: grava os 16 controles a cada quadro de 1/60 s e sintetiza a trilha fora do tempo real, da mesma simulação
   somGravar(n) { SND.rec = new Int32Array(n * 16); SND.recN = 0; },

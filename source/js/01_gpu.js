@@ -2,7 +2,7 @@
 const Q = new URLSearchParams(location.search);
 // Perfil de celular: preserva a proporção e reduz o custo por quadro sem alterar a física.
 const MOBILE_PROFILE = Q.get('mobile') === '1' || (Q.get('mobile') !== '0' && typeof matchMedia !== 'undefined' && matchMedia('(pointer:coarse)').matches);
-const MOBILE_QUALITY = Q.get('quality') || 'economico';
+const MOBILE_QUALITY = (() => { let value = Q.get('quality'); if (!value && MOBILE_PROFILE) try { value = localStorage.getItem('gta-na-qualidade'); } catch (_) {} return ['economico', 'equilibrado', 'alto'].includes(value) ? value : 'equilibrado'; })();
 // atalhos por âncora (páginas que não repassam parâmetros de URL): #carro abre o visualizador do carro isolado
 if (/^#carro(-\d)?$/.test(location.hash) && !Q.has('scene')) { Q.set('scene', 'car'); Q.set('ui', '0'); Q.set('carcam', location.hash.slice(7) || '0'); }
 const BUILD = [];           // construtores de cena registrados pelos outros arquivos: async fn(), executados em ordem por main()
@@ -24,7 +24,7 @@ async function gpuInit() {
   const feats = [];
   // 'timestamp-query' é pedido na medição de desempenho (?perf) e no jogo aberto por uma pessoa (benchmark e estatísticas
   // mostram o tempo de GPU quando o navegador permite); ?nots desliga. Captura, poses e testes continuam sem o recurso.
-  for (const f of ['float32-filterable', 'rg11b10ufloat-renderable'].concat((Q.has('perf') || GAME.ui) && !Q.has('nots') ? ['timestamp-query'] : [])) if (ad.features.has(f) && !(MOBILE_PROFILE && f === 'float32-filterable')) feats.push(f);
+  for (const f of ['float32-filterable', 'rg11b10ufloat-renderable'].concat((Q.has('perf') || GAME.ui) && !Q.has('nots') ? ['timestamp-query'] : [])) if (ad.features.has(f)) feats.push(f);
   G.filter32 = feats.includes('float32-filterable');
   G.hasTS = feats.includes('timestamp-query');
   G.dev = await ad.requestDevice({
@@ -34,10 +34,9 @@ async function gpuInit() {
   G.dev.addEventListener('uncapturederror', e => { console.error('GPU: ' + e.error.message); G.lastErr = e.error.message; });
   G.canvas = document.getElementById('c');
   const res = (Q.get('res') || '').split('x');
-  const cap = MOBILE_QUALITY === 'alto' ? 1600 : MOBILE_QUALITY === 'equilibrado' ? 1280 : 960;
-  const dpr = MOBILE_PROFILE ? Math.min(1, cap / Math.max(innerWidth, innerHeight)) : Math.min(window.devicePixelRatio || 1, 2);
-  G.W = res.length === 2 ? +res[0] : Math.round(innerWidth * dpr);
-  G.H = res.length === 2 ? +res[1] : Math.round(innerHeight * dpr);
+  const size = MOBILE_RENDER.resolution(innerWidth, innerHeight, window.devicePixelRatio || 1);
+  G.W = res.length === 2 ? +res[0] : size[0];
+  G.H = res.length === 2 ? +res[1] : size[1];
   G.W = clamp(G.W & ~1, 320, 5120); G.H = clamp(G.H & ~1, 180, 2880);
   G.canvas.width = G.W; G.canvas.height = G.H;
   G.ctx = G.canvas.getContext('webgpu');
@@ -56,7 +55,8 @@ function mkBuf(size, usage, data) {
   if (data) { new Uint8Array(b.getMappedRange()).set(new Uint8Array(data.buffer, data.byteOffset, data.byteLength)); b.unmap(); }
   return b;
 }
-const BU = { V: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST, I: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST, U: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST, S: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST };
+// Mantém o diagnóstico acessível mesmo em navegadores sem a API WebGPU.
+const BU = typeof GPUBufferUsage === 'undefined' ? {} : { V: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST, I: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST, U: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST, S: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST };
 
 // Pré-processador: #include nome, #define NOME [valor], #ifdef/#ifndef/#else/#endif. Substitui macros por palavra inteira.
 function wgslPP(name, defs) {

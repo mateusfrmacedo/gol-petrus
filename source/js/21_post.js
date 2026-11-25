@@ -3,27 +3,30 @@ const MB_TILE = 20, BLOOM_N = 6;
 function postInit() {
   const dev = G.dev, T = R.tex, V = R.view, W = G.W, H = G.H, D = R.pd, P = R.post = {};
   const HDR = 'rgba16float';
-  P.half = mkPost('half', {}, [HDR]); P.halfBG = bgOf(P.half, 0, [R.frameBuf, V.depth, V.gB, V.shadow, V.shadowS, R.sCmp]);
+  P.half = mkPost('half', { AO_SAMPLES: String(MOBILE_RENDER.aoSamples), FOG_STEPS: String(MOBILE_RENDER.fogSamples) }, [HDR]); P.halfBG = bgOf(P.half, 0, [R.frameBuf, V.depth, V.gB, V.shadow, V.shadowS, R.sCmp]);
   P.blurH = mkPost('bilat', { DIR: '1,0' }, [HDR]); P.blurV = mkPost('bilat', { DIR: '0,1' }, [HDR]);
   P.blurHBG = bgOf(P.blurH, 0, [V.half[0]]); P.blurVBG = bgOf(P.blurV, 0, [V.half[1]]);
   D.half = mkPassDesc(1, null, false, 'half'); D.half.colorAttachments[0].view = V.half[0];
   D.blurH = mkPassDesc(1, null, false, 'blurH'); D.blurH.colorAttachments[0].view = V.half[1];
   D.blurV = mkPassDesc(1, null, false, 'blurV'); D.blurV.colorAttachments[0].view = V.half[2];
-  P.light = mkPost('light', { SSR: '' }, [HDR]);
+  P.light = mkPost('light', MOBILE_RENDER.screenReflections ? { SSR: '' } : {}, [HDR]);
   P.lightBG = [0, 1].map(i => bgOf(P.light, 0, [R.frameBuf, V.gA, V.gB, V.gC, V.depth, V.shadow, V.shadowS, R.sCmp, V.half[2], V.env, V.sky, R.sClamp, R.sSky, V.hist[i]]));
   P.taa = mkPost('taa', {}, [HDR, 'rg16float']);
   P.taaBG = [0, 1].map(i => bgOf(P.taa, 0, [R.frameBuf, V.hdr, V.hist[i], V.gV, V.depth, R.sClamp]));
   D.taa = [0, 1].map(i => { const d = mkPassDesc(2, null, false, 'taa'); d.colorAttachments[0].view = V.hist[i]; d.colorAttachments[1].view = V.vel; return d; });
-  // desfoque de movimento
-  const tw = Math.ceil(W / MB_TILE), th = Math.ceil(H / MB_TILE);
-  T.tile = [mkTex(tw, th, 'rg16float'), mkTex(tw, th, 'rg16float')]; V.tile = T.tile.map(t => t.createView());
-  P.mbTile = mkPost('mbtile', { TILE: MB_TILE }, ['rg16float']); P.mbNeigh = mkPost('mbtile', { NEIGH: '', TILE: MB_TILE }, ['rg16float']);
-  P.mbTileBG = bgOf(P.mbTile, 0, [V.vel]); P.mbNeighBG = bgOf(P.mbNeigh, 0, [V.tile[0]]);
-  D.mbTile = mkPassDesc(1, null, false, 'mbTile'); D.mbTile.colorAttachments[0].view = V.tile[0];
-  D.mbNeigh = mkPassDesc(1, null, false, 'mbNeigh'); D.mbNeigh.colorAttachments[0].view = V.tile[1];
-  P.mb = mkPost('mblur', { TILE: MB_TILE }, [HDR]);
-  P.mbBG = [0, 1].map(i => bgOf(P.mb, 0, [R.frameBuf, V.hist[i], V.vel, V.tile[1], V.depth, R.sClamp]));
-  D.mb = mkPassDesc(1, null, false, 'mblur'); D.mb.colorAttachments[0].view = V.mb;
+  // Sem desfoque no celular: elimina três passes e mantém as fachadas legíveis em movimento.
+  if (MOBILE_RENDER.motionBlur) {
+    const tw = Math.ceil(W / MB_TILE), th = Math.ceil(H / MB_TILE);
+    T.tile = [mkTex(tw, th, 'rg16float'), mkTex(tw, th, 'rg16float')]; V.tile = T.tile.map(t => t.createView());
+    P.mbTile = mkPost('mbtile', { TILE: MB_TILE }, ['rg16float']); P.mbNeigh = mkPost('mbtile', { NEIGH: '', TILE: MB_TILE }, ['rg16float']);
+    P.mbTileBG = bgOf(P.mbTile, 0, [V.vel]); P.mbNeighBG = bgOf(P.mbNeigh, 0, [V.tile[0]]);
+    D.mbTile = mkPassDesc(1, null, false, 'mbTile'); D.mbTile.colorAttachments[0].view = V.tile[0];
+    D.mbNeigh = mkPassDesc(1, null, false, 'mbNeigh'); D.mbNeigh.colorAttachments[0].view = V.tile[1];
+    P.mb = mkPost('mblur', { TILE: MB_TILE }, [HDR]);
+    P.mbBG = [0, 1].map(i => bgOf(P.mb, 0, [R.frameBuf, V.hist[i], V.vel, V.tile[1], V.depth, R.sClamp]));
+    D.mb = mkPassDesc(1, null, false, 'mblur'); D.mb.colorAttachments[0].view = V.mb;
+  }
+  const color = MOBILE_RENDER.motionBlur ? [V.mb, V.mb] : V.hist;
   // bloom
   T.bl = []; V.bl = []; D.blDown = []; D.blUp = []; P.blDownBG = []; P.blUpBG = [];
   for (let i = 0; i < BLOOM_N; i++) { T.bl[i] = mkTex(Math.max(2, W >> (i + 1)), Math.max(2, H >> (i + 1)), HDR); V.bl[i] = T.bl[i].createView(); }
@@ -31,8 +34,9 @@ function postInit() {
   P.blUp = mkPost('bloom', { UP: '', UPW: '1.0' }, [{ format: HDR, blend: { color: { srcFactor: 'one', dstFactor: 'one' }, alpha: { srcFactor: 'one', dstFactor: 'one' } } }]);
   for (let i = 0; i < BLOOM_N; i++) {
     const d = mkPassDesc(1, null, false, 'blDown' + i); d.colorAttachments[0].view = V.bl[i]; D.blDown.push(d);
-    P.blDownBG.push(bgOf(i ? P.blDown : P.blFirst, 0, [i ? V.bl[i - 1] : V.mb, R.sClamp]));
+    P.blDownBG.push(i ? bgOf(P.blDown, 0, [V.bl[i - 1], R.sClamp]) : null);
   }
+  P.blFirstBG = color.map(view => bgOf(P.blFirst, 0, [view, R.sClamp]));
   for (let i = BLOOM_N - 2; i >= 0; i--) {
     const d = mkPassDesc(1, null, false, 'blUp' + i); d.colorAttachments[0].view = V.bl[i]; d.colorAttachments[0].loadOp = 'load'; D.blUp.push(d);
     P.blUpBG.push(bgOf(P.blUp, 0, [V.bl[i + 1], R.sClamp]));
@@ -42,8 +46,8 @@ function postInit() {
   P.expo = mkPost('expo', {}, ['r16float']);
   P.expoBG = [0, 1].map(i => bgOf(P.expo, 0, [R.frameBuf, V.bl[BLOOM_N - 1], V.ex[i], R.sClamp]));
   D.expo = [0, 1].map(i => { const d = mkPassDesc(1, null, false, 'expo'); d.colorAttachments[0].view = V.ex[i]; return d; });
-  P.final = mkPost('final', {}, [G.fmt]);
-  P.finalBG = [0, 1].map(i => bgOf(P.final, 0, [R.frameBuf, V.mb, V.bl[0], V.ex[i], R.sClamp, V.depth]));
+  P.final = mkPost('final', MOBILE_RENDER.on ? { MOBILE_CLEAR: '' } : {}, [G.fmt]);
+  P.finalBG = [0, 1].map(i => bgOf(P.final, 0, [R.frameBuf, color[i], V.bl[0], V.ex[i], R.sClamp, V.depth]));
   D.final = mkPassDesc(1, null, false, 'final');
   // cubemap: céu + pré-filtro
   P.cubeSky = mkPost('cubesky', {}, [HDR], { depthStencil: { format: 'depth32float', depthWriteEnabled: false, depthCompare: 'always' } });
@@ -87,9 +91,11 @@ function postFrame(enc) {
     for (let i = 0; i < R.transparents.length; i++) R.transparents[i].draw(p); p.end();
   }
   { const p = apiPass(enc, D.taa[cur]); p.setPipeline(P.taa); p.setBindGroup(0, P.taaBG[prev]); p.draw(3); p.end(); }
-  fsPass(enc, D.mbTile, P.mbTile, P.mbTileBG); fsPass(enc, D.mbNeigh, P.mbNeigh, P.mbNeighBG);
-  fsPass(enc, D.mb, P.mb, P.mbBG[cur]);
-  for (let i = 0; i < BLOOM_N; i++) fsPass(enc, D.blDown[i], i ? P.blDown : P.blFirst, P.blDownBG[i]);
+  if (MOBILE_RENDER.motionBlur) {
+    fsPass(enc, D.mbTile, P.mbTile, P.mbTileBG); fsPass(enc, D.mbNeigh, P.mbNeigh, P.mbNeighBG);
+    fsPass(enc, D.mb, P.mb, P.mbBG[cur]);
+  }
+  for (let i = 0; i < BLOOM_N; i++) fsPass(enc, D.blDown[i], i ? P.blDown : P.blFirst, i ? P.blDownBG[i] : P.blFirstBG[cur]);
   for (let i = 0; i < BLOOM_N - 1; i++) fsPass(enc, D.blUp[i], P.blUp, P.blUpBG[i]);
   fsPass(enc, D.expo[cur], P.expo, P.expoBG[prev]);
   D.final.colorAttachments[0].view = apiCanvasView();
