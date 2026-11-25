@@ -339,3 +339,7 @@ As próximas etapas devem seguir as [pendências registradas na revisão do inte
 A licença do código não substitui as licenças dos modelos, ferramentas, fotografias ou músicas.
 
 Required Notice: Copyright (c) 2026 ViktorKav (https://github.com/viktorkav/uno-com-escada)
+
+## Android — GTA NA
+
+O projeto Android, os controles móveis e as instruções para gerar e instalar o APK estão em [android/README.md](android/README.md). A versão usa ícones adaptáveis com o Gol de teto solar, volante baseado na foto do proprietário, pedais e freio de mão realistas, com luzes no menu de engrenagem.

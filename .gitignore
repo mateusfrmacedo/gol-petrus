@@ -30,3 +30,6 @@ assets/interior/painel-detalhes.png
 *.blend1
 *.blend2
 modelo/gol-refinado/revisao/referencias-contato.jpg
+
+# APKs e relatórios locais de distribuição Android.
+/dist/android/

@@ -9,7 +9,7 @@ function uiSetGearMode(manual) {
 }
 function uiInit() {
   UI.el = $('ui'); UI.tag = $('tag'); UI.res = $('res'); UI.b0 = $('b0'); UI.b1 = $('b1');
-  hudInit(); uiWarmup(); FULLSCREEN.init(); musicInit(); GOL_CONTROLS.init(); miniInit(); todInit(); climaInit();
+  hudInit(); uiWarmup(); FULLSCREEN.init(); if (!MOBILE_PROFILE) musicInit(); GOL_CONTROLS.init(); if (!MOBILE_PROFILE) miniInit(); todInit(); climaInit();
   try { const b = +localStorage.getItem('gol-melhor'); if (b > 20 && b < 600) LAP[2] = b; } catch (e) { /* sem armazenamento local: a melhor volta vale só nesta sessão */ }
   UI.b0.onclick = () => { if (UI.st === ST.INICIO) { sndStart(); uiSet(ST.JOGO); } else uiResume(); };
   UI.b1.onclick = () => benchStart();
@@ -31,7 +31,7 @@ function uiInit() {
   document.addEventListener('visibilitychange', () => { if (document.hidden && (UI.st === ST.JOGO || UI.st === ST.FITA || UI.st === ST.BENCH)) uiPause(); });
   addEventListener('gamepadconnected', padCount); addEventListener('gamepaddisconnected', padCount);
   const h = $('hint'); if (h) h.style.display = 'none';
-  uiSet(ST.INICIO);
+  MOBILE.init(); uiSet(ST.INICIO);
 }
 // troca de estado: mostra/esconde menu, painel e etiqueta, pausa/retoma o som
 function uiSet(st) {
@@ -47,7 +47,7 @@ function uiSet(st) {
   if (menu) UI.b0.focus(); else UI.b0.blur();
   if (typeof SUNROOF !== "undefined") SUNROOF.ui();
   if (typeof CAM_ORBIT !== "undefined") CAM_ORBIT.ui();
-  GOL_CONTROLS.ui();
+  GOL_CONTROLS.ui(); MOBILE.sync();
   _lastT = 0;
 }
 function uiPause() { if (UI.st === ST.BENCH) benchStop(); UI.back = UI.st === ST.FITA ? ST.FITA : ST.JOGO; uiSet(ST.PAUSA); }
@@ -150,7 +150,7 @@ function uiFrame() {
 }
 // chamado depois de simular e renderizar o quadro
 function uiAfter() {
-  SUNROOF.ui();CAM_ORBIT.ui();GOL_CONTROLS.ui();
+  SUNROOF.ui();CAM_ORBIT.ui();GOL_CONTROLS.ui();MOBILE.sync();
   const st = UI.st;
   if (st === ST.BENCH) { if (GS.tick60 >= 3600) benchEnd(); }
   else {

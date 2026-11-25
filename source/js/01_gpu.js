@@ -1,5 +1,8 @@
 // Dispositivo WebGPU, utilitários de recurso e pré-processador de WGSL.
 const Q = new URLSearchParams(location.search);
+// Perfil de celular: preserva a proporção e reduz o custo por quadro sem alterar a física.
+const MOBILE_PROFILE = Q.get('mobile') === '1' || (Q.get('mobile') !== '0' && typeof matchMedia !== 'undefined' && matchMedia('(pointer:coarse)').matches);
+const MOBILE_QUALITY = Q.get('quality') || 'economico';
 // atalhos por âncora (páginas que não repassam parâmetros de URL): #carro abre o visualizador do carro isolado
 if (/^#carro(-\d)?$/.test(location.hash) && !Q.has('scene')) { Q.set('scene', 'car'); Q.set('ui', '0'); Q.set('carcam', location.hash.slice(7) || '0'); }
 const BUILD = [];           // construtores de cena registrados pelos outros arquivos: async fn(), executados em ordem por main()
@@ -15,21 +18,24 @@ const G = { dev: null, ctx: null, fmt: 'bgra8unorm', W: 0, H: 0, hasTS: false, c
 async function gpuInit() {
   if (!navigator.gpu) throw new Error('WebGPU indisponível neste navegador.');
   const ad = await navigator.gpu.requestAdapter({ powerPreference: 'high-performance' });
-  if (!ad) throw new Error('Nenhum adaptador WebGPU.');
+  if (!ad) throw new Error('Nenhum adaptador WebGPU. Atualize o Android System WebView e o Chrome.');
+  const needed = { maxSampledTexturesPerShaderStage: 16, maxTextureDimension2D: 8192 };
+  for (const [name, value] of Object.entries(needed)) if (ad.limits[name] < value) throw new Error('GPU incompatível: ' + name + ' precisa de ' + value + ', disponível ' + ad.limits[name] + '.');
   const feats = [];
   // 'timestamp-query' é pedido na medição de desempenho (?perf) e no jogo aberto por uma pessoa (benchmark e estatísticas
   // mostram o tempo de GPU quando o navegador permite); ?nots desliga. Captura, poses e testes continuam sem o recurso.
-  for (const f of ['float32-filterable', 'rg11b10ufloat-renderable'].concat((Q.has('perf') || GAME.ui) && !Q.has('nots') ? ['timestamp-query'] : [])) if (ad.features.has(f)) feats.push(f);
-  if (!ad.features.has('float32-filterable')) throw new Error('GPU sem float32-filterable.');
+  for (const f of ['float32-filterable', 'rg11b10ufloat-renderable'].concat((Q.has('perf') || GAME.ui) && !Q.has('nots') ? ['timestamp-query'] : [])) if (ad.features.has(f) && !(MOBILE_PROFILE && f === 'float32-filterable')) feats.push(f);
+  G.filter32 = feats.includes('float32-filterable');
   G.hasTS = feats.includes('timestamp-query');
   G.dev = await ad.requestDevice({
     requiredFeatures: feats,
-    requiredLimits: { maxColorAttachmentBytesPerSample: Math.min(64, ad.limits.maxColorAttachmentBytesPerSample), maxSampledTexturesPerShaderStage: 24, maxBufferSize: ad.limits.maxBufferSize, maxTextureDimension2D: 8192 }
+    requiredLimits: { maxColorAttachmentBytesPerSample: Math.min(64, ad.limits.maxColorAttachmentBytesPerSample), maxSampledTexturesPerShaderStage: 16, maxBufferSize: ad.limits.maxBufferSize, maxTextureDimension2D: 8192 }
   });
   G.dev.addEventListener('uncapturederror', e => { console.error('GPU: ' + e.error.message); G.lastErr = e.error.message; });
   G.canvas = document.getElementById('c');
   const res = (Q.get('res') || '').split('x');
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const cap = MOBILE_QUALITY === 'alto' ? 1600 : MOBILE_QUALITY === 'equilibrado' ? 1280 : 960;
+  const dpr = MOBILE_PROFILE ? Math.min(1, cap / Math.max(innerWidth, innerHeight)) : Math.min(window.devicePixelRatio || 1, 2);
   G.W = res.length === 2 ? +res[0] : Math.round(innerWidth * dpr);
   G.H = res.length === 2 ? +res[1] : Math.round(innerHeight * dpr);
   G.W = clamp(G.W & ~1, 320, 5120); G.H = clamp(G.H & ~1, 180, 2880);

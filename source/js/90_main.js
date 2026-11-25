@@ -73,7 +73,7 @@ async function main() {
     if (GAME.ui) uiInit();
     GAME.ready = true;
     if (!GAME.capture) requestAnimationFrame(rafLoop);
-  } catch (e) { setMsg('erro: ' + e.message); console.error(e); GAME.error = e.message; }
+  } catch (e) { setMsg('erro: ' + e.message); console.error(e); GAME.error = e.message; if (window.GtaAndroid) window.GtaAndroid.unavailable(e.message); }
 }
 let _lastT = 0;
 function rafLoop(t) {

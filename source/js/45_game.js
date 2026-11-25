@@ -141,7 +141,7 @@ function gameStep() {
     const t = GS.tick60 / 60; let k;
     if (GS.replayOn && GS.tick60 < GS.replay.length) k = GS.replay[GS.tick60];
     else if (GS.ai) k = t < 0.5 ? 0 : aiKeys(t);
-    else { k = GS.held; if (GS.padKeys) k = padMerge(k); }
+    else { k = GS.held; if (GS.padKeys) k = padMerge(k); if (typeof MOBILE !== 'undefined') k = MOBILE.merge(k); }
     GS.prevKeys = GS.keys; GS.keys = k; GS.tick60++;
     const edge = k & ~GS.prevKeys;
     if ((k ^ GS.prevKeys) & K_V) { GS.cut = true; GS.chaseInit = false; }   // olhar para trás é um corte de câmera

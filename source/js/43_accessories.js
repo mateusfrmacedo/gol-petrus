@@ -2,7 +2,7 @@
 const GOL_CONTROLS = {
   lights: false, high: false, plate: false, signal: 0, phase: 0, flash: true,
   hornKeys: new Set(), audioCtx: null, hornGain: null, buttons: null,
-  available() { return VEHICLES.current === 'gol' && UI.st === ST.JOGO; },
+  available() { return VEHICLES.current === 'gol' && (UI.st === ST.JOGO || (typeof MOBILE !== 'undefined' && MOBILE.menuAvailable())); },
   toggleLights() { if (!this.available()) return; this.lights=!this.lights; if(!this.lights)this.high=false; this.ui(); },
   toggleHigh() { if (!this.available()) return; this.high=!this.high; if(this.high)this.lights=true; this.ui(); },
   togglePlate() { if(!this.available())return;this.plate=!this.plate;this.ui(); },

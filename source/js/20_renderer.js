@@ -1,5 +1,5 @@
 // Núcleo do renderizador diferido: recursos, uniformes de quadro, famílias de material e o grafo de passes.
-const SHADOW_RES = 2048, SHADOW_S_RES = 4096, ENV_RES = 512, ENV_MIPS = 7, SKY_W = 4096, SKY_H = 1024, VOL_DIST = 220;
+const SHADOW_RES = MOBILE_PROFILE && MOBILE_QUALITY !== 'alto' ? 1024 : 2048, SHADOW_S_RES = MOBILE_PROFILE && MOBILE_QUALITY !== 'alto' ? 2048 : 4096, ENV_RES = 512, ENV_MIPS = 7, SKY_W = 4096, SKY_H = 1024, VOL_DIST = 220;
 const SKY_EL0 = -0.14, SKY_ELR = PI / 2 + 0.14;
 const SH_DEFS = { SHADOW_RES: SHADOW_RES + '.0', ENV_MIPS: ENV_MIPS + '.0', ENV_MIP_K: (ENV_RES * 2 / (PI * 1.5)).toFixed(2), VOL_DIST: VOL_DIST + '.0', SKY_EL0: SKY_EL0.toFixed(5), SKY_ELR: SKY_ELR.toFixed(5), WM_ZS: '2.0' };
 const KIND = { GBUF: 0, SHADOW: 1, CUBE: 2 };
@@ -36,7 +36,7 @@ function reflectBGLs(code) {
     else if (ty === 'sampler_comparison') e.sampler = { type: 'comparison' };
     else {
       const t = {}; e.texture = t;
-      t.sampleType = ty.includes('depth') ? 'depth' : ty.includes('<u32>') ? 'uint' : 'float';
+      t.sampleType = ty.includes('depth') ? 'depth' : ty.includes('<u32>') ? 'uint' : m[4] === 'tHeight' && !G.filter32 ? 'unfilterable-float' : 'float';
       t.viewDimension = ty.includes('cube') ? 'cube' : ty.includes('_3d') ? '3d' : ty.includes('2d_array') ? '2d-array' : '2d';
     }
     (groups[g] = groups[g] || []).push(e);
@@ -143,6 +143,7 @@ class MeshSet {
 }
 
 function rendererInit() {
+  if (!G.filter32) SH_DEFS.HEIGHT_MANUAL = '';
   const dev = G.dev, W = G.W, H = G.H, hw = W >> 1, hh = H >> 1;
   R.sLin = dev.createSampler({ minFilter: 'linear', magFilter: 'linear', mipmapFilter: 'linear', addressModeU: 'repeat', addressModeV: 'repeat', addressModeW: 'repeat', maxAnisotropy: 8 });
   R.sClamp = dev.createSampler({ minFilter: 'linear', magFilter: 'linear', mipmapFilter: 'linear', addressModeU: 'clamp-to-edge', addressModeV: 'clamp-to-edge' });
